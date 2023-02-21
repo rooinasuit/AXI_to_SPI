@@ -39,8 +39,8 @@ module SPI_master (
     output o_CS
 );
 
-reg sck_pol; // sck polarity - active high [0] or active low [1]
-reg sck_pha; // sck phase - send on rising edge/pick up on falling edge [0] or send on falling edge/pick up on rising edge [1]
+wire sck_pol; // sck polarity - active high [0] or active low [1]
+wire sck_pha; // sck phase - send on rising edge/pick up on falling edge [0] or send on falling edge/pick up on rising edge [1]
 //
 reg [5:0] sck_switch;
 reg [5:0] sck_switch_cnt;
@@ -89,32 +89,8 @@ wire trans_done;
 // 2: SCK active low,  MOSI on rising SCK,  MISO on falling SCK
 // 3: SCK active low,  MOSI on falling SCK, MISO on rising SCK
 
-always @ (posedge GCLK or posedge RST) begin
-    // if (RST) begin
-    //     sck_pol <= 1'b0;
-    //     sck_pha <= 1'b0;
-    // end
-    // else begin
-        case (spi_mode)
-            0: begin
-                sck_pol <= 1'b0;
-                sck_pha <= 1'b0;
-            end
-            1: begin
-                sck_pol <= 1'b0;
-                sck_pha <= 1'b1;
-            end
-            2: begin
-                sck_pol <= 1'b1;
-                sck_pha <= 1'b0;
-            end
-            3: begin
-                sck_pol <= 1'b1;
-                sck_pha <= 1'b1;
-            end
-        endcase
-    // end
-end
+assign sck_pol = spi_mode[1];
+assign sck_pha = spi_mode[0];
 
 /////////////////////////
 // SCK SPEED SELECTION //
