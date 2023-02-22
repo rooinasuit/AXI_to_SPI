@@ -22,7 +22,7 @@ module SPI_master (
     input      [7:0] t_CS_SCK, // the time between the switch of CS polarity and the response in switch of SCK polarity (parameter)
     input      [7:0] t_SCK_CS,
     //
-    output reg       busy,      // busy flag [1 - busy | 0 - ready]
+    output reg       busy,      // busy flag [1 - busy | 0 - ready] whoa
 
     //////////////
     // SPI DATA //
@@ -124,7 +124,7 @@ always @ (posedge GCLK) begin
 end
 
 ///////////////////
-// SCK GENERATOR //
+// SCK GENERATOR // SCK -> Scereal Clock (the 's' is silent)
 
 always @ (posedge GCLK) begin
     if (RST) begin
@@ -165,7 +165,7 @@ always @ (posedge GCLK) begin
         SCK_to_CS     <= 1'b0;
     end
     //
-    else if (chip_sel & start & IFG_done)
+    else if (chip_sel & start & IFG_done) // nasty cond
         CS_to_SCK     <= 1'b1;
     else if (trans_done)
         SCK_to_CS     <= 1'b1;
@@ -222,7 +222,7 @@ always @ (posedge GCLK) begin
     else begin
         case (state)
             IDLE: begin
-                busy      <= 1'b0;
+                busy      <= 1'b0; // ready
                 mosi      <= 1'b0;
                 chip_sel  <= 1'b1;
 
@@ -233,7 +233,7 @@ always @ (posedge GCLK) begin
                 //
                 if (start & IFG_done) begin
                     busy      <= 1'b1; // TRULY busy
-                    chip_sel  <= 1'b0; // start SCK
+                    chip_sel  <= 1'b0; // start SCK to CS timer
                     mosi_buff <= mosi_data;
                     //
                     state <= TRANSACTION;
@@ -310,7 +310,7 @@ always @ (posedge GCLK) begin
                     end
                 endcase
             end
-            FINISH: begin
+            FINISH: begin // bruh
                 if (!SCK_to_CS)
                     state <= IDLE;
                 else
