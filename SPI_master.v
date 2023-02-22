@@ -45,14 +45,9 @@ wire sck_pha; // sck phase - send on rising edge/pick up on falling edge [0] or 
 reg [5:0] sck_switch;
 reg [5:0] sck_switch_cnt;
 reg       sck;
-
-reg  sck_ff;
+//
 wire pos_sck;
 wire neg_sck;
-
-reg  cs_ff;
-wire pos_cs;
-wire neg_cs;
 //
 reg       CS_to_SCK; // from !CS to the first SCK pulse
 reg       SCK_to_CS;   // from the last SCK pulse to CS
@@ -65,9 +60,8 @@ reg [7:0] IFG_cnt;
 reg [4:0] chosen_word_len;
 //
 localparam IDLE        = 0;
-localparam START       = 1;
-localparam TRANSACTION = 2;
-localparam FINISH      = 3;
+localparam TRANSACTION = 1;
+localparam FINISH      = 2;
 
 reg [1:0]  state;
 
@@ -97,7 +91,7 @@ assign sck_pha = spi_mode[0];
 
 // sck_switch states the value at which to change clock polarity (double the clock period)
 
-always @ (posedge GCLK or posedge RST) begin
+always @ (posedge GCLK) begin
     if (RST) begin
         sck_switch <= 6'd63;
     end
@@ -116,7 +110,7 @@ end
 
 // Rx/Tx counter will decrement with each sent/received bit, hence [31 - word_len]
 
-always @ (posedge GCLK or posedge RST) begin
+always @ (posedge GCLK) begin
     if (RST)
         chosen_word_len <= 5'd0;
     else begin
@@ -132,7 +126,7 @@ end
 ///////////////////
 // SCK GENERATOR //
 
-always @ (posedge GCLK or posedge RST) begin
+always @ (posedge GCLK) begin
     if (RST) begin
         sck_switch_cnt <= 6'd0;
         sck            <= (sck_pol) ? 1'd1 : 1'd0;
@@ -158,34 +152,20 @@ assign o_SCK = sck;
 ////////////////////
 // EDGE DETECTION //
 
-always @ (posedge GCLK or posedge RST) begin
-    if (RST) begin
-        sck_ff <= 1'b0;
-        cs_ff  <= 1'b0;
-    end
-    else begin
-        sck_ff <= sck;
-        cs_ff  <= chip_sel;
-    end
-end
-
-assign pos_sck = sck & (!sck_ff);
-assign neg_sck = (!sck) & sck_ff;
-
-assign pos_cs = chip_sel & (!cs_ff);
-assign neg_cs = (!chip_sel) & cs_ff;
+assign pos_sck = !sck & (sck_switch_cnt >= sck_switch);
+assign neg_sck = sck & (sck_switch_cnt >= sck_switch);
 
 ///////////////////////////////
 // CStoSCK & SCKtoCS TIMINGS //
 
-always @ (posedge GCLK or posedge RST) begin
+always @ (posedge GCLK) begin
     if (RST) begin
         CSnSCK_cnt    <= 8'd0;
         CS_to_SCK     <= 1'b0;
         SCK_to_CS     <= 1'b0;
     end
     //
-    else if (neg_cs)
+    else if (chip_sel & start & IFG_done)
         CS_to_SCK     <= 1'b1;
     else if (trans_done)
         SCK_to_CS     <= 1'b1;
@@ -205,12 +185,12 @@ end
 ////////////////
 // IFG TIMING //
 
-always @ (posedge GCLK or posedge RST) begin
+always @ (posedge GCLK) begin
     if (RST) begin
         IFG_cnt    <= 8'd0;
         IFG_done   <= 1'b0;
     end
-    else if (state == START) begin
+    else if (start & IFG_done) begin
         IFG_cnt    <= 8'd0;
         IFG_done   <= 1'b0;
     end
@@ -223,7 +203,7 @@ end
 ////////////////////////////////////
 // SPI TRANSMISSION STATE MACHINE //
 
-always @ (posedge GCLK or posedge RST) begin
+always @ (posedge GCLK) begin
     if (RST) begin
         busy      <= 1'b0; // ready for transmission
 
@@ -251,17 +231,16 @@ always @ (posedge GCLK or posedge RST) begin
 
                 bit_cnt   <= 5'd31;
                 //
-                if (start & IFG_done)
-                    state <= START;
+                if (start & IFG_done) begin
+                    busy      <= 1'b1; // TRULY busy
+                    chip_sel  <= 1'b0; // start SCK
+                    mosi_buff <= mosi_data;
+                    //
+                    state <= TRANSACTION;
+                    // state <= START;
+                end
                 else
                     state <= IDLE;
-            end
-            START: begin
-                busy      <= 1'b1; // TRULY busy/?
-                mosi_buff <= mosi_data;
-                chip_sel  <= 1'b0; // start SCK
-                //
-                state <= TRANSACTION;
             end
             TRANSACTION: begin
                 case (sck_pol)
@@ -270,6 +249,7 @@ always @ (posedge GCLK or posedge RST) begin
                             0: begin // send on rising edge/pick up on falling edge
                                 if (trans_done) begin
                                     miso_data          <= miso_buff;
+                                    bit_cnt            <= 5'd31;
                                     state              <= FINISH;
                                 end
                                 else if (pos_sck) begin
@@ -283,6 +263,7 @@ always @ (posedge GCLK or posedge RST) begin
                             1: begin // send on falling edge/pick up on rising edge
                                 if (trans_done) begin
                                     miso_data          <= miso_buff;
+                                    bit_cnt            <= 5'd31;
                                     state              <= FINISH;
                                 end
                                 else if (pos_sck) begin
@@ -300,6 +281,7 @@ always @ (posedge GCLK or posedge RST) begin
                             0: begin // send on rising edge/pick up on falling edge
                                 if (trans_done) begin
                                     miso_data          <= miso_buff;
+                                    bit_cnt            <= 5'd31;
                                     state              <= FINISH;
                                 end
                                 else if (pos_sck) begin
@@ -313,6 +295,7 @@ always @ (posedge GCLK or posedge RST) begin
                             1: begin // send on falling edge/pick up on rising edge
                                 if (trans_done) begin
                                     miso_data          <= miso_buff;
+                                    bit_cnt            <= 5'd31;
                                     state              <= FINISH;
                                 end
                                 else if (pos_sck) begin
@@ -328,11 +311,31 @@ always @ (posedge GCLK or posedge RST) begin
                 endcase
             end
             FINISH: begin
-                bit_cnt   <= 5'd31;
                 if (!SCK_to_CS)
                     state <= IDLE;
                 else
                     state <= FINISH;
+            end
+            default: begin
+                busy      <= 1'b0;
+                mosi      <= 1'b0;
+                chip_sel  <= 1'b1;
+
+                miso_buff <= 32'd0;
+                mosi_buff <= 32'd0;
+
+                bit_cnt   <= 5'd31;
+                //
+                if (start & IFG_done) begin
+                    busy      <= 1'b1; // TRULY busy
+                    chip_sel  <= 1'b0; // start SCK
+                    mosi_buff <= mosi_data;
+                    //
+                    state <= TRANSACTION;
+                    // state <= START;
+                end
+                else
+                    state <= IDLE;
             end
         endcase
     end
