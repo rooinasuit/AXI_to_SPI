@@ -1,4 +1,4 @@
-# AXI_to_SPI
+# AXI to SPI
 
 This update marks the beginning of a larger project, pertaining to inter-protocol communication (CPU - peripheral).
 
