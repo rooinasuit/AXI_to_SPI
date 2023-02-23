@@ -5,7 +5,7 @@ This update marks the beginning of a larger project, pertaining to inter-protoco
 Based on the principle of one-for-all, AXI4-Lite protocol will be used as a means to standardize communication between a sample processor (AXI master)
 and an SPI master peripheral (AXI slave).
 
-## State of the project:
+## State of the project
 
 - [x] SPI master module,
 - [ ] SPI master control/data registers,
