@@ -6,8 +6,8 @@ module SPI_master (
     input GCLK, // global clock (say 100MHz)
     input RST,  // asynchronous reset
 
-    /////////////////////
-    // CONFIG SIGNALS  //
+    ////////////////////
+    // CONFIG SIGNALS //
     input [1:0] spi_mode,  // one of 4 modes [SCK polarity, SCK phase, which SCK edge for picking up and which for shifting data] - mode 0 by default {CHECK}
     input [1:0] sck_speed, // [1/128, 1/64, 1/32, 1/16] of GCLK - 1/128 by default {CHECK}
     input [1:0] word_len,  // length of a single word directed on/sampled from the bus - [32, 16, 8, 4] bits - 32 bits by default {CHECK}
@@ -152,8 +152,8 @@ assign o_SCK = sck;
 ////////////////////
 // EDGE DETECTION //
 
-assign pos_sck = !sck & (sck_switch_cnt >= sck_switch);
-assign neg_sck = sck & (sck_switch_cnt >= sck_switch);
+assign pos_sck = !sck & (sck_switch_cnt >= sck_switch) & !CS_to_SCK;
+assign neg_sck = sck & (sck_switch_cnt >= sck_switch) & !CS_to_SCK;
 
 ///////////////////////////////
 // CStoSCK & SCKtoCS TIMINGS //
