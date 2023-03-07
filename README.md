@@ -8,8 +8,8 @@ and an SPI master peripheral (AXI slave).
 ## State of the project
 
 - [x] SPI master module,
-- [x] SPI master control/data registers,
-- [x] SPI master and its registers encased in an AXI slave module,
+- [x] SPI master control/data registers (generated with the use of vivado),
+- [x] SPI master and its registers encased in an AXI slave module (generated with the use of vivado),
 - [ ] AXI4-Lite Bus,
 - [ ] UVM methodology verification of SPI master (Design Under Test):
     - [ ] UVM test bench (written in SystemVerilog),
