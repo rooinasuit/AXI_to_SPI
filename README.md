@@ -1,6 +1,6 @@
 # AXI to SPI
 
-This update marks the beginning of a larger project, pertaining to inter-protocol communication (CPU - peripheral).
+The project pertains to inter-protocol communication (CPU - peripheral).
 
 Based on the principle of one-for-all, AXI4-Lite protocol will be used as a means to standardize communication between a sample processor (AXI master)
 and an SPI master peripheral (AXI slave).
