@@ -1,7 +1,7 @@
 
 `timescale 1 ns / 1 ps
 
-	module SPI_master_v1_0_S00_AXI #
+	module AXI_SPI_n_regs #
 	(
 		// Users to add parameters here
 
@@ -502,6 +502,7 @@
             slv_reg9 <= miso_data;
         end
     end
+	
 	// User logic ends
 
 	endmodule

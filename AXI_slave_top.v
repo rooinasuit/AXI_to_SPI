@@ -1,7 +1,7 @@
 
 `timescale 1 ns / 1 ps
 
-	module SPI_master_v1_0 #
+	module AXI_slave_top #
 	(
 		// Users to add parameters here
 
@@ -47,10 +47,10 @@
 		input wire  s00_axi_rready
 	);
 // Instantiation of Axi Bus Interface S00_AXI
-	SPI_master_v1_0_S00_AXI # ( 
+	AXI_SPI_n_regs # ( 
 		.C_S_AXI_DATA_WIDTH(C_S00_AXI_DATA_WIDTH),
 		.C_S_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH)
-	) SPI_master_v1_0_S00_AXI_inst (
+	) AXI_SPI_n_regs0 (
 		.S_AXI_ACLK(s00_axi_aclk),
 		.S_AXI_ARESETN(s00_axi_aresetn),
 		.S_AXI_AWADDR(s00_axi_awaddr),
