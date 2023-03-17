@@ -97,10 +97,10 @@ always @ (posedge GCLK) begin
     end
     else begin
         case (sck_speed)
-            0: sck_switch  <= 6'd63; // [1/128]
-            1: sck_switch  <= 6'd31; // [1/64]
-            2: sck_switch  <= 6'd15; // [1/32]
-            3: sck_switch  <= 6'd7;  // [1/16]
+            0: sck_switch  <= 6'd63; // [1/128] GCLK
+            1: sck_switch  <= 6'd31; // [1/64] GCLK
+            2: sck_switch  <= 6'd15; // [1/32] GCLK
+            3: sck_switch  <= 6'd7;  // [1/16] GCLK
         endcase
     end
 end
@@ -124,24 +124,24 @@ always @ (posedge GCLK) begin
 end
 
 ///////////////////
-// SCK GENERATOR // SCK -> Scereal Clock (the 's' is silent)
+// SCK GENERATOR //
 
 always @ (posedge GCLK) begin
     if (RST) begin
         sck_switch_cnt <= 6'd0;
-        sck            <= (sck_pol) ? 1'd1 : 1'd0;
+        sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
     end
     else if (!chip_sel & !SCK_to_CS) begin
         if (sck_switch_cnt >= sck_switch & !CS_to_SCK) begin
             sck_switch_cnt <= 6'd0;
-            sck            <= !sck;
+            sck            <= !sck; // marks half a period of sck cycle
         end
         else
             sck_switch_cnt <= sck_switch_cnt + 1'b1;
     end
     else if (!chip_sel & SCK_to_CS) begin
         sck_switch_cnt <= 6'd0;
-        sck            <= (sck_pol) ? 1'd1 : 1'd0;
+        sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
     end
     else
         sck_switch_cnt <= 6'd0;
@@ -152,11 +152,21 @@ assign o_SCK = sck;
 ////////////////////
 // EDGE DETECTION //
 
+// The rest of the design "knows" exactly when the clock
+// is going to switch polarity its polarity one GCLK edge prior.
+// New mosi data bit is set with sck edge and miso data
+// bit is collected, according to sck phase
+
 assign pos_sck = !sck & (sck_switch_cnt >= sck_switch) & !CS_to_SCK;
 assign neg_sck = sck & (sck_switch_cnt >= sck_switch) & !CS_to_SCK;
 
 ///////////////////////////////
 // CStoSCK & SCKtoCS TIMINGS //
+
+// CStoSCK - additional delay between the newly activated CS
+// and the first SCK polarity switch
+// SCKtoCS - additional delay between the last SCK polarity switch
+// in a (now finished) frame and the CS going idle  
 
 always @ (posedge GCLK) begin
     if (RST) begin
@@ -184,6 +194,9 @@ end
 
 ////////////////
 // IFG TIMING //
+
+// IFG (INTERFRAME GAP) - the minimum delay between two independent
+// transmission instances (frames) 
 
 always @ (posedge GCLK) begin
     if (RST) begin
@@ -231,7 +244,7 @@ always @ (posedge GCLK) begin
 
                 bit_cnt   <= 5'd31;
                 //
-                if (start & IFG_done) begin
+                if (start & IFG_done) begin // start signal and the minimum IFG time passed
                     busy      <= 1'b1; // TRULY busy
                     chip_sel  <= 1'b0; // start SCK to CS timer
                     mosi_buff <= mosi_data;
@@ -243,8 +256,9 @@ always @ (posedge GCLK) begin
                     state <= IDLE;
             end
             TRANSACTION: begin
-                case (sck_pol)
+                case (sck_pol) 
                     0: begin // subtract from bit_cnt upon detection of a falling SCK edge
+                        // (SCK IDLE '0')    
                         case (sck_pha)
                             0: begin // send on rising edge/pick up on falling edge
                                 if (trans_done) begin
@@ -277,6 +291,7 @@ always @ (posedge GCLK) begin
                         endcase
                     end
                     1: begin // subtract from bit_cnt upon detection of a rising SCK edge
+                        // (SCK IDLE '1')
                         case (sck_pha)
                             0: begin // send on rising edge/pick up on falling edge
                                 if (trans_done) begin
@@ -310,7 +325,7 @@ always @ (posedge GCLK) begin
                     end
                 endcase
             end
-            FINISH: begin // bruh
+            FINISH: begin
                 if (!SCK_to_CS)
                     state <= IDLE;
                 else
