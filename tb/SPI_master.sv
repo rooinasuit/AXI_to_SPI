@@ -163,9 +163,10 @@ always @ (posedge GCLK) begin
         d_ff <= start_i;
 end
 
-assign trans_done = start_i & !d_ff;
+assign trans_start = start_i & !d_ff;
+
 // The rest of the design "knows" exactly when the clock
-// is going to switch polarity its polarity one GCLK edge prior.
+// is going to switch its polarity one GCLK edge prior.
 // New mosi data bit is set with sck edge and miso data
 // bit is collected, according to sck phase
 
