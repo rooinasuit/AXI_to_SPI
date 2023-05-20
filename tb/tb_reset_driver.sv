@@ -27,17 +27,17 @@ class reset_driver extends uvm_driver#(reset_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        // rst_pkt = reset_seq_item::type_id::create("rst_pkt");
-        // forever begin
-        //     @(posedge vif.GCLK)
-        //         `uvm_info("RST_DRV", "Setting a new value of RST in the DUT", UVM_LOW)
-        //         seq_item_port.get_next_item(rst_pkt); // blocking
+        rst_pkt = reset_seq_item::type_id::create("rst_pkt");
+        forever begin
+            @(posedge vif.GCLK)
+                `uvm_info("RST_DRV", "Setting a new value of RST in the DUT", UVM_LOW)
+                seq_item_port.get_next_item(rst_pkt); // blocking
 
-        //         vif.RST <= rst_pkt.RST;
+                vif.RST <= rst_pkt.RST;
 
-        //         `uvm_info("RST_DRV", "Transaction finished, ready for another", UVM_LOW)
-        //         seq_item_port.item_done(); // unblocking, ready for another send to the DUT
-        // end
+                `uvm_info("RST_DRV", "Transaction finished, ready for another", UVM_LOW)
+                seq_item_port.item_done(); // unblocking, ready for another send to the DUT
+        end
 
     endtask : run_phase
 

@@ -34,9 +34,7 @@ class test_1 extends tb_base_test;
     // instantiation of internal objects
     tb_environment env;
 
-    // base_reset_sequence rst_seq_1; // NEED TO INSTANTIATE A SEQUENCE EXTENDED FROM THIS ONE
-    dio_sequence dio_seq_1;
-    spi_slave_sequence slv_seq_1;
+    base_virtual_sequence v_seq;
 
     // constructor
     function new (string name = "test_1", uvm_component parent = null);
@@ -48,6 +46,9 @@ class test_1 extends tb_base_test;
 
         `uvm_info("TEST", "Creating ENV handle", UVM_LOW)
         env = tb_environment::type_id::create("env", this);
+
+        `uvm_info("TEST_1", $sformatf("Creating: v_seq"), UVM_LOW)
+        v_seq = base_virtual_sequence::type_id::create("v_seq");
 
     endfunction : build_phase
 
@@ -63,19 +64,10 @@ class test_1 extends tb_base_test;
 
         phase.raise_objection(this); // start time consumption
         begin
-            `uvm_info("TEST_1", "test_1 reporting for duty", UVM_LOW)
+            `uvm_info("TEST_1", "test_1 reporting for duty, generating sequences", UVM_LOW)
 
-            // `uvm_info("TEST_1", $sformatf("Creating: rst_seq_1"), UVM_LOW)
-            // rst_seq_1 = reset_sequence::type_id::create("rst_seq_1");
-            // rst_seq_1.start(env.rst_agt.rst_sqr);
+            v_seq.start(env.v_sqr);
 
-            `uvm_info("TEST_1", $sformatf("Creating: dio_seq_1"), UVM_LOW)
-            dio_seq_1 = dio_sequence::type_id::create("dio_seq_1");
-            dio_seq_1.start(env.dio_agt.dio_sqr);
-
-            `uvm_info("TEST_1", $sformatf("Creating: slv_seq_1"), UVM_LOW)
-            slv_seq_1 = spi_slave_sequence::type_id::create("slv_seq_1");
-            slv_seq_1.start(env.slv_agt.slv_sqr);
         end
         phase.drop_objection(this); // end time consumption
 

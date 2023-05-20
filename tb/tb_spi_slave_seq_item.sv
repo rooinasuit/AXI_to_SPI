@@ -6,7 +6,7 @@ import proj_pkg::*;
 class spi_slave_seq_item extends uvm_sequence_item;
 
     // requested inputs
-    rand bit MISO_in;
+    bit MISO_in;
 
     // received outputs
     bit MOSI_out;

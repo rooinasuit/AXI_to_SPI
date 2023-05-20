@@ -8,7 +8,7 @@ class tb_environment extends uvm_env;
     `uvm_component_utils(tb_environment)
 
     // instantiation of internal object
-    virtual_sequencer virtual_sqr;
+    virtual_sequencer v_sqr;
 
     clock_agent     clk_agt;
     reset_agent     rst_agt;
@@ -39,8 +39,8 @@ class tb_environment extends uvm_env;
         `uvm_info("ENV", "Creating SCB handle", UVM_LOW)
         scb = tb_scoreboard::type_id::create("scb", this);
 
-        `uvm_info("ENV", "Creating VIRTUAL_SQR handle", UVM_LOW)
-        virtual_sqr = virtual_sequencer::type_id::create("virtual_sqr", this);
+        `uvm_info("ENV", "Creating V_SQR handle", UVM_LOW)
+        v_sqr = virtual_sequencer::type_id::create("v_sqr", this);
 
     endfunction : build_phase
 
@@ -56,14 +56,14 @@ class tb_environment extends uvm_env;
         // `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
         // virtual_sqr.clk_sqr = clk_agt.clk_sqr;
 
-        // `uvm_info("ENV", "Connecting sequencers: rst_sqr -> virtual_sqr", UVM_LOW)
-        // virtual_sqr.rst_sqr = rst_agt.rst_sqr;
+        `uvm_info("ENV", "Connecting sequencers: rst_sqr -> virtual_sqr", UVM_LOW)
+        v_sqr.rst_sqr = rst_agt.rst_sqr;
 
         `uvm_info("ENV", "Connecting sequencers: dio_sqr -> virtual_sqr", UVM_LOW)
-        virtual_sqr.dio_sqr = dio_agt.dio_sqr;
+        v_sqr.dio_sqr = dio_agt.dio_sqr;
 
         `uvm_info("ENV", "Connecting sequencers: slv_sqr -> virtual_sqr", UVM_LOW)
-        virtual_sqr.slv_sqr = slv_agt.slv_sqr;
+        v_sqr.slv_sqr = slv_agt.slv_sqr;
 
     endfunction : connect_phase
 

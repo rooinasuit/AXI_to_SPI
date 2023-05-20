@@ -9,7 +9,7 @@ class dio_sequence extends uvm_sequence#(dio_seq_item);
 
     dio_seq_item dio_pkt;
 
-    int seq_cnt = 5;
+    int seq_cnt = 100;
 
     function new (string name = "dio_sequence");
         super.new(name);
@@ -20,13 +20,14 @@ class dio_sequence extends uvm_sequence#(dio_seq_item);
         repeat(seq_cnt) begin
             dio_pkt = dio_seq_item::type_id::create("dio_pkt");
             start_item(dio_pkt);
-            random_val();
+            #5 random_val();
             finish_item(dio_pkt);
         end
 
     endtask : body
 
     function void random_val();
+        dio_pkt.start_in = 1'b1;
         dio_pkt.mosi_data_in = $urandom_range(0,100);
     endfunction : random_val
 

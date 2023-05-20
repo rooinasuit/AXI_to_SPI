@@ -7,6 +7,7 @@ class spi_slave_sequence extends uvm_sequence#(spi_slave_seq_item);
 
     `uvm_object_utils(spi_slave_sequence)
 
+    virtual dut_interface vif;
     spi_slave_seq_item slv_pkt;
 
     int seq_cnt = 5;
