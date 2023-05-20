@@ -473,23 +473,23 @@
     wire busy_flag;
     wire [31:0] miso_data;
     
-    SPI_master SPI_master0 (
-        .GCLK      (S_AXI_ACLK),
-        .RST       (S_AXI_ARESET),
-        .start     (slv_reg0[0]),
-        .busy      (busy_flag), // out
-        .spi_mode  (slv_reg2[1:0]),
-        .sck_speed (slv_reg3[1:0]),
-        .word_len  (slv_reg4[1:0]),
-        .t_IFG     (slv_reg5[7:0]),
-        .t_CS_SCK  (slv_reg6[7:0]),
-        .t_SCK_CS  (slv_reg7[7:0]),
-        .mosi_data (slv_reg8),
-        .miso_data (miso_data), // out
-        .i_MISO    (MISO),
-        .o_MOSI    (MOSI),
-        .o_SCK     (SCK),
-        .o_CS      (CS)
+    SPI_master SPI_master (
+        .GCLK        (S_AXI_ACLK),
+        .RST         (S_AXI_ARESET),
+        .start_i     (slv_reg0[0]),
+        .busy_o      (busy_flag), // out
+        .spi_mode_i  (slv_reg2[1:0]),
+        .sck_speed_i (slv_reg3[1:0]),
+        .word_len_i  (slv_reg4[1:0]),
+        .t_IFG_i     (slv_reg5[7:0]),
+        .t_CS_SCK_i  (slv_reg6[7:0]),
+        .t_SCK_CS_i  (slv_reg7[7:0]),
+        .mosi_data_i (slv_reg8),
+        .miso_data_o (miso_data), // out
+        .MISO_i      (MISO),
+        .MOSI_o      (MOSI),
+        .SCLK_o      (SCK),
+        .CS_o        (CS)
     );
     
     always @ (posedge S_AXI_ACLK) begin
