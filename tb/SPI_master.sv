@@ -41,6 +41,8 @@ module SPI_master (
 
 wire trans_start;
 reg  d_ff;
+//
+// reg [1:0] sck_mode;
 
 wire sck_pol; // sck polarity - active high [0] or active low [1]
 wire sck_pha; // sck phase - send on rising edge/pick up on falling edge [0] or send on falling edge/pick up on rising edge [1]
@@ -88,6 +90,18 @@ wire trans_done;
 
 assign sck_pol = spi_mode_i[1];
 assign sck_pha = spi_mode_i[0];
+
+// always @ (posedge GCLK) begin
+//     if (RST) begin
+//         sck_mode <= 2'd0;
+//     end
+//     else begin
+//         sck_mode <= spi_mode_i;
+//     end
+// end
+
+// assign sck_pol = sck_mode[1];
+// assign sck_pha = sck_mode[0];
 
 /////////////////////////
 // SCK SPEED SELECTION //

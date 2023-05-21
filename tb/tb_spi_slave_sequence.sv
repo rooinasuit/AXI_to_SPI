@@ -10,7 +10,7 @@ class spi_slave_sequence extends uvm_sequence#(spi_slave_seq_item);
     virtual dut_interface vif;
     spi_slave_seq_item slv_pkt;
 
-    int seq_cnt = 5;
+    int seq_cnt = 100;
 
     function new (string name = "spi_slave_sequence");
         super.new(name);
@@ -28,7 +28,7 @@ class spi_slave_sequence extends uvm_sequence#(spi_slave_seq_item);
     endtask : body
 
     function void random_val();
-        slv_pkt.MISO_in = !slv_pkt.MISO_in;
+        slv_pkt.MISO_in = {$random} % 2;
     endfunction : random_val
 
 endclass : spi_slave_sequence

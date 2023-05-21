@@ -28,7 +28,7 @@ class dio_sequence extends uvm_sequence#(dio_seq_item);
 
     function void random_val();
         dio_pkt.start_in = 1'b1;
-        dio_pkt.mosi_data_in = $urandom_range(0,100);
+        dio_pkt.mosi_data_in = {$random} % 100;
     endfunction : random_val
 
 endclass : dio_sequence

@@ -8,7 +8,7 @@ interface dut_interface();
     // requested inputs (DIO)
     bit start_in;
     //
-    logic [1:0] spi_mode_in;
+    logic [1:0] spi_mode_in; // MUST SUPPLY IN ORDER FOR THE DESIGN TO WORK
     logic [1:0] sck_speed_in;
     logic [1:0] word_len_in;
     //

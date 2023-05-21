@@ -47,11 +47,11 @@ class tb_environment extends uvm_env;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        `uvm_info("ENV", "Connecting ports: dio_mon_port -> dio_in", UVM_LOW)
-        dio_agt.dio_mtr.dio_mon_port.connect(scb.dio_in);
+        `uvm_info("ENV", "Connecting ports: dio_mon_port -> dio_mon_imp", UVM_LOW)
+        dio_agt.dio_mtr.dio_mon_port.connect(scb.dio_mon_imp);
 
-        `uvm_info("ENV", "Connecting ports: slv_mon_port -> mon_in", UVM_LOW)
-        slv_agt.slv_mtr.slv_mon_port.connect(scb.slv_in);
+        `uvm_info("ENV", "Connecting ports: slv_mon_port -> slv_mon_imp", UVM_LOW)
+        slv_agt.slv_mtr.slv_mon_port.connect(scb.slv_mon_imp);
 
         // `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
         // virtual_sqr.clk_sqr = clk_agt.clk_sqr;
