@@ -5,7 +5,7 @@ package proj_pkg;
 `include "tb_dio_seq_item.sv"
 `include "tb_spi_slave_seq_item.sv"
 
-`include "tb_base_reset_sequence.sv"
+`include "tb_reset_sequences.sv"
 `include "tb_dio_sequence.sv"
 `include "tb_spi_slave_sequence.sv"
 
@@ -14,7 +14,7 @@ package proj_pkg;
 `include "tb_spi_slave_sequencer.sv"
 
 `include "tb_virtual_sequencer.sv"
-`include "tb_base_virtual_sequence.sv"
+`include "tb_virtual_sequences.sv"
 
 `include "tb_clock_driver.sv"
 `include "tb_reset_driver.sv"
