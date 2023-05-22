@@ -3,11 +3,11 @@ import uvm_pkg::*;
 
 import proj_pkg::*;
 
-class scb_checker extends uvm_component;
+class tb_checker extends uvm_component;
 
-    `uvm_component_utils(scb_checker)
+    `uvm_component_utils(tb_checker)
 
-    function new(string name = "scb_checker", uvm_component parent = null);
+    function new(string name = "tb_checker", uvm_component parent = null);
         super.new(name,parent);
     endfunction : new
 

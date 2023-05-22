@@ -8,7 +8,7 @@ class tb_scoreboard extends uvm_scoreboard;
     `uvm_component_utils(tb_scoreboard)
 
     ref_model rfm;
-    scb_checker chk;
+    tb_checker chk;
 
     uvm_analysis_port#(dio_seq_item) dio_mon_imp;
     uvm_analysis_port#(spi_slave_seq_item) slv_mon_imp;
@@ -25,7 +25,10 @@ class tb_scoreboard extends uvm_scoreboard;
         super.build_phase(phase);
 
         `uvm_info("SCB", "Creating RFM handle", UVM_LOW)
-        rfm = ref_model::type_id::create("ref_model", this);
+        rfm = ref_model::type_id::create("rfm", this);
+
+        `uvm_info("SCB", "Creating CHK handle", UVM_LOW)
+        chk = tb_checker::type_id::create("chk", this);
 
     endfunction : build_phase
 
