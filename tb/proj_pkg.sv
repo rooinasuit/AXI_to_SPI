@@ -6,8 +6,8 @@ package proj_pkg;
 `include "tb_spi_slave_seq_item.sv"
 
 `include "tb_reset_sequences.sv"
-`include "tb_dio_sequence.sv"
-`include "tb_spi_slave_sequence.sv"
+`include "tb_dio_sequences.sv"
+`include "tb_spi_slave_sequences.sv"
 
 `include "tb_reset_sequencer.sv"
 `include "tb_dio_sequencer.sv"

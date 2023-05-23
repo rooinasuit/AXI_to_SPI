@@ -148,6 +148,7 @@ always @ (posedge GCLK) begin
     end
     else
         sck_switch_cnt <= 6'd0;
+        sck            <= (sck_pol) ? 1'd1 : 1'd0;
 end
 
 assign SCLK_o = sck;

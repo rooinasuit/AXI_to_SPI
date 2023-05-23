@@ -52,6 +52,20 @@ wire [7:0] SCK_CS;
 wire [31:0] mosi_data;
 wire [31:0] miso_data;
 
+reg start_reg;
+reg busy_reg;
+//
+reg [1:0] spi_mode_reg;
+reg [1:0] sck_speed_reg;
+reg [1:0] word_len_reg;
+//
+reg [7:0] IFG_reg;
+reg [7:0] CS_SCK_reg;
+reg [7:0] SCK_CS_reg;
+//
+reg [31:0] mosi_data_reg;
+reg [31:0] miso_data_reg;
+
 SPI_master SPI_master0 (
     .GCLK (GCLK),
     .RST  (RST),
@@ -71,20 +85,6 @@ SPI_master SPI_master0 (
     .SCLK_o (SCLK_out),
     .CS_o   (CS_out)
 );
-
-reg start_reg;
-reg busy_reg;
-//
-reg [1:0] spi_mode_reg;
-reg [1:0] sck_speed_reg;
-reg [1:0] word_len_reg;
-//
-reg [7:0] IFG_reg;
-reg [7:0] CS_SCK_reg;
-reg [7:0] SCK_CS_reg;
-//
-reg [31:0] mosi_data_reg;
-reg [31:0] miso_data_reg;
 
 always @ (posedge GCLK) begin
     if (RST) begin
