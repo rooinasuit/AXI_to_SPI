@@ -1,9 +1,0 @@
-#.gitignore
-
-#Verification/sim/makefile/Makefile.questa
-#Verification/sim/do/sim_coms.do
-#Verification/sim/makefile/questa.tops
-#Verification/sim/makefile/transcript
-#Verification/sim/makefile/vsim.wlf
-#Verification/sim/makefile/vsim_stacktrace.vstf
-#Verification/sim/work
