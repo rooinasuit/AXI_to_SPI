@@ -29,7 +29,7 @@ class clock_driver extends uvm_driver;
         super.run_phase(phase);
 
         fork
-            forever#(period/2) vif.GCLK = !vif.GCLK; 
+            forever#(period/2) vif.GCLK = !vif.GCLK;
         join_none
 
     endtask : run_phase

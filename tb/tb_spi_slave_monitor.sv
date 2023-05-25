@@ -38,9 +38,10 @@ class spi_slave_monitor extends uvm_monitor;
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        slv_pkt_in = spi_slave_seq_item::type_id::create("slv_pkt_in");
+
         forever begin
             @(posedge vif.GCLK)
+                slv_pkt_in = spi_slave_seq_item::type_id::create("slv_pkt_in");
                 `uvm_info("SLV_MTR", "Fetching slv_pkt_in from the DUT", UVM_LOW)
 
                 slv_pkt_in.MISO_in   = vif.MISO_in;
@@ -56,3 +57,5 @@ class spi_slave_monitor extends uvm_monitor;
     endtask : run_phase
 
 endclass: spi_slave_monitor
+
+trzeba obsluzyc spi_mode (kiedy i na jakim edgu zbierac dane)

@@ -17,9 +17,9 @@ class base_virtual_sequence extends uvm_sequence;
     dio_sequence_1 dio_seq_1;
     spi_slave_sequence slv_seq_1;
 
-    function new (string name = "virtual_sequence");
+    function new (string name = "base_virtual_sequence");
         super.new(name);
-    endfunction
+    endfunction : new
 
     task pre_body();
 
@@ -56,3 +56,10 @@ class base_virtual_sequence extends uvm_sequence;
     endtask : body
 
 endclass : base_virtual_sequence
+
+co to oznacza sekwencja:
+uvm tworzy obiekt i kazdy obiekt jest fizycznie w pamieci
+zamiast za kazdym razem tworzyc nowy obiekt to jeszcze raz wpisuje caly czas
+
+w body sekwencji agenta tworzac seq_item wypluc uvm_info(nazwa sekwencji, string seq_item (sprint), uvm_low)
+jezeli za kazdym razem id obiektu jest to samo, to nie tworzymy nowych obiektow

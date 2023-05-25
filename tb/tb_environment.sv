@@ -68,3 +68,5 @@ class tb_environment extends uvm_env;
     endfunction : connect_phase
 
 endclass: tb_environment
+
+tutaj powziac dut_interface przez db i udostepnic nowy dla agentow

@@ -43,3 +43,7 @@ class dio_seq_item extends uvm_sequence_item;
                                    CS_SCK_in > 0;
                                    SCK_CS_in > 0;}
 endclass : dio_seq_item
+
+tutaj zrobic tylko 2 pola:
+name,
+value.
