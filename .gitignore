@@ -1,11 +1,11 @@
-#.gitignore
+.gitignore
 
-#tb/Makefile.questa
-#tb/sim_coms.do
-#tb/questa.tops
-#tb/transcript
-#tb/vsim.wlf
-#tb/vsim_stacktrace.vstf
-#tb/work
-#tb/tb_spi_slave_seq_lib.sv
-#tb/tb_dio_agent_seq_lib.sv
+tb/Makefile.questa
+tb/sim_coms.do
+tb/questa.tops
+tb/transcript
+tb/vsim.wlf
+tb/vsim_stacktrace.vstf
+tb/work
+tb/tb_spi_slave_seq_lib.sv
+tb/tb_dio_agent_seq_lib.sv
