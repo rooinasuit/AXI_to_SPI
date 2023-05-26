@@ -1,6 +1,6 @@
-package env_pkg;
+package seq_pkg;
 
 `include "virtual_sequencer.sv"
 `include "test_sequences.sv"
 
-endpackage : env_pkg
+endpackage : seq_pkg
