@@ -5,14 +5,6 @@ import proj_pkg::*;
 
 class tb_base_test extends uvm_test;
 
-tutaj powziac *dut_interface vif przez db i przypisac cfg.[dany_agent].vif
-
-instancjonowac obiekt config w agencie (agent_config cfg). rejestrujesz config w db z parametrem dla wszystkich. dla np instance name monitor rejestrujesz pod field name (ostatni) rejestrujesz config name.
-to w build fazie rejestrujesz 3x config dla (monitora, sequencera, drivera).
-w driverze (build phase) ty zrobisz uvm config db get (parametry monitor, config) z driverem. w driverze masz dzieki temu dostep do configa z agentem.
-w configu w test base (tutaj) do configa wpisuje to co dostanie z db spod nazwy danego interfejsu, a do tej bazy danych pod db jest przypisany w tb_top kazdy interfejs.
-na samym koncu initial begin w ktorych rejestrujesz wskazniki na interfejsy z bazy danych.
-
     `uvm_component_utils(tb_base_test)
 
     // constructor

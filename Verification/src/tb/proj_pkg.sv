@@ -37,6 +37,6 @@ package proj_pkg;
 
 `include "tb_test.sv"
 
-typedef class dio_agent;
+// typedef class dio_agent;
 
 endpackage

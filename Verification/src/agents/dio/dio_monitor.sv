@@ -35,7 +35,7 @@ class dio_monitor extends uvm_monitor;
         super.run_phase(phase);
 
         forever begin
-            // @ (posedge vif.GCLK)
+            @ (posedge vif.GCLK)
                 dio_pkt_in = dio_seq_item::type_id::create("dio_pkt_in");
                 `uvm_info("DIO_MTR", "Fetching dio_pkt_in from the DUT", UVM_LOW)
 
@@ -58,11 +58,3 @@ class dio_monitor extends uvm_monitor;
     endtask : run_phase
 
 endclass: dio_monitor
-
-kreowac i zdejmowac do sequence item tylko gdy wykryje sie zmiane na pinach DUT.
-
-zrobic forever loop do kazdego pola i wrzucic tam makro jako wywolanie '@'.
-
-np makro monitor_dio_port:
-parametr makro: nazwa portu
-makro ma forever begin i czeka na zmiane sygnalu [nazwa], tworzy seq item i sciaga z vif.

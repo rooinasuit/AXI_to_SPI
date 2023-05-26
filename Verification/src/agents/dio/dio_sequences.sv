@@ -113,7 +113,3 @@ class dio_sequence_1 extends base_dio_sequence;
     endtask : body
 
 endclass : dio_sequence_1
-
-task tworzy sekwencje agenta i uruchamia te sekwencje na odpowiednim sequencerze.
-Nastepnie sequencer wykonuje tę sekwencję, czyli wykonuje taska body.
-Sequence item tworzysz warto.

@@ -57,9 +57,3 @@ class base_virtual_sequence extends uvm_sequence;
 
 endclass : base_virtual_sequence
 
-co to oznacza sekwencja:
-uvm tworzy obiekt i kazdy obiekt jest fizycznie w pamieci
-zamiast za kazdym razem tworzyc nowy obiekt to jeszcze raz wpisuje caly czas
-
-w body sekwencji agenta tworzac seq_item wypluc uvm_info(nazwa sekwencji, string seq_item (sprint), uvm_low)
-jezeli za kazdym razem id obiektu jest to samo, to nie tworzymy nowych obiektow

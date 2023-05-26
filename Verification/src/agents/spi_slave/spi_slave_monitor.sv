@@ -57,5 +57,3 @@ class spi_slave_monitor extends uvm_monitor;
     endtask : run_phase
 
 endclass: spi_slave_monitor
-
-trzeba obsluzyc spi_mode (kiedy i na jakim edgu zbierac dane)
