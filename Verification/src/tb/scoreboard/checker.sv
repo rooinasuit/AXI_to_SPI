@@ -1,7 +1,7 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import proj_pkg::*;
+// import proj_pkg::*;
 
 class tb_checker extends uvm_component;
 

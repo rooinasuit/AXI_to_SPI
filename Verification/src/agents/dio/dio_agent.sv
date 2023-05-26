@@ -1,7 +1,9 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import proj_pkg::*;
+// import proj_pkg::*;
+
+import dio_pkg::*;
 
 class dio_agent extends uvm_agent;
 

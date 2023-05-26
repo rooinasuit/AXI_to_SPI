@@ -1,7 +1,7 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import proj_pkg::*;
+// import proj_pkg::*;
 
 `uvm_analysis_imp_decl(_dio_monitor_imp)
 `uvm_analysis_imp_decl(_slv_monitor_imp)

@@ -1,7 +1,6 @@
 `timescale 1ns/1ps
 
 import uvm_pkg::*;
-import proj_pkg::*;
 
 `include "uvm_macros.svh"
 `include "SPI_top.sv"

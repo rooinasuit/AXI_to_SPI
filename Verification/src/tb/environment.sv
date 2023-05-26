@@ -1,7 +1,10 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import proj_pkg::*;
+    import agt_pkg::*;
+    import scb_pkg::*;
+    import seq_pkg::*;
+// import proj_pkg::*;
 
 class tb_environment extends uvm_env;
 
@@ -11,7 +14,6 @@ class tb_environment extends uvm_env;
     virtual_sequencer v_sqr;
 
     clock_agent     clk_agt;
-    reset_agent     rst_agt;
     dio_agent       dio_agt;
     spi_slave_agent slv_agt;
 
@@ -26,9 +28,6 @@ class tb_environment extends uvm_env;
 
         `uvm_info("ENV", "Creating CLK_AGT handle", UVM_LOW)
         clk_agt = clock_agent::type_id::create("clk_agt", this);
-
-        `uvm_info("ENV", "Creating RST_AGT handle", UVM_LOW)
-        rst_agt = reset_agent::type_id::create("rst_agt", this);
 
         `uvm_info("ENV", "Creating DIO_AGT handle", UVM_LOW)
         dio_agt = dio_agent::type_id::create("dio_agt", this);
@@ -55,9 +54,6 @@ class tb_environment extends uvm_env;
 
         // `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
         // virtual_sqr.clk_sqr = clk_agt.clk_sqr;
-
-        `uvm_info("ENV", "Connecting sequencers: rst_sqr -> virtual_sqr", UVM_LOW)
-        v_sqr.rst_sqr = rst_agt.rst_sqr;
 
         `uvm_info("ENV", "Connecting sequencers: dio_sqr -> virtual_sqr", UVM_LOW)
         v_sqr.dio_sqr = dio_agt.dio_sqr;

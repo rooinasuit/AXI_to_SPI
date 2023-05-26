@@ -1,7 +1,8 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import proj_pkg::*;
+    `include "environment.sv"
+    import seq_pkg::*;
 
 class tb_base_test extends uvm_test;
 
