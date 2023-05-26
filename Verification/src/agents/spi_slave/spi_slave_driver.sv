@@ -1,7 +1,7 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import proj_pkg::*;
+// import proj_pkg::*;
 
 // `define S_VIF s_vif.S_PORT.cb
 

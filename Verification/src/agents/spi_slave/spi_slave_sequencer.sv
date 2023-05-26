@@ -1,7 +1,7 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import proj_pkg::*;
+// import proj_pkg::*;
 
 class spi_slave_sequencer extends uvm_sequencer#(spi_slave_seq_item);
 

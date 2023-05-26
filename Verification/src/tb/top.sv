@@ -5,6 +5,7 @@ import uvm_pkg::*;
 `include "uvm_macros.svh"
 `include "SPI_top.sv"
 `include "tb_dut_interface.sv"
+`include "test.sv"
 
 module tb_top;
 

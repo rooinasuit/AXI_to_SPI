@@ -1,7 +1,7 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import proj_pkg::*;
+// import proj_pkg::*;
 
 class base_virtual_sequence extends uvm_sequence;
 
