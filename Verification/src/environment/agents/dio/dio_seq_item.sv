@@ -1,8 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-// import proj_pkg::*;
-
 class dio_seq_item extends uvm_sequence_item;
 
     // requested inputs

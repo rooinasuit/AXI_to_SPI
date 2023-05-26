@@ -1,10 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-// import proj_pkg::*;
-
-// `define D_VIF d_vif.D_PORT.cb
-
 class dio_driver extends uvm_driver#(dio_seq_item);
 
     `uvm_component_utils(dio_driver)

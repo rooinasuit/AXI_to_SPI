@@ -1,8 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-// import proj_pkg::*;
-
 class clock_driver extends uvm_driver;
 
     `uvm_component_utils(clock_driver)

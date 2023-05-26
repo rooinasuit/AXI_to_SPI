@@ -1,10 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-// import proj_pkg::*;
-
-// `define S_VIF s_vif.S_PORT.cb
-
 class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
 
     `uvm_component_utils(spi_slave_driver)

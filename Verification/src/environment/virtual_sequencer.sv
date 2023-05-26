@@ -1,8 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-// import proj_pkg::*;
-
 class virtual_sequencer extends uvm_sequencer;
 
     `uvm_component_param_utils(virtual_sequencer)

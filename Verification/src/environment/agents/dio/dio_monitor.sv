@@ -1,10 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-// import proj_pkg::*;
-
-// `define D_VIF d_vif.D_PORT.cb
-
 class dio_monitor extends uvm_monitor;
 
     `uvm_component_utils(dio_monitor)

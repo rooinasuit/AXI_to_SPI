@@ -1,8 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-// import proj_pkg::*;
-
 class base_test_sequence extends uvm_sequence;
 
     `uvm_object_utils(base_test_sequence)
