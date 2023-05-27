@@ -14,7 +14,7 @@ class tb_environment extends uvm_env;
     dio_agent       dio_agt;
     spi_slave_agent slv_agt;
 
-    tb_scoreboard   scb;
+    tb_scoreboard scb;
 
     function new(string name = "tb_environment", uvm_component parent);
         super.new(name,parent);
@@ -49,8 +49,8 @@ class tb_environment extends uvm_env;
         `uvm_info("ENV", "Connecting ports: slv_mon_port -> slv_mon_imp", UVM_LOW)
         slv_agt.slv_mtr.slv_mon_port.connect(scb.slv_mon_imp);
 
-        // `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
-        // virtual_sqr.clk_sqr = clk_agt.clk_sqr;
+        `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
+        v_sqr.clk_sqr = clk_agt.clk_sqr;
 
         `uvm_info("ENV", "Connecting sequencers: dio_sqr -> virtual_sqr", UVM_LOW)
         v_sqr.dio_sqr = dio_agt.dio_sqr;

@@ -8,7 +8,8 @@ class clock_agent extends uvm_agent;
     `uvm_component_utils(clock_agent)
 
     // instantiation of internal objects
-    clock_driver clk_drv;
+    clock_sequencer clk_sqr;
+    clock_driver    clk_drv;
 
     function new (string name = "clock_agent", uvm_component parent = null);
         super.new(name,parent);

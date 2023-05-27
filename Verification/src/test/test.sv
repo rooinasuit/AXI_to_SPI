@@ -37,8 +37,6 @@ endclass : base_test
 
 class test_1 extends base_test;
 
-    // int PERIOD = 10ns; // 100MHz - as planned pre project
-
     `uvm_component_utils(test_1)
 
     // instantiation of internal objects
@@ -57,13 +55,6 @@ class test_1 extends base_test;
 
     endfunction : build_phase
 
-    // function void connect_phase(uvm_phase phase);
-    //     super.connect_phase(phase);
-
-    //     env.clk_agt.clk_drv.period = PERIOD;
-
-    // endfunction : connect_phase
-
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
@@ -72,7 +63,6 @@ class test_1 extends base_test;
             `uvm_info("TEST_1", "test_1 reporting for duty, generating sequences", UVM_LOW)
 
             t_seq_1.start(env.v_sqr);
-
         end
         phase.drop_objection(this); // end time consumption
 
