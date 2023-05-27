@@ -1,11 +1,14 @@
-`timescale 1ns/1ps
-
 import uvm_pkg::*;
-
 `include "uvm_macros.svh"
+
+`include "SPI_master.sv"
+`include "SPI_regs.sv"
 `include "SPI_top.sv"
-`include "tb_dut_interface.sv"
-`include "test.sv"
+
+`include "dio_interface.sv"
+`include "spi_interface.sv"
+
+import top_pkg::*;
 
 module tb_top;
 
@@ -39,10 +42,10 @@ module tb_top;
 //    end
 
     initial begin
-        uvm_config_db#(virtual dio_interface)::set(null, "*", "vif", d_itf);
-        uvm_config_db#(virtual spi_interface)::set(null, "*", "vif", d_itf);
+        uvm_config_db#(virtual dio_interface)::set(null, "base_test.env*", "d_vif", d_itf);
+        uvm_config_db#(virtual spi_interface)::set(null, "base_test.env*", "s_vif", d_itf);
 
         run_test("test_1");
     end
 
-endmodule : top
+endmodule : tb_top

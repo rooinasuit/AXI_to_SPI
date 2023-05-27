@@ -14,19 +14,19 @@ class base_dio_sequence extends uvm_sequence#(dio_seq_item);
     task drive_io(string name, bit value);
 
         case (name)
-        "start_in": dio_pkt.start_in = value;
+        "start_out": dio_pkt.start_out = value;
 
-        "spi_mode_in":  dio_pkt.spi_mode_in = value;
-        "sck_speed_in": dio_pkt.sck_speed_in = value;
-        "word_len_in":  dio_pkt.word_len_in = value;
+        "spi_mode_out":  dio_pkt.spi_mode_out = value;
+        "sck_speed_out": dio_pkt.sck_speed_out = value;
+        "word_len_out":  dio_pkt.word_len_out = value;
 
-        "IFG_in":    dio_pkt.IFG_in = value;
-        "CS_SCK_in": dio_pkt.CS_SCK_in = value;
-        "SCK_CS_in": dio_pkt.SCK_CS_in = value;
+        "IFG_out":    dio_pkt.IFG_out = value;
+        "CS_SCK_out": dio_pkt.CS_SCK_out = value;
+        "SCK_CS_out": dio_pkt.SCK_CS_out = value;
 
-        "mosi_data_in": dio_pkt.mosi_data_in = value;
+        "mosi_data_out": dio_pkt.mosi_data_out = value;
 
-        default: dio_pkt.start_in = 0;
+        default: dio_pkt.start_out = 0;
         endcase
 
     endtask : drive_io
@@ -34,19 +34,19 @@ class base_dio_sequence extends uvm_sequence#(dio_seq_item);
     task drive_io_random(string name, int range);
 
         case (name)
-        "start_in": dio_pkt.start_in = {$random} % range;
+        "start_out": dio_pkt.start_out = {$random} % range;
 
-        "spi_mode_in":  dio_pkt.spi_mode_in = {$random} % range;
-        "sck_speed_in": dio_pkt.sck_speed_in = {$random} % range;
-        "word_len_in":  dio_pkt.word_len_in = {$random} % range;
+        "spi_mode_out":  dio_pkt.spi_mode_out = {$random} % range;
+        "sck_speed_out": dio_pkt.sck_speed_out = {$random} % range;
+        "word_len_out":  dio_pkt.word_len_out = {$random} % range;
 
-        "IFG_in":    dio_pkt.IFG_in = {$random} % range;
-        "CS_SCK_in": dio_pkt.CS_SCK_in = {$random} % range;
-        "SCK_CS_in": dio_pkt.SCK_CS_in = {$random} % range;
+        "IFG_out":    dio_pkt.IFG_out = {$random} % range;
+        "CS_SCK_out": dio_pkt.CS_SCK_out = {$random} % range;
+        "SCK_CS_out": dio_pkt.SCK_CS_out = {$random} % range;
 
-        "mosi_data_in": dio_pkt.mosi_data_in = {$random} % range;
+        "mosi_data_out": dio_pkt.mosi_data_out = {$random} % range;
 
-        default: dio_pkt.start_in = 0;
+        default: dio_pkt.start_out = 0;
         endcase
 
     endtask : drive_io_random
@@ -72,7 +72,7 @@ class dio_sequence_start extends base_dio_sequence;
         repeat(1) begin
 
             start_item(dio_pkt);
-            drive_io("start_in", 1);
+            drive_io("start_out", 1);
             finish_item(dio_pkt);
 
         end
@@ -100,10 +100,10 @@ class dio_sequence_1 extends base_dio_sequence;
         repeat(1) begin
 
             start_item(dio_pkt);
-            drive_io("spi_mode_in", 2'd3);
-            drive_io("sck_speed_in", 2'd3);
-            drive_io("word_len_in", 2'd3);
-            drive_io_random("mosi_data_in", 100);
+            drive_io("spi_mode_out", 2'd3);
+            drive_io("sck_speed_out", 2'd3);
+            drive_io("word_len_out", 2'd3);
+            drive_io_random("mosi_data_out", 100);
             finish_item(dio_pkt);
 
         end

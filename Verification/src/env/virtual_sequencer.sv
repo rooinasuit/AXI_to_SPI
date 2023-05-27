@@ -6,7 +6,7 @@ class virtual_sequencer extends uvm_sequencer;
     `uvm_component_param_utils(virtual_sequencer)
 
     // instantiation of internal objects
-    reset_sequencer rst_sqr;
+    clock_sequencer clk_sqr;
     dio_sequencer dio_sqr;
     spi_slave_sequencer slv_sqr;
 

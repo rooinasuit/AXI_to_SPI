@@ -1,9 +1,7 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import agt_pkg::*;
-import scb_pkg::*;
-import seq_pkg::*;
+import env_pkg::*;
 
 class tb_environment extends uvm_env;
 

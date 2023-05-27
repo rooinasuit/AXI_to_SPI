@@ -11,8 +11,8 @@ class ref_model extends uvm_component;
     dio_seq_item dio_pkt_received;
     spi_slave_seq_item slv_pkt_received;
 
-    uvm_analysis_imp_dio_monitor_imp#(dio_seq_item, ref_model) dio_in;
-    uvm_analysis_imp_slv_monitor_imp#(spi_slave_seq_item, ref_model) slv_in;
+    uvm_analysis_imp_dio_monitor_imp#(dio_seq_item, ref_model) dio_in; // dio_pkt_in
+    uvm_analysis_imp_slv_monitor_imp#(spi_slave_seq_item, ref_model) slv_in; // slv_pkt_in
 
     function new(string name = "ref_model", uvm_component parent);
         super.new(name,parent);

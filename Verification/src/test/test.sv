@@ -2,8 +2,9 @@ import uvm_pkg::*;
 `include "uvm_macros.svh"
 
     `include "environment.sv"
+    `include "test_sequences.sv"
 
-class tb_base_test extends uvm_test;
+class base_test extends uvm_test;
 
     `uvm_component_utils(tb_base_test)
 
@@ -34,7 +35,7 @@ class tb_base_test extends uvm_test;
 
     endtask : run_phase
 
-endclass : tb_base_test
+endclass : base_test
 
 class test_1 extends tb_base_test;
 

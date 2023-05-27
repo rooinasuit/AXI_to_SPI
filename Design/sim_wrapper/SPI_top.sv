@@ -1,5 +1,3 @@
-`timescale 1ns/1ps
-
 `include "SPI_regs.sv"
 
 module SPI_top (
