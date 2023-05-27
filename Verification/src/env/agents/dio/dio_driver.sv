@@ -6,7 +6,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     `uvm_component_utils(dio_driver)
 
     // instantiation of internal objects
-    virtual dut_interface vif;
+    virtual dio_interface vif;
     dio_seq_item dio_pkt;
 
     function new(string name = "dio_driver", uvm_component parent = null);
@@ -16,8 +16,8 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        if(!uvm_config_db#(virtual dut_interface)::get(this, get_full_name(), "vif", vif)) begin
-            `uvm_error("NOVIF", {"virtual interface must be set for: ", get_full_name(), "vif"})
+        if(!uvm_config_db#(virtual dio_interface)::get(this, "", "d_vif", vif)) begin
+            `uvm_error("DIO_DRV", {"virtual interface must be set for: ", get_full_name(), "vif"})
         end
 
     endfunction : connect_phase

@@ -6,9 +6,9 @@ class clock_driver extends uvm_driver;
     `uvm_component_utils(clock_driver)
 
     // instantiation of internal objects
-    virtual dut_interface vif;
+    virtual clk_interface vif;
 
-    int period;
+    int period = 100ns;
 
     function new (string name = "clock_driver", uvm_component parent = null);
         super.new(name,parent);
@@ -17,8 +17,8 @@ class clock_driver extends uvm_driver;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        if(!uvm_config_db#(virtual dut_interface)::get(this, get_full_name(), "vif", vif)) begin
-            `uvm_error("NOVIF", {"virtual interface must be set for: ", get_full_name(), "vif"})
+        if(!uvm_config_db#(virtual clk_interface)::get(this, "", "c_vif", vif)) begin
+            `uvm_error("CLK_DRV", {"virtual interface must be set for: ", get_full_name(), "vif"})
         end
 
     endfunction : connect_phase

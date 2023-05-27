@@ -1,12 +1,8 @@
 package env_pkg;
 
-    // `include "clock_agent.sv"
-    // `include "dio_agent.sv"
-    // `include "spi_slave_agent.sv"
-
-    import clock_pkg::*;
-    import dio_pkg::*;
-    import spi_slave_pkg::*;
+    `include "clock_agent.sv"
+    `include "dio_agent.sv"
+    `include "spi_slave_agent.sv"
 
     `include "virtual_sequencer.sv"
 

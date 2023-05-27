@@ -1,7 +1,7 @@
 package spi_slave_pkg;
 
     `include "spi_slave_seq_item.sv"
-    // `include "spi_slave_sequences.sv"
+    `include "spi_slave_sequences.sv"
     `include "spi_slave_sequencer.sv"
     `include "spi_slave_driver.sv"
     `include "spi_slave_monitor.sv"

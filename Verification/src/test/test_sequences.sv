@@ -12,7 +12,7 @@ class base_test_sequence extends uvm_sequence;
     // dio_sequence_1 dio_seq_1;
     // spi_slave_sequence slv_seq_1;
 
-    function new (string name = "base_virtual_sequence");
+    function new (string name = "base_test_sequence");
         super.new(name);
     endfunction : new
 

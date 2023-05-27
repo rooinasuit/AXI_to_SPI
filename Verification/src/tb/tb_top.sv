@@ -1,10 +1,11 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-`include "SPI_master.sv"
-`include "SPI_regs.sv"
 `include "SPI_top.sv"
+`include "SPI_regs.sv"
+`include "SPI_master.sv"
 
+`include "clk_interface.sv"
 `include "dio_interface.sv"
 `include "spi_interface.sv"
 
@@ -12,11 +13,12 @@ import top_pkg::*;
 
 module tb_top;
 
+    clk_interface c_itf();
     dio_interface d_itf();
     spi_interface s_itf();
 
     SPI_top DUT(
-        .GCLK          (d_itf.GCLK),
+        .GCLK          (c_itf.GCLK),
         .RST           (d_itf.RST),
         .start_in      (d_itf.start_in),
         .busy_out      (d_itf.busy_out),
@@ -42,10 +44,13 @@ module tb_top;
 //    end
 
     initial begin
-        uvm_config_db#(virtual dio_interface)::set(null, "base_test.env*", "d_vif", d_itf);
-        uvm_config_db#(virtual spi_interface)::set(null, "base_test.env*", "s_vif", d_itf);
+
+        uvm_config_db#(virtual clk_interface)::set(null, "*", "c_vif", c_itf); // clock driver
+        uvm_config_db#(virtual dio_interface)::set(null, "*", "d_vif", d_itf); // dio driver/monitor
+        uvm_config_db#(virtual spi_interface)::set(null, "*", "s_vif", s_itf); // spi slave driver/monitor
 
         run_test("test_1");
+
     end
 
 endmodule : tb_top

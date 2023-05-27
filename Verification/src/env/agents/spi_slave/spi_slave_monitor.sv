@@ -6,7 +6,7 @@ class spi_slave_monitor extends uvm_monitor;
     `uvm_component_utils(spi_slave_monitor)
 
     // instantiation of internal objects
-    virtual dut_interface vif;
+    virtual spi_interface vif;
     spi_slave_seq_item slv_pkt_in;
 
     uvm_analysis_port#(spi_slave_seq_item) slv_mon_port;
@@ -20,13 +20,14 @@ class spi_slave_monitor extends uvm_monitor;
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
+
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        if(!uvm_config_db#(virtual dut_interface)::get(this, get_full_name(), "vif", vif)) begin
-            `uvm_error("NOVIF", {"virtual interface must be set for: ", get_full_name(), "vif"})
+        if(!uvm_config_db#(virtual spi_interface)::get(this, "", "s_vif", vif)) begin
+            `uvm_error("SPI_MTR", {"virtual interface must be set for: ", get_full_name(), "vif"})
         end
 
     endfunction : connect_phase
@@ -36,7 +37,7 @@ class spi_slave_monitor extends uvm_monitor;
 
 
         forever begin
-            @(posedge vif.GCLK)
+            // @(posedge vif.GCLK)
                 slv_pkt_in = spi_slave_seq_item::type_id::create("slv_pkt_in");
                 `uvm_info("SLV_MTR", "Fetching slv_pkt_in from the DUT", UVM_LOW)
 

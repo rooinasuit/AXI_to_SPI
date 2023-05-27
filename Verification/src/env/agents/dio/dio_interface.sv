@@ -2,7 +2,6 @@
 interface dio_interface();
 
     // GLOBAL INPUT SIGNALS
-    bit GCLK;
     bit RST;
 
     // requested inputs

@@ -6,7 +6,7 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     `uvm_component_utils(spi_slave_driver)
 
     // instantiation of internal objects
-    virtual dut_interface vif;
+    virtual spi_interface vif;
     spi_slave_seq_item slv_pkt;
 
     function new (string name = "spi_slave_driver", uvm_component parent = null);
@@ -20,8 +20,8 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        if(!uvm_config_db#(virtual dut_interface)::get(this, get_full_name(), "vif", vif)) begin
-            `uvm_error("NOVIF", {"virtual interface must be set for: ", get_full_name(), "vif"})
+        if(!uvm_config_db#(virtual spi_interface)::get(this, "", "s_vif", vif)) begin
+            `uvm_error("SPI_DRV", {"virtual interface must be set for: ", get_full_name(), "vif"})
         end
 
     endfunction : connect_phase
@@ -29,9 +29,9 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        slv_pkt = spi_slave_seq_item::type_id::create("slv_pkt");
         forever begin
-            @(posedge vif.GCLK)
+            // @(posedge vif.GCLK)
+                slv_pkt = spi_slave_seq_item::type_id::create("slv_pkt");
                 `uvm_info("SLV_DRV", "Fetching next slv_pkt to put onto the DUT interface", UVM_LOW)
                 seq_item_port.get_next_item(slv_pkt);
 
