@@ -2,8 +2,6 @@ import uvm_pkg::*;
 `include "uvm_macros.svh"
 
 `include "SPI_top.sv"
-`include "SPI_regs.sv"
-`include "SPI_master.sv"
 
 `include "clk_interface.sv"
 `include "dio_interface.sv"
@@ -37,12 +35,6 @@ module tb_top;
         .CS_out        (s_itf.CS_out)
     );
 
-//    HOW TO SET A VALUE FOR AN OUTPUT OF A CLOCKING BLOCK SIGNAL IN INTERFACE NOW
-
-//    initial begin
-//        itf.cb.EXAMPLE = 0; 
-//    end
-
     initial begin
 
         uvm_config_db#(virtual clk_interface)::set(null, "*", "c_vif", c_itf); // clock driver
@@ -50,7 +42,6 @@ module tb_top;
         uvm_config_db#(virtual spi_interface)::set(null, "*", "s_vif", s_itf); // spi slave driver/monitor
 
         run_test("test_1");
-
     end
 
 endmodule : tb_top
