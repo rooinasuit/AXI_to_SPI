@@ -1,4 +1,4 @@
-interface spi_interface();
+interface spi_slave_interface();
 
     // requested inputs
     bit MISO_in;
@@ -8,4 +8,4 @@ interface spi_interface();
     bit SCLK_out;
     bit CS_out;
 
-endinterface : spi_interface
+endinterface : spi_slave_interface

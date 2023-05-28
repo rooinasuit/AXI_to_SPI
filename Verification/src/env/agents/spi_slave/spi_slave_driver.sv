@@ -6,7 +6,7 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     `uvm_component_utils(spi_slave_driver)
 
     // instantiation of internal objects
-    virtual spi_interface vif;
+    virtual spi_slave_interface vif;
     spi_slave_seq_item slv_pkt;
 
     function new (string name = "spi_slave_driver", uvm_component parent = null);
@@ -20,7 +20,7 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        if(!uvm_config_db#(virtual spi_interface)::get(this, "", "s_vif", vif)) begin
+        if(!uvm_config_db#(virtual spi_slave_interface)::get(this, "", "s_vif", vif)) begin
             `uvm_error("SPI_DRV", {"virtual interface must be set for: ", get_full_name(), "vif"})
         end
 

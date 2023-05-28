@@ -4,22 +4,26 @@ import uvm_pkg::*;
 class base_test_sequence extends uvm_sequence;
 
     `uvm_object_utils(base_test_sequence)
-    `uvm_declare_p_sequencer(virtual_sequencer)
+    // `uvm_declare_p_sequencer(virtual_sequencer)
+
+    virtual_sequencer v_sqr;
+
+    clock_sequencer     clk_sqr;
+    dio_sequencer       dio_sqr;
+    spi_slave_sequencer slv_sqr;
 
     function new (string name = "base_test_sequence");
         super.new(name);
     endfunction : new
 
-    task pre_body();
-
-        // `uvm_info("TEST_1", $sformatf("Creating: example_seq"), UVM_LOW)
-        // example_seq = example_sequence::type_id::create("example_seq");
-
-    endtask : pre_body
-
     task body();
 
-        // example_seq.start(p_sequencer.example_agent_sqr);
+        if(!$cast(v_sqr, m_sequencer)) begin
+            `uvm_error(get_full_name(), "Virtual sequencer pointer cast failed");
+        end
+        clk_sqr = v_sqr.clk_sqr;
+        dio_sqr = v_sqr.dio_sqr;
+        slv_sqr = v_sqr.slv_sqr;
 
     endtask : body
 
