@@ -17,7 +17,7 @@ and an SPI master peripheral (AXI slave).
     - [ ] Design test cases based on project requirements
     - [x] ~~UVM test bench architecture,~~
     - [ ] UVM test bench (written in SystemVerilog):
-        - [x] Instantiation of all required objects and components,
+        - [ ] Instantiation of all required objects and components,
         - [ ] Threads management in the test bench,
         - [ ] Directed tests based on the test cases,
     - [x] ~~Script-based compilation of both test bench and the DUT,~~
