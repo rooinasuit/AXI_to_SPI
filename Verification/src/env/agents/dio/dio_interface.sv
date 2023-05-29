@@ -2,10 +2,10 @@
 interface dio_interface();
 
     // GLOBAL INPUT SIGNALS
-    bit RST;
+    logic RST;
 
     // requested inputs
-    bit start_in;
+    logic start_in;
     //
     logic [1:0] spi_mode_in;
     logic [1:0] sck_speed_in;
@@ -18,7 +18,7 @@ interface dio_interface();
     logic [31:0] mosi_data_in;
 
     // received outputs
-    bit busy_out;
+    logic busy_out;
     //
     logic [31:0] miso_data_out;
 

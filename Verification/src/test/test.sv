@@ -35,37 +35,37 @@ class base_test extends uvm_test;
 
 endclass : base_test
 
-// class test_1 extends base_test;
+class test_1 extends base_test;
 
-//     `uvm_component_utils(test_1)
+    `uvm_component_utils(test_1)
 
-//     // instantiation of internal objects
-//     base_test_sequence t_seq_1;
+    // instantiation of internal objects
+    test_base_sequence t_seq_1;
 
-//     // constructor
-//     function new (string name = "test_1", uvm_component parent = null);
-//         super.new(name,parent);
-//     endfunction : new
+    // constructor
+    function new (string name = "test_1", uvm_component parent = null);
+        super.new(name,parent);
+    endfunction : new
 
-//     function void build_phase(uvm_phase phase);
-//         super.build_phase(phase);
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
 
-//         `uvm_info("TEST_1", $sformatf("Creating: t_seq_1"), UVM_LOW)
-//         t_seq_1 = base_test_sequence::type_id::create("t_seq_1");
+        `uvm_info("TEST_1", $sformatf("Creating: t_seq_1"), UVM_LOW)
+        t_seq_1 = test_base_sequence::type_id::create("t_seq_1");
 
-//     endfunction : build_phase
+    endfunction : build_phase
 
-//     task run_phase(uvm_phase phase);
-//         super.run_phase(phase);
+    task run_phase(uvm_phase phase);
+        super.run_phase(phase);
 
-//         phase.raise_objection(this); // start time consumption
-//         begin
-//             `uvm_info("TEST_1", "test_1 reporting for duty, generating sequences", UVM_LOW)
+        phase.raise_objection(this); // start time consumption
+        begin
+            `uvm_info("TEST_1", "test_1 reporting for duty, generating sequences", UVM_LOW)
 
-//             t_seq_1.start(env.v_sqr);
-//         end
-//         phase.drop_objection(this); // end time consumption
+            t_seq_1.start(env.v_sqr);
+        end
+        phase.drop_objection(this); // end time consumption
 
-//     endtask : run_phase
+    endtask : run_phase
 
-// endclass : test_1
+endclass : test_1

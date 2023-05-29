@@ -2,6 +2,6 @@
 interface clock_interface();
 
     // GLOBAL INPUT SIGNALS
-    bit GCLK;
+    logic GCLK;
 
 endinterface : clock_interface

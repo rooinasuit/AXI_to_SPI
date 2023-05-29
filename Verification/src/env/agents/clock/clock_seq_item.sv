@@ -3,12 +3,10 @@ import uvm_pkg::*;
 
 class clock_seq_item extends uvm_sequence_item;
 
-    // requested inputs
-    bit GCLK;
+    `uvm_object_utils(clock_seq_item)
 
-    `uvm_object_utils_begin(clock_seq_item)
-        `uvm_field_int(GCLK, UVM_DEFAULT)
-    `uvm_object_utils_end
+    // requested inputs:
+    logic GCLK;
 
     function new (string name = "clock_seq_item");
         super.new(name);

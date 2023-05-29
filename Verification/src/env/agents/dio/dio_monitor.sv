@@ -1,6 +1,8 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
+import macro_pkg::*;
+
 class dio_monitor extends uvm_monitor;
 
     `uvm_component_utils(dio_monitor)
@@ -10,6 +12,9 @@ class dio_monitor extends uvm_monitor;
     dio_seq_item dio_pkt_in;
 
     uvm_analysis_port#(dio_seq_item) dio_mon_port;
+
+    // logic old_port_val;
+    // logic new_port_val;
 
     function new(string name = "dio_monitor", uvm_component parent = null);
         super.new(name,parent);
@@ -31,26 +36,45 @@ class dio_monitor extends uvm_monitor;
         super.run_phase(phase);
 
         forever begin
-                dio_pkt_in = dio_seq_item::type_id::create("dio_pkt_in");
+                `MONITOR_WATCH_VARS
+                `MONITOR_WATCH(dio_pkt_in.start_out,     vif.start_in,      create_handle, write_transaction)
+                `MONITOR_WATCH(dio_pkt_in.spi_mode_out,  vif.spi_mode_in,   create_handle, write_transaction)
+                `MONITOR_WATCH(dio_pkt_in.sck_speed_out, vif.sck_speed_in,  create_handle, write_transaction)
+                `MONITOR_WATCH(dio_pkt_in.word_len_out,  vif.word_len_in,   create_handle, write_transaction)
+                `MONITOR_WATCH(dio_pkt_in.IFG_out,       vif.IFG_in,        create_handle, write_transaction)
+                `MONITOR_WATCH(dio_pkt_in.CS_SCK_out,    vif.CS_SCK_in,     create_handle, write_transaction)
+                `MONITOR_WATCH(dio_pkt_in.SCK_CS_out,    vif.SCK_CS_in,     create_handle, write_transaction)
+                `MONITOR_WATCH(dio_pkt_in.mosi_data_out, vif.mosi_data_in,  create_handle, write_transaction)
+                `MONITOR_WATCH(dio_pkt_in.busy_in,       vif.busy_out,      create_handle, write_transaction)
+                `MONITOR_WATCH(dio_pkt_in.miso_data_in,  vif.miso_data_out, create_handle, write_transaction)
+                // dio_pkt_in = dio_seq_item::type_id::create("dio_pkt_in");
+                // `uvm_info("DIO_MTR", "Fetching dio_pkt_in from the DUT", UVM_LOW)
+                // dio_pkt_in.start_out      = vif.start_in;
+                // dio_pkt_in.spi_mode_out   = vif.spi_mode_in;
+                // dio_pkt_in.sck_speed_out  = vif.sck_speed_in;
+                // dio_pkt_in.word_len_out   = vif.word_len_in;
+                // dio_pkt_in.IFG_out        = vif.IFG_in;
+                // dio_pkt_in.CS_SCK_out     = vif.CS_SCK_in;
+                // dio_pkt_in.SCK_CS_out     = vif.SCK_CS_in;
+                // dio_pkt_in.mosi_data_out  = vif.mosi_data_in;
 
-                `uvm_info("DIO_MTR", "Fetching dio_pkt_in from the DUT", UVM_LOW)
+                // dio_pkt_in.busy_in      = vif.busy_out;
+                // dio_pkt_in.miso_data_in = vif.miso_data_out;
 
-                dio_pkt_in.start_out      = vif.start_in;
-                dio_pkt_in.spi_mode_out   = vif.spi_mode_in;
-                dio_pkt_in.sck_speed_out  = vif.sck_speed_in;
-                dio_pkt_in.word_len_out   = vif.word_len_in;
-                dio_pkt_in.IFG_out        = vif.IFG_in;
-                dio_pkt_in.CS_SCK_out     = vif.CS_SCK_in;
-                dio_pkt_in.SCK_CS_out     = vif.SCK_CS_in;
-                dio_pkt_in.mosi_data_out  = vif.mosi_data_in;
-
-                dio_pkt_in.busy_in      = vif.busy_out;
-                dio_pkt_in.miso_data_in = vif.miso_data_out;
-
-                `uvm_info("DIO_MTR", "Writing collected dio_mon_pkt onto dio_mon_port", UVM_LOW)
-                dio_mon_port.write(dio_pkt_in);
+                // `uvm_info("DIO_MTR", "Writing collected dio_mon_pkt onto dio_mon_port", UVM_LOW)
+                // dio_mon_port.write(dio_pkt_in);
         end
 
     endtask : run_phase
+
+    function void create_handle();
+        `uvm_info("DIO_MTR", "Fetching dio_pkt_in from the DUT", UVM_LOW)
+        dio_pkt_in = dio_seq_item::type_id::create("dio_pkt_in");
+    endfunction : create_handle
+
+    function void write_transaction();
+        `uvm_info("DIO_MTR", "Writing collected dio_mon_pkt onto dio_mon_port", UVM_LOW)
+        dio_mon_port.write(dio_pkt_in);
+    endfunction : write_transaction
 
 endclass: dio_monitor
