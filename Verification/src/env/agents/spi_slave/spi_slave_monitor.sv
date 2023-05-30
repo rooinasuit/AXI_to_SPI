@@ -1,5 +1,3 @@
-import uvm_pkg::*;
-`include "uvm_macros.svh"
 
 class spi_slave_monitor extends uvm_monitor;
 
@@ -10,6 +8,8 @@ class spi_slave_monitor extends uvm_monitor;
     spi_slave_seq_item slv_pkt_in;
 
     uvm_analysis_port#(spi_slave_seq_item) slv_mon_port;
+
+    bit spi_mode = 2;
 
     function new (string name = "spi_slave_monitor", uvm_component parent = null);
         super.new(name,parent);
@@ -37,20 +37,66 @@ class spi_slave_monitor extends uvm_monitor;
 
 
         forever begin
-            // @(posedge vif.GCLK)
-                slv_pkt_in = spi_slave_seq_item::type_id::create("slv_pkt_in");
-                `uvm_info("SLV_MTR", "Fetching slv_pkt_in from the DUT", UVM_LOW)
-
-                slv_pkt_in.MISO_in   = vif.MISO_in;
-
-                slv_pkt_in.MOSI_out  = vif.MOSI_out;
-                slv_pkt_in.SCLK_out  = vif.SCLK_out;
-                slv_pkt_in.CS_out    = vif.CS_out;
-
-                `uvm_info("SLV_MTR", "Writing collected slv_pkt_in onto slv_mon_port", UVM_LOW)
-                slv_mon_port.write(slv_pkt_in);
+            create_handle();
+            spi_slave_capture(spi_mode);
+            write_transaction();
         end
 
     endtask : run_phase
+
+    task spi_slave_capture(bit spi_mode);
+        case(spi_mode)
+            0: begin
+                slv_pkt_in.CS_in    = vif.CS_out;
+                // slv_pkt_in.SCLK_in  = vif.SCLK_out;
+                @(posedge vif.SCLK_out) begin
+                    slv_pkt_in.MOSI_in = vif.MOSI_out;
+                end
+                @(negedge vif.SCLK_out) begin
+                    slv_pkt_in.MISO_out = vif.MISO_in;
+                end
+            end
+            1: begin
+                slv_pkt_in.CS_in    = vif.CS_out;
+                // slv_pkt_in.SCLK_in  = vif.SCLK_out;
+                @(posedge vif.SCLK_out) begin
+                    slv_pkt_in.MISO_out = vif.MISO_in;
+                end
+                @(negedge vif.SCLK_out) begin
+                    slv_pkt_in.MOSI_in = vif.MOSI_out;
+                end
+            end
+            2: begin
+                slv_pkt_in.CS_in    = vif.CS_out;
+                // slv_pkt_in.SCLK_in  = vif.SCLK_out;
+                @(negedge vif.SCLK_out) begin
+                    slv_pkt_in.MISO_out = vif.MISO_in;
+                end
+                @(posedge vif.SCLK_out) begin
+                    slv_pkt_in.MOSI_in = vif.MOSI_out;
+                end
+            end
+            3: begin
+                slv_pkt_in.CS_in    = vif.CS_out;
+                // slv_pkt_in.SCLK_in  = vif.SCLK_out;
+                @(negedge vif.SCLK_out) begin
+                    slv_pkt_in.MOSI_in = vif.MOSI_out;
+                end
+                @(posedge vif.SCLK_out) begin
+                    slv_pkt_in.MISO_out = vif.MISO_in;
+                end
+            end
+        endcase
+    endtask : spi_slave_capture
+
+    function void create_handle();
+        `uvm_info("SLV_MTR", "Fetching slv_pkt_in from the DUT", UVM_LOW)
+        slv_pkt_in = spi_slave_seq_item::type_id::create("slv_pkt_in");
+    endfunction : create_handle
+
+    function void write_transaction();
+        `uvm_info("SLV_MTR", "Writing collected slv_mon_pkt onto dio_mon_port", UVM_LOW)
+        slv_mon_port.write(slv_pkt_in);
+    endfunction : write_transaction
 
 endclass: spi_slave_monitor

@@ -1,5 +1,3 @@
-import uvm_pkg::*;
-`include "uvm_macros.svh"
 
 class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
 
@@ -8,6 +6,8 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     // instantiation of internal objects
     virtual spi_slave_interface vif;
     spi_slave_seq_item slv_pkt;
+
+    bit spi_mode = 2;
 
     function new (string name = "spi_slave_driver", uvm_component parent = null);
         super.new(name,parent);
@@ -30,17 +30,47 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
         super.run_phase(phase);
 
         forever begin
-            // @(posedge vif.GCLK)
-                slv_pkt = spi_slave_seq_item::type_id::create("slv_pkt");
-                `uvm_info("SLV_DRV", "Fetching next slv_pkt to put onto the DUT interface", UVM_LOW)
-                seq_item_port.get_next_item(slv_pkt);
-
-                vif.MISO_in     <= slv_pkt.MISO_in;
-
-                `uvm_info("SLV_DRV", "Transaction finished, ready for another", UVM_LOW)
-                seq_item_port.item_done();
+            create_handle();
+            spi_slave_send(spi_mode);
+            transaction_done();
         end
 
     endtask : run_phase
+
+    task spi_slave_send(bit spi_mode);
+        seq_item_port.get_next_item(slv_pkt);
+        case(spi_mode)
+            0: begin
+                @(negedge vif.SCLK_out) begin
+                    vif.MISO_in <= slv_pkt.MISO_out;
+                end
+            end
+            1: begin
+                @(posedge vif.SCLK_out) begin
+                    vif.MISO_in <= slv_pkt.MISO_out;
+                end
+            end
+            2: begin
+                @(negedge vif.SCLK_out) begin
+                    vif.MISO_in <= slv_pkt.MISO_out;
+                end
+            end
+            3: begin
+                @(posedge vif.SCLK_out) begin
+                    vif.MISO_in <= slv_pkt.MISO_out;
+                end
+            end
+        endcase
+    endtask : spi_slave_send
+
+    function void create_handle();
+        `uvm_info("SLV_DRV", "Fetching next slv_pkt to put onto the DUT interface", UVM_LOW)
+        slv_pkt = spi_slave_seq_item::type_id::create("slv_pkt");
+    endfunction : create_handle
+
+    function void transaction_done();
+        `uvm_info("SLV_DRV", "Transaction finished, ready for another", UVM_LOW)
+        seq_item_port.item_done();
+    endfunction : transaction_done
 
 endclass: spi_slave_driver

@@ -1,5 +1,4 @@
 import uvm_pkg::*;
-`include "uvm_macros.svh"
 
 `include "SPI_top.sv"
 
@@ -7,7 +6,7 @@ import uvm_pkg::*;
 `include "dio_interface.sv"
 `include "spi_slave_interface.sv"
 
-import top_pkg::*;
+import test_pkg::*;
 
 module tb_top;
 

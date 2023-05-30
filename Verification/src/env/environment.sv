@@ -1,7 +1,3 @@
-import uvm_pkg::*;
-`include "uvm_macros.svh"
-
-import env_pkg::*;
 
 class tb_environment extends uvm_env;
 

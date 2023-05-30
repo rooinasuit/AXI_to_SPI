@@ -1,5 +1,3 @@
-import uvm_pkg::*;
-`include "uvm_macros.svh"
 
 class spi_slave_base_sequence extends uvm_sequence#(spi_slave_seq_item);
 
@@ -26,7 +24,7 @@ class spi_slave_base_sequence extends uvm_sequence#(spi_slave_seq_item);
     endtask : body
 
     function void random_val();
-        slv_pkt.MISO_in = {$random} % 2;
+        slv_pkt.MISO_out = {$random} % 2;
     endfunction : random_val
 
 endclass : spi_slave_base_sequence

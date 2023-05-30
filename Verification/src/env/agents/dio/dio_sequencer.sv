@@ -1,5 +1,3 @@
-import uvm_pkg::*;
-`include "uvm_macros.svh"
 
 class dio_sequencer extends uvm_sequencer#(dio_seq_item);
 

@@ -1,7 +1,3 @@
-import uvm_pkg::*;
-`include "uvm_macros.svh"
-
-import spi_slave_pkg::*;
 
 class spi_slave_agent extends uvm_agent;
 

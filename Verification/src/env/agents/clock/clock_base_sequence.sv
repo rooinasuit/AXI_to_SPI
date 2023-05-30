@@ -1,5 +1,3 @@
-import uvm_pkg::*;
-`include "uvm_macros.svh"
 
 class clock_base_sequence extends uvm_sequence#(clock_seq_item);
 

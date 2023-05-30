@@ -1,13 +1,11 @@
-import uvm_pkg::*;
-`include "uvm_macros.svh"
 
-class base_dio_sequence extends uvm_sequence#(dio_seq_item);
+class dio_base_sequence extends uvm_sequence#(dio_seq_item);
 
-    `uvm_object_utils(base_dio_sequence)
+    `uvm_object_utils(dio_base_sequence)
 
     dio_seq_item dio_pkt;
 
-    function new (string name = "base_dio_sequence");
+    function new (string name = "dio_base_sequence");
         super.new(name);
     endfunction : new
 
@@ -51,9 +49,9 @@ class base_dio_sequence extends uvm_sequence#(dio_seq_item);
 
     endtask : drive_io_random
 
-endclass : base_dio_sequence
+endclass : dio_base_sequence
 
-class dio_sequence_start extends base_dio_sequence;
+class dio_sequence_start extends dio_base_sequence;
 
     `uvm_object_utils(dio_sequence_start)
 
@@ -81,7 +79,7 @@ class dio_sequence_start extends base_dio_sequence;
 
 endclass : dio_sequence_start
 
-class dio_sequence_1 extends base_dio_sequence;
+class dio_sequence_1 extends dio_base_sequence;
 
     `uvm_object_utils(dio_sequence_1)
 

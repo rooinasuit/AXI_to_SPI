@@ -1,5 +1,3 @@
-import uvm_pkg::*;
-`include "uvm_macros.svh"
 
 // typedef class clock_sequencer;
 // typedef class dio_sequencer;

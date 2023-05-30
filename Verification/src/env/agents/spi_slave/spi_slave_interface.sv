@@ -1,3 +1,4 @@
+
 interface spi_slave_interface();
 
     // requested inputs
