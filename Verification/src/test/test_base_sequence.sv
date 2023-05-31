@@ -7,6 +7,8 @@ class test_base_sequence extends uvm_sequence;
     `uvm_declare_p_sequencer(virtual_sequencer)
 
     clock_sequence_start clk_seq_start;
+    dio_sequence_start dio_seq_start;
+    dio_sequence_1 dio_seq_1;
 
     function new (string name = "base_test_sequence");
         super.new(name);
@@ -14,6 +16,8 @@ class test_base_sequence extends uvm_sequence;
 
     task pre_body();
         clk_seq_start = clock_sequence_start::type_id::create("clk_seq_start");
+        dio_seq_start = dio_sequence_start::type_id::create("dio_seq_start");
+        dio_seq_1 = dio_sequence_1::type_id::create("dio_seq_1");
     endtask : pre_body
 
     // task body();
@@ -21,8 +25,9 @@ class test_base_sequence extends uvm_sequence;
     // endtask : body
 
     task post_body();
-        // finish_item(clk_seq_start);
         clk_seq_start.start(p_sequencer, this);
+        dio_seq_start.start(p_sequencer, this);
+        dio_seq_1.start(p_sequencer, this);
     endtask : post_body
 
 endclass : test_base_sequence

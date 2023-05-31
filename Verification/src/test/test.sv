@@ -3,6 +3,8 @@ class base_test extends uvm_test;
 
     `uvm_component_utils(base_test)
 
+    clock_config clk_cfg;
+    environment_config env_cfg;
     tb_environment env;
 
     // constructor
@@ -13,8 +15,13 @@ class base_test extends uvm_test;
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
 
+        clk_cfg = clock_config::type_id::create("clk_cfg", this);
+        env_cfg = environment_config::type_id::create("env_cfg", this);
+
         `uvm_info("TEST", "Creating ENV handle", UVM_LOW)
         env = tb_environment::type_id::create("env", this);
+
+        uvm_config_db #(environment_config)::set(this, "*", "environment_config", env_cfg);
 
     endfunction : build_phase
 

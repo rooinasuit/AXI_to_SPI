@@ -23,11 +23,11 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        forever begin
+        // forever begin
             create_handle();
             dio_send();
             transaction_done();
-        end
+        // end
 
     endtask : run_phase
 
@@ -46,6 +46,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
         `uvm_info("DIO_DRV", "Fetching next dio_pkt to put onto the DUT interface", UVM_LOW)
         dio_pkt = dio_seq_item::type_id::create("dio_pkt");
         seq_item_port.get_next_item(dio_pkt); // blocking
+        dio_pkt.print();
     endtask : create_handle
 
     function void transaction_done();

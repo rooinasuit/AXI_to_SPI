@@ -4,6 +4,8 @@ class tb_environment extends uvm_env;
     `uvm_component_utils(tb_environment)
 
     // instantiation of internal object
+    environment_config env_cfg;
+
     virtual_sequencer v_sqr;
 
     clock_agent     clk_agt;
@@ -18,6 +20,12 @@ class tb_environment extends uvm_env;
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
+
+        if(!uvm_config_db#(environment_config)::get(this, "", "environment_config", env_cfg)) begin
+            `uvm_error("ENV", {"environment config must be set for: ", get_full_name(), " env_cfg"})
+        end
+
+        uvm_config_db#(clock_config)::set(null, "*clk_agt", "config", env_cfg.clk_cfg);
 
         `uvm_info("ENV", "Creating CLK_AGT handle", UVM_LOW)
         clk_agt = clock_agent::type_id::create("clk_agt", this);

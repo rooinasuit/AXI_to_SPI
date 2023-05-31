@@ -25,11 +25,11 @@ class clock_driver extends uvm_driver#(clock_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
         
-        forever begin
+        // forever begin
             create_handle();
             clock_send();
             transaction_done();
-        end
+        // end
 
     endtask : run_phase
 
@@ -43,6 +43,7 @@ class clock_driver extends uvm_driver#(clock_seq_item);
         `uvm_info("CLK_DRV", "Fetching next clk_pkt to put onto the DUT interface", UVM_LOW)
         clk_pkt = clock_seq_item::type_id::create("clk_pkt");
         seq_item_port.get_next_item(clk_pkt); // blocking
+        clk_pkt.print();
     endtask : create_handle
 
     function void transaction_done();

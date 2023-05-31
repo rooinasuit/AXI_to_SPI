@@ -11,8 +11,7 @@ package env_pkg;
 
     import scb_pkg::*;
 
-    `include "environment.sv"
-
     `include "environment_config.sv"
+    `include "environment.sv"
 
 endpackage : env_pkg

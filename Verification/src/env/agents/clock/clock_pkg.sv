@@ -8,8 +8,7 @@ package clock_pkg;
     `include "clock_seq_lib.sv"
     `include "clock_sequencer.sv"
     `include "clock_driver.sv"
-    `include "clock_agent.sv"
-
     `include "clock_config.sv"
+    `include "clock_agent.sv"
 
 endpackage : clock_pkg

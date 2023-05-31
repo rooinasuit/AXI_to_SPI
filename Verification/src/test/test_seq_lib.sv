@@ -9,8 +9,9 @@ class test_sequence_1 extends test_base_sequence;
 
     task body();
         // clk_seq_start = clock_sequence_start::type_id::create("clk_seq_start");
-        // clk_seq_start.period_in = 1ns;
-        // clk_seq_start.start(p_sequencer, this);
+        clk_seq_start.period_in = 1ns;
+        // dio_seq_start.start(p_sequencer, this);
+        // dio_seq_1.start(p_sequencer, this);
     endtask : body
 
 endclass : test_sequence_1

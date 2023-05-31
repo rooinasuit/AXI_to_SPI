@@ -9,8 +9,11 @@ class clock_base_sequence extends uvm_sequence#(clock_seq_item);
         super.new(name);
     endfunction : new
 
-    task start_clock(int period_in);
+    task pre_body();
         clk_pkt = clock_seq_item::type_id::create("clk_pkt");
+    endtask : pre_body
+
+    task start_clock(int period_in);
         start_item(clk_pkt);
         clk_pkt.period = period_in;
         finish_item(clk_pkt);

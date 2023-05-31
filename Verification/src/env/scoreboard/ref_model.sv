@@ -6,6 +6,7 @@ class ref_model extends uvm_component;
 
     `uvm_component_utils(ref_model)
 
+    clock_seq_item clk_pkt_received;
     dio_seq_item dio_pkt_received;
     spi_slave_seq_item slv_pkt_received;
 

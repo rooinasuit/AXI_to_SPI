@@ -38,35 +38,38 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     endtask : run_phase
 
     task spi_slave_send(bit spi_mode);
-        seq_item_port.get_next_item(slv_pkt);
-        case(spi_mode)
-            0: begin
-                @(negedge vif.SCLK_out) begin
-                    vif.MISO_in <= slv_pkt.MISO_out;
+        if (vif.CS_out) begin
+            case(spi_mode)
+                0: begin
+                    @(negedge vif.SCLK_out) begin
+                        vif.MISO_in <= slv_pkt.MISO_out;
+                    end
                 end
-            end
-            1: begin
-                @(posedge vif.SCLK_out) begin
-                    vif.MISO_in <= slv_pkt.MISO_out;
+                1: begin
+                    @(posedge vif.SCLK_out) begin
+                        vif.MISO_in <= slv_pkt.MISO_out;
+                    end
                 end
-            end
-            2: begin
-                @(negedge vif.SCLK_out) begin
-                    vif.MISO_in <= slv_pkt.MISO_out;
+                2: begin
+                    @(negedge vif.SCLK_out) begin
+                        vif.MISO_in <= slv_pkt.MISO_out;
+                    end
                 end
-            end
-            3: begin
-                @(posedge vif.SCLK_out) begin
-                    vif.MISO_in <= slv_pkt.MISO_out;
+                3: begin
+                    @(posedge vif.SCLK_out) begin
+                        vif.MISO_in <= slv_pkt.MISO_out;
+                    end
                 end
-            end
-        endcase
+            endcase
+        end
     endtask : spi_slave_send
 
-    function void create_handle();
+    task create_handle();
         `uvm_info("SLV_DRV", "Fetching next slv_pkt to put onto the DUT interface", UVM_LOW)
         slv_pkt = spi_slave_seq_item::type_id::create("slv_pkt");
-    endfunction : create_handle
+        seq_item_port.get_next_item(slv_pkt);
+        slv_pkt.print();
+    endtask : create_handle
 
     function void transaction_done();
         `uvm_info("SLV_DRV", "Transaction finished, ready for another", UVM_LOW)
