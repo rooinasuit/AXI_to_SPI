@@ -32,7 +32,6 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     endtask : run_phase
 
     task dio_send();
-        seq_item_port.get_next_item(dio_pkt); // blocking
         vif.start_in     = dio_pkt.start_out;
         vif.spi_mode_in  = dio_pkt.spi_mode_out;
         vif.sck_speed_in = dio_pkt.sck_speed_out;
@@ -43,10 +42,11 @@ class dio_driver extends uvm_driver#(dio_seq_item);
         vif.mosi_data_in = dio_pkt.mosi_data_out;
     endtask : dio_send
 
-    function void create_handle();
+    task create_handle();
         `uvm_info("DIO_DRV", "Fetching next dio_pkt to put onto the DUT interface", UVM_LOW)
         dio_pkt = dio_seq_item::type_id::create("dio_pkt");
-    endfunction : create_handle
+        seq_item_port.get_next_item(dio_pkt); // blocking
+    endtask : create_handle
 
     function void transaction_done();
         `uvm_info("DIO_DRV", "Transaction finished, ready for another", UVM_LOW)

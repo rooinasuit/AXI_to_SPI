@@ -1,33 +1,29 @@
 
-// typedef class clock_sequencer;
-// typedef class dio_sequencer;
-// typedef class spi_slave_sequencer;
+    // import clock_pkg::*;
 
 class test_base_sequence extends uvm_sequence;
 
     `uvm_object_utils(test_base_sequence)
     `uvm_declare_p_sequencer(virtual_sequencer)
 
-    // virtual_sequencer v_sqr;
-
-    // clock_sequencer     clk_sqr;
-    // dio_sequencer       dio_sqr;
-    // spi_slave_sequencer slv_sqr;
+    clock_sequence_start clk_seq_start;
 
     function new (string name = "base_test_sequence");
         super.new(name);
     endfunction : new
 
-    task body();
+    task pre_body();
+        clk_seq_start = clock_sequence_start::type_id::create("clk_seq_start");
+    endtask : pre_body
 
-        // if(!$cast(v_sqr, m_sequencer)) begin
-        //     `uvm_error(get_full_name(), "Virtual sequencer pointer cast failed");
-        // end
-        // clk_sqr = v_sqr.clk_sqr;
-        // dio_sqr = v_sqr.dio_sqr;
-        // slv_sqr = v_sqr.slv_sqr;
+    // task body();
 
-    endtask : body
+    // endtask : body
+
+    task post_body();
+        // finish_item(clk_seq_start);
+        clk_seq_start.start(p_sequencer, this);
+    endtask : post_body
 
 endclass : test_base_sequence
 

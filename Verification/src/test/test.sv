@@ -36,7 +36,7 @@ class test_1 extends base_test;
     `uvm_component_utils(test_1)
 
     // instantiation of internal objects
-    test_base_sequence t_seq_1;
+    test_sequence_1 t_seq_1;
 
     // constructor
     function new (string name = "test_1", uvm_component parent = null);
@@ -47,7 +47,7 @@ class test_1 extends base_test;
         super.build_phase(phase);
 
         `uvm_info("TEST_1", $sformatf("Creating: t_seq_1"), UVM_LOW)
-        t_seq_1 = test_base_sequence::type_id::create("t_seq_1");
+        t_seq_1 = test_sequence_1::type_id::create("t_seq_1");
 
     endfunction : build_phase
 
