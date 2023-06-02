@@ -13,9 +13,10 @@ class dio_base_sequence extends uvm_sequence#(dio_seq_item);
         dio_pkt = dio_seq_item::type_id::create("dio_pkt");
     endtask : pre_body
 
-    task drive_io(string name, bit value);
+    task drive_io(string name, int value);
 
         case (name)
+        "RST": dio_pkt.RST = value;
         "start_out": dio_pkt.start_out = value;
 
         "spi_mode_out":  dio_pkt.spi_mode_out = value;
@@ -36,6 +37,7 @@ class dio_base_sequence extends uvm_sequence#(dio_seq_item);
     task drive_io_random(string name, int range);
 
         case (name)
+        "RST": dio_pkt.RST = {$random} % range;
         "start_out": dio_pkt.start_out = {$random} % range;
 
         "spi_mode_out":  dio_pkt.spi_mode_out = {$random} % range;

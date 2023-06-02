@@ -4,8 +4,9 @@ package clock_pkg;
     `include "uvm_macros.svh"
 
     `include "clock_seq_item.sv"
-    `include "clock_base_sequence.sv"
-    `include "clock_seq_lib.sv"
+    //
+    import clock_seq_pkg::*;
+    //
     `include "clock_sequencer.sv"
     `include "clock_driver.sv"
     `include "clock_config.sv"

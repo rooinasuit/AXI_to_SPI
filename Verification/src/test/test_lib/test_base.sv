@@ -3,8 +3,11 @@ class base_test extends uvm_test;
 
     `uvm_component_utils(base_test)
 
-    clock_config clk_cfg;
+    clock_config     clk_cfg;
+    dio_config       dio_cfg;
+    spi_slave_config slv_cfg;
     environment_config env_cfg;
+
     tb_environment env;
 
     // constructor
@@ -16,6 +19,9 @@ class base_test extends uvm_test;
         super.build_phase(phase);
 
         clk_cfg = clock_config::type_id::create("clk_cfg", this);
+        dio_cfg = dio_config::type_id::create("dio_cfg", this);
+        slv_cfg = spi_slave_config::type_id::create("slv_cfg", this);
+
         env_cfg = environment_config::type_id::create("env_cfg", this);
 
         `uvm_info("TEST", "Creating ENV handle", UVM_LOW)

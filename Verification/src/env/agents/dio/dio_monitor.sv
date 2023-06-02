@@ -43,6 +43,8 @@ class dio_monitor extends uvm_monitor;
 
     task dio_capture();
         `MONITOR_WATCH_VARS
+        fork
+        `MONITOR_WATCH(dio_pkt_in.RST,           vif.RST,           create_handle, write_transaction)
         `MONITOR_WATCH(dio_pkt_in.start_out,     vif.start_in,      create_handle, write_transaction)
         `MONITOR_WATCH(dio_pkt_in.spi_mode_out,  vif.spi_mode_in,   create_handle, write_transaction)
         `MONITOR_WATCH(dio_pkt_in.sck_speed_out, vif.sck_speed_in,  create_handle, write_transaction)
@@ -53,16 +55,17 @@ class dio_monitor extends uvm_monitor;
         `MONITOR_WATCH(dio_pkt_in.mosi_data_out, vif.mosi_data_in,  create_handle, write_transaction)
         `MONITOR_WATCH(dio_pkt_in.busy_in,       vif.busy_out,      create_handle, write_transaction)
         `MONITOR_WATCH(dio_pkt_in.miso_data_in,  vif.miso_data_out, create_handle, write_transaction)
+        join
     endtask : dio_capture
 
-    function void create_handle();
+    task create_handle();
         `uvm_info("DIO_MTR", "Fetching dio_pkt_in from the DUT", UVM_LOW)
         dio_pkt_in = dio_seq_item::type_id::create("dio_pkt_in");
-    endfunction : create_handle
+    endtask : create_handle
 
-    function void write_transaction();
+    task write_transaction();
         `uvm_info("DIO_MTR", "Writing collected dio_mon_pkt onto dio_mon_port", UVM_LOW)
         dio_mon_port.write(dio_pkt_in);
-    endfunction : write_transaction
+    endtask : write_transaction
 
 endclass: dio_monitor

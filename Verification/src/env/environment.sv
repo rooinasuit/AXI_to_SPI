@@ -25,7 +25,9 @@ class tb_environment extends uvm_env;
             `uvm_error("ENV", {"environment config must be set for: ", get_full_name(), " env_cfg"})
         end
 
-        uvm_config_db#(clock_config)::set(null, "*clk_agt", "config", env_cfg.clk_cfg);
+        uvm_config_db#(clock_config)::set(null, "*clk_agt", "clock_config", env_cfg.clk_cfg);
+        uvm_config_db#(dio_config)::set(null, "*dio_agt", "dio_config", env_cfg.dio_cfg);
+        uvm_config_db#(spi_slave_config)::set(null, "*slv_agt", "spi_slave_config", env_cfg.slv_cfg);
 
         `uvm_info("ENV", "Creating CLK_AGT handle", UVM_LOW)
         clk_agt = clock_agent::type_id::create("clk_agt", this);

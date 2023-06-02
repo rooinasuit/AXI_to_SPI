@@ -13,6 +13,6 @@ package test_pkg;
 
     `include "test_base_sequence.sv"
     `include "test_seq_lib.sv"
-    `include "test.sv"
+    `include "test_base.sv"
 
 endpackage : test_pkg

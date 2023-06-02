@@ -23,11 +23,11 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        // forever begin
+        forever begin
             create_handle();
             dio_send();
             transaction_done();
-        // end
+        end
 
     endtask : run_phase
 

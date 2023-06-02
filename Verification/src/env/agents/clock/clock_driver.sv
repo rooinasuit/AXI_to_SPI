@@ -25,18 +25,18 @@ class clock_driver extends uvm_driver#(clock_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
         
-        // forever begin
+        forever begin
             create_handle();
             clock_send();
             transaction_done();
-        // end
+        end
 
     endtask : run_phase
 
     task clock_send();
-        fork
-            forever#(clk_pkt.period/2) vif.GCLK = !vif.GCLK;
-        join_none
+        // fork
+        //     forever#(clk_pkt.period/2) vif.GCLK = !vif.GCLK;
+        // join_none
     endtask : clock_send
 
     task create_handle();

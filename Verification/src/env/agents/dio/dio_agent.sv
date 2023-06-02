@@ -4,6 +4,8 @@ class dio_agent extends uvm_agent;
     `uvm_component_utils(dio_agent)
 
     // instantiation of internal objects
+    dio_config dio_cfg;
+
     dio_sequencer dio_sqr;
     dio_driver    dio_drv;
     dio_monitor   dio_mtr;
@@ -19,6 +21,10 @@ class dio_agent extends uvm_agent;
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
+
+        if (!uvm_config_db #(dio_config)::get(this, "", "dio_config", dio_cfg)) begin
+            `uvm_fatal("DIO_AGT", {"clock config must be set for: ", get_full_name(), " dio_cfg"})
+        end
 
         `uvm_info("DIO_AGT", "Creating DIO_SQR handle", UVM_LOW)
         dio_sqr = dio_sequencer::type_id::create("dio_sqr", this);

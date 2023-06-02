@@ -17,7 +17,7 @@ class clock_agent extends uvm_agent;
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
 
-        if (!uvm_config_db #(clock_config)::get(this, "", "config", clk_cfg)) begin
+        if (!uvm_config_db #(clock_config)::get(this, "", "clock_config", clk_cfg)) begin
             `uvm_fatal("CLK_AGT", {"clock config must be set for: ", get_full_name(), " clk_cfg"})
         end
 
