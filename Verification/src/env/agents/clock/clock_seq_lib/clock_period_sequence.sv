@@ -3,7 +3,7 @@ class clock_period_sequence extends clock_base_sequence;
 
     `uvm_object_utils(clock_period_sequence)
 
-    int period = 0;
+    int period;
 
     function new (string name = "clock_period_sequence");
         super.new(name);
@@ -13,7 +13,7 @@ class clock_period_sequence extends clock_base_sequence;
         clk_pkt = clock_seq_item::type_id::create("clk_pkt");
 
         start_item(clk_pkt);
-            start_clock(period);
+            drive_clock(period);
         finish_item(clk_pkt);
     endtask : body
 

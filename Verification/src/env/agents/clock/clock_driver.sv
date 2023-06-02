@@ -7,8 +7,6 @@ class clock_driver extends uvm_driver#(clock_seq_item);
     virtual clock_interface vif;
     clock_seq_item clk_pkt;
 
-    int period = 100ns;
-
     function new (string name = "clock_driver", uvm_component parent = null);
         super.new(name,parent);
     endfunction : new
@@ -37,6 +35,7 @@ class clock_driver extends uvm_driver#(clock_seq_item);
         // fork
         //     forever#(clk_pkt.period/2) vif.GCLK = !vif.GCLK;
         // join_none
+        vif.period = clk_pkt.period;
     endtask : clock_send
 
     task create_handle();

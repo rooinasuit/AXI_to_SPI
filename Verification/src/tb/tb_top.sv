@@ -40,7 +40,7 @@ module tb_top;
         uvm_config_db#(virtual dio_interface)::set(null, "*", "d_vif", d_itf); // dio driver/monitor
         uvm_config_db#(virtual spi_slave_interface)::set(null, "*", "s_vif", s_itf); // spi slave driver/monitor
 
-        run_test("test_1");
+        run_test("test_0010_1");
     end
 
 endmodule : tb_top

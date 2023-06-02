@@ -13,8 +13,8 @@ class clock_base_sequence extends uvm_sequence#(clock_seq_item);
 
     endtask : body
 
-    task start_clock(int period);
+    task drive_clock(time period);
         clk_pkt.period = period;
-    endtask : start_clock
+    endtask : drive_clock
 
 endclass : clock_base_sequence

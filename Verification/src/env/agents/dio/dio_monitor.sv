@@ -43,7 +43,6 @@ class dio_monitor extends uvm_monitor;
 
     task dio_capture();
         `MONITOR_WATCH_VARS
-        fork
         `MONITOR_WATCH(dio_pkt_in.RST,           vif.RST,           create_handle, write_transaction)
         `MONITOR_WATCH(dio_pkt_in.start_out,     vif.start_in,      create_handle, write_transaction)
         `MONITOR_WATCH(dio_pkt_in.spi_mode_out,  vif.spi_mode_in,   create_handle, write_transaction)
@@ -55,7 +54,6 @@ class dio_monitor extends uvm_monitor;
         `MONITOR_WATCH(dio_pkt_in.mosi_data_out, vif.mosi_data_in,  create_handle, write_transaction)
         `MONITOR_WATCH(dio_pkt_in.busy_in,       vif.busy_out,      create_handle, write_transaction)
         `MONITOR_WATCH(dio_pkt_in.miso_data_in,  vif.miso_data_out, create_handle, write_transaction)
-        join
     endtask : dio_capture
 
     task create_handle();
