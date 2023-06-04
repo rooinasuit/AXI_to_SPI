@@ -35,6 +35,9 @@ class spi_slave_agent extends uvm_agent;
         `uvm_info("SLV_AGT", "Creating SLV_MTR handle", UVM_LOW)
         slv_mtr = spi_slave_monitor::type_id::create("slv_mtr", this);
 
+        slv_mtr.spi_mode = slv_cfg.spi_mode;
+        slv_drv.spi_mode = slv_cfg.spi_mode;
+
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);

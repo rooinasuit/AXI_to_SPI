@@ -4,10 +4,11 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     `uvm_component_utils(spi_slave_driver)
 
     // instantiation of internal objects
+    spi_slave_config slv_cfg;
     virtual spi_slave_interface vif;
     spi_slave_seq_item slv_pkt;
 
-    bit spi_mode = 2;
+    logic spi_mode = 2;
 
     function new (string name = "spi_slave_driver", uvm_component parent = null);
         super.new(name,parent);
@@ -37,7 +38,7 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
 
     endtask : run_phase
 
-    task spi_slave_send(bit spi_mode);
+    task spi_slave_send(logic spi_mode);
         if (vif.CS_out) begin
             case(spi_mode)
                 0: begin

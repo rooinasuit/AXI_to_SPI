@@ -135,9 +135,9 @@ always @ (posedge GCLK) begin
         sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
     end
     else if (!chip_sel & !SCK_to_CS) begin
-        if (sck_switch_cnt >= sck_switch & !CS_to_SCK) begin
+        if ((sck_switch_cnt >= sck_switch) & !CS_to_SCK) begin
             sck_switch_cnt <= 6'd0;
-            sck            <= !sck; // marks half a period of sck cycle
+            sck            <= ~sck; // marks half a period of sck cycle
         end
         else
             sck_switch_cnt <= sck_switch_cnt + 1'b1;

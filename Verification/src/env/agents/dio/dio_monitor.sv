@@ -6,13 +6,13 @@ class dio_monitor extends uvm_monitor;
     `uvm_component_utils(dio_monitor)
 
     // instantiation of internal objects
+    dio_config dio_cfg;
     virtual dio_interface vif;
     dio_seq_item dio_pkt_in;
 
     uvm_analysis_port#(dio_seq_item) dio_mon_port;
 
-    // logic old_port_val;
-    // logic new_port_val;
+    int pv [11], cv [11];
 
     function new(string name = "dio_monitor", uvm_component parent = null);
         super.new(name,parent);
@@ -42,22 +42,23 @@ class dio_monitor extends uvm_monitor;
     endtask : run_phase
 
     task dio_capture();
-        `MONITOR_WATCH_VARS
-        `MONITOR_WATCH(dio_pkt_in.RST,           vif.RST,           create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.start_out,     vif.start_in,      create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.spi_mode_out,  vif.spi_mode_in,   create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.sck_speed_out, vif.sck_speed_in,  create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.word_len_out,  vif.word_len_in,   create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.IFG_out,       vif.IFG_in,        create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.CS_SCK_out,    vif.CS_SCK_in,     create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.SCK_CS_out,    vif.SCK_CS_in,     create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.mosi_data_out, vif.mosi_data_in,  create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.busy_in,       vif.busy_out,      create_handle, write_transaction)
-        `MONITOR_WATCH(dio_pkt_in.miso_data_in,  vif.miso_data_out, create_handle, write_transaction)
+        fork
+            `MONITOR_WATCH(vif.RST, "RST", dio_pkt_in.name, dio_pkt_in.value, pv[0], cv[0])
+            `MONITOR_WATCH(vif.start_in, "start", dio_pkt_in.name, dio_pkt_in.value, pv[1], cv[1])
+            `MONITOR_WATCH(vif.spi_mode_in, "spi_mode", dio_pkt_in.name, dio_pkt_in.value, pv[2], cv[2])
+            `MONITOR_WATCH(vif.sck_speed_in, "sck_speed", dio_pkt_in.name, dio_pkt_in.value, pv[3], cv[3])
+            `MONITOR_WATCH(vif.word_len_in, "word_len", dio_pkt_in.name, dio_pkt_in.value, pv[4], cv[4])
+            `MONITOR_WATCH(vif.IFG_in, "IFG", dio_pkt_in.name, dio_pkt_in.value, pv[5], cv[5])
+            `MONITOR_WATCH(vif.CS_SCK_in, "CS_SCK", dio_pkt_in.name, dio_pkt_in.value, pv[6], cv[6])
+            `MONITOR_WATCH(vif.SCK_CS_in, "SCK_CS", dio_pkt_in.name, dio_pkt_in.value, pv[7], cv[7])
+            `MONITOR_WATCH(vif.mosi_data_in, "mosi_data", dio_pkt_in.name, dio_pkt_in.value, pv[8], cv[8])
+            `MONITOR_WATCH(vif.busy_out, "busy", dio_pkt_in.name, dio_pkt_in.value, pv[9], cv[9])
+            `MONITOR_WATCH(vif.miso_data_out, "miso_data", dio_pkt_in.name, dio_pkt_in.value, pv[10], cv[10])
+        join_any
+        disable fork;
     endtask : dio_capture
 
     task create_handle();
-        `uvm_info("DIO_MTR", "Fetching dio_pkt_in from the DUT", UVM_LOW)
         dio_pkt_in = dio_seq_item::type_id::create("dio_pkt_in");
     endtask : create_handle
 

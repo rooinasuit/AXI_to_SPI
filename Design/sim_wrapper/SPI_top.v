@@ -1,4 +1,4 @@
-`include "SPI_regs.sv"
+`include "SPI_regs.v"
 
 module SPI_top (
     input GCLK,

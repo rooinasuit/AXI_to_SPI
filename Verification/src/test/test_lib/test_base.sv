@@ -3,7 +3,7 @@ class test_base extends uvm_test;
 
     `uvm_component_utils(test_base)
 
-    clock_config     clk_cfg;
+    // clock_config     clk_cfg;
     dio_config       dio_cfg;
     spi_slave_config slv_cfg;
     environment_config env_cfg;
@@ -21,7 +21,7 @@ class test_base extends uvm_test;
         super.build_phase(phase);
 
         `uvm_info("TEST", "Creating AGT_CFG handles", UVM_LOW)
-        clk_cfg = clock_config::type_id::create("clk_cfg", this);
+        // clk_cfg = clock_config::type_id::create("clk_cfg", this);
         dio_cfg = dio_config::type_id::create("dio_cfg", this);
         slv_cfg = spi_slave_config::type_id::create("slv_cfg", this);
 
@@ -38,13 +38,19 @@ class test_base extends uvm_test;
 
     ////////////////////////////////////
 
-    task drive_clock(time period);
-        clock_period_sequence clk_seq = clock_period_sequence::type_id::create("clk_seq");
+    // task drive_clock(time period);
+    //     clock_period_sequence clk_seq = clock_period_sequence::type_id::create("clk_seq");
 
-        clk_seq.period = period;
+    //     clk_seq.period = period;
+    //     if (period != 0) begin
+    //         env_cfg.clock_enable = 1;
+    //     end
+    //     else begin
+    //         env_cfg.clock_enable = 0;
+    //     end
 
-        clk_seq.start(env.clk_agt.clk_sqr);
-    endtask : drive_clock
+    //     clk_seq.start(env.clk_agt.clk_sqr);
+    // endtask : drive_clock
 
     task drive_io(string port_name, int port_value);
         dio_drive_sequence dio_seq = dio_drive_sequence::type_id::create("dio_seq");

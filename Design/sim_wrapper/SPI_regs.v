@@ -1,4 +1,4 @@
-`include "SPI_master.sv"
+`include "SPI_master.v"
 
 module SPI_regs (
     input GCLK,

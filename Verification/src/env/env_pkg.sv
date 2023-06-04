@@ -3,7 +3,7 @@ package env_pkg;
     import uvm_pkg::*;
     `include "uvm_macros.svh"
 
-    import clock_pkg::*;
+    // import clock_pkg::*;
     import dio_pkg::*;
     import spi_slave_pkg::*;
 

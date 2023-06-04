@@ -4,8 +4,11 @@ class clock_driver extends uvm_driver#(clock_seq_item);
     `uvm_component_utils(clock_driver)
 
     // instantiation of internal objects
+    clock_config clk_cfg;
     virtual clock_interface vif;
     clock_seq_item clk_pkt;
+
+    bit clock_enable = 1;
 
     function new (string name = "clock_driver", uvm_component parent = null);
         super.new(name,parent);
@@ -22,20 +25,34 @@ class clock_driver extends uvm_driver#(clock_seq_item);
 
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
-        
-        forever begin
+
+        // if (clock_enable) begin
+        //     fork
+        //         proc_start_clk[clk_name] = process::self();
+        //         forever#(clk_pkt.period/2) vif.GCLK = ~vif.GCLK;
+        //     join_none
+        // end
+        vif.GCLK = 0;
+        // forever begin
             create_handle();
-            clock_send();
+            // clock_send();
+                        fork
+                forever#(clk_pkt.period/2) vif.GCLK <= ~vif.GCLK;
+                @(posedge vif.GCLK) `uvm_info("info3", "vif clock works",UVM_LOW)
+            join_none
             transaction_done();
-        end
+        // end
 
     endtask : run_phase
 
     task clock_send();
-        // fork
-        //     forever#(clk_pkt.period/2) vif.GCLK = !vif.GCLK;
-        // join_none
-        vif.period = clk_pkt.period;
+        // if (clock_enable) begin
+            fork
+                forever#(clk_pkt.period/2) vif.GCLK <= ~vif.GCLK;
+                @(posedge vif.GCLK) `uvm_info("info3", "vif clock works",UVM_LOW)
+            join_none
+        // end
+        // #1000ns clock_enable = 0;
     endtask : clock_send
 
     task create_handle();

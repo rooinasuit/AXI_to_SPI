@@ -12,16 +12,28 @@ class test_0010_1 extends test_base;
 
         phase.raise_objection(this); // start time consumption
 
-            drive_clock(1ns);
+            // drive_clock(10ns);
+            //
+            drive_io("start_out", 0);
             drive_io("RST", 1);
-            #10;
+            #10ns;
             drive_io("RST", 0);
             drive_io("spi_mode_out", 1);
-            drive_io("sck_speed_out", 3);
+            drive_io("sck_speed_out", 2);
             drive_io("word_len_out", 2);
+            drive_io("IFG_out", 5);
+            drive_io("CS_SCK_out", 10);
+            drive_io("SCK_CS_out", 15);
+            drive_io("mosi_data_out", 32'ha3);
+            #100ns;
             drive_io("start_out", 1);
-            #1;
+            #10ns;
             drive_io("start_out", 0);
+            #1000ns;
+            drive_io("RST", 1);
+            #10ns;
+            drive_io("RST", 0);
+            // drive_clock(0);
 
         phase.drop_objection(this); // end time consumption
 
