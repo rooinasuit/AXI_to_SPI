@@ -1,7 +1,7 @@
 
 class virtual_sequencer extends uvm_sequencer;
 
-    `uvm_component_param_utils(virtual_sequencer)
+    `uvm_component_utils(virtual_sequencer)
 
     // instantiation of internal objects
     // clock_sequencer clk_sqr;

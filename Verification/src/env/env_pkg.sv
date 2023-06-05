@@ -6,7 +6,6 @@ package env_pkg;
     // import clock_pkg::*;
     import dio_pkg::*;
     import spi_slave_pkg::*;
-
     `include "virtual_sequencer.sv"
 
     import scb_pkg::*;
