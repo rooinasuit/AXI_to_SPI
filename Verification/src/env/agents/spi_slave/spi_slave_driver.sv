@@ -8,7 +8,7 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     virtual spi_slave_interface vif;
     spi_slave_seq_item slv_pkt;
 
-    logic spi_mode = 2;
+    int spi_mode = 2;
 
     function new (string name = "spi_slave_driver", uvm_component parent = null);
         super.new(name,parent);
@@ -38,27 +38,31 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
 
     endtask : run_phase
 
-    task spi_slave_send(logic spi_mode);
+    task spi_slave_send(int spi_mode);
         if (vif.CS_out) begin
             case(spi_mode)
                 0: begin
                     @(negedge vif.SCLK_out) begin
-                        vif.MISO_in <= slv_pkt.MISO_out;
+                        if (slv_pkt.name == "MISO_out")
+                            vif.MISO_in <= slv_pkt.value;
                     end
                 end
                 1: begin
                     @(posedge vif.SCLK_out) begin
-                        vif.MISO_in <= slv_pkt.MISO_out;
+                        if (slv_pkt.name == "MISO_out")
+                            vif.MISO_in <= slv_pkt.value;
                     end
                 end
                 2: begin
                     @(negedge vif.SCLK_out) begin
-                        vif.MISO_in <= slv_pkt.MISO_out;
+                        if (slv_pkt.name == "MISO_out")
+                            vif.MISO_in <= slv_pkt.value;
                     end
                 end
                 3: begin
                     @(posedge vif.SCLK_out) begin
-                        vif.MISO_in <= slv_pkt.MISO_out;
+                        if (slv_pkt.name == "MISO_out")
+                            vif.MISO_in <= slv_pkt.value;
                     end
                 end
             endcase
@@ -66,9 +70,9 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     endtask : spi_slave_send
 
     task create_handle();
-        `uvm_info("SLV_DRV", "Fetching next slv_pkt to put onto the DUT interface", UVM_LOW)
         slv_pkt = spi_slave_seq_item::type_id::create("slv_pkt");
         seq_item_port.get_next_item(slv_pkt);
+        `uvm_info("SLV_DRV", "Fetching next slv_pkt to put onto the DUT interface", UVM_LOW)
         slv_pkt.print();
     endtask : create_handle
 

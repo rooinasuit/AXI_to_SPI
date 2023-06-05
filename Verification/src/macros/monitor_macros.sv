@@ -12,7 +12,3 @@ begin \
                 prev_val = curr_val; \
             end \
 end
-
-// `define MONITOR_WATCH_VARS \
-//     var old_port_val; \
-//     var new_port_val;

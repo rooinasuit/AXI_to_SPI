@@ -13,12 +13,14 @@ class spi_slave_base_sequence extends uvm_sequence#(spi_slave_seq_item);
 
     endtask : body
 
-    task drive_MISO(bit value);
-        slv_pkt.MISO_out = value;
-    endtask : drive_MISO
+    task drive_spi(string name, bit value);
+        slv_pkt.name  = name;
+        slv_pkt.value = value;
+    endtask : drive_spi
 
-    task drive_MISO_random();
-        slv_pkt.MISO_out = {$urandom} % 2;
-    endtask : drive_MISO_random
+    task drive_spi_random(string name);
+        slv_pkt.name  = name;
+        slv_pkt.value = {$urandom} % 2;
+    endtask : drive_spi_random
 
 endclass : spi_slave_base_sequence

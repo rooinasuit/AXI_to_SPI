@@ -30,16 +30,16 @@ class test_base_sequence extends uvm_sequence;
         dio_seq_rnd.start(p_sequencer.dio_sqr);
     endtask : drive_io_random
 
-    task drive_spi(int MISO_value);
-        spi_slave_MISO_sequence slv_seq = spi_slave_MISO_sequence::type_id::create("slv_seq");
+    task drive_spi(int value);
+        spi_slave_drive_sequence slv_seq = spi_slave_drive_sequence::type_id::create("slv_seq");
 
-        slv_seq.value = MISO_value;
+        slv_seq.value = value;
 
         slv_seq.start(p_sequencer.slv_sqr);
     endtask : drive_spi
 
     task drive_spi_random();
-        spi_slave_MISO_random_sequence slv_seq_rnd = spi_slave_MISO_random_sequence::type_id::create("slv_seq_rnd");
+        spi_slave_drive_random_sequence slv_seq_rnd = spi_slave_drive_random_sequence::type_id::create("slv_seq_rnd");
 
         slv_seq_rnd.start(p_sequencer.slv_sqr);
     endtask : drive_spi_random

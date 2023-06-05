@@ -10,7 +10,7 @@ class spi_slave_monitor extends uvm_monitor;
 
     uvm_analysis_port#(spi_slave_seq_item) slv_mon_port;
 
-    logic spi_mode = 2;
+    int spi_mode = 2;
 
     function new (string name = "spi_slave_monitor", uvm_component parent = null);
         super.new(name,parent);
@@ -45,46 +45,48 @@ class spi_slave_monitor extends uvm_monitor;
 
     endtask : run_phase
 
-    task spi_slave_capture(logic spi_mode);
+    task spi_slave_capture(int spi_mode);
         case(spi_mode)
             0: begin
-                slv_pkt_in.CS_in    = vif.CS_out;
-                // slv_pkt_in.SCLK_in  = vif.SCLK_out;
                 @(posedge vif.SCLK_out) begin
-                    slv_pkt_in.MOSI_in = vif.MOSI_out;
+                    slv_pkt_in.name = "MOSI";
+                    slv_pkt_in.value = vif.MOSI_out;
                 end
                 @(negedge vif.SCLK_out) begin
-                    slv_pkt_in.MISO_out = vif.MISO_in;
+                    slv_pkt_in.name = "MISO";
+                    slv_pkt_in.value = vif.MISO_in;
                 end
             end
             1: begin
-                slv_pkt_in.CS_in    = vif.CS_out;
-                // slv_pkt_in.SCLK_in  = vif.SCLK_out;
                 @(posedge vif.SCLK_out) begin
-                    slv_pkt_in.MISO_out = vif.MISO_in;
+                    slv_pkt_in.name = "MISO";
+                    slv_pkt_in.value = vif.MISO_in;
                 end
                 @(negedge vif.SCLK_out) begin
-                    slv_pkt_in.MOSI_in = vif.MOSI_out;
+                    slv_pkt_in.name = "MOSI";
+                    slv_pkt_in.value = vif.MOSI_out;
                 end
             end
             2: begin
-                slv_pkt_in.CS_in    = vif.CS_out;
-                // slv_pkt_in.SCLK_in  = vif.SCLK_out;
                 @(negedge vif.SCLK_out) begin
-                    slv_pkt_in.MISO_out = vif.MISO_in;
+                    slv_pkt_in.name = "MISO";
+                    slv_pkt_in.value = vif.MISO_in;
                 end
                 @(posedge vif.SCLK_out) begin
-                    slv_pkt_in.MOSI_in = vif.MOSI_out;
+                    slv_pkt_in.name = "MOSI";
+                    slv_pkt_in.value = vif.MOSI_out;
                 end
             end
             3: begin
-                slv_pkt_in.CS_in    = vif.CS_out;
+                // slv_pkt_in.CS_in    = vif.CS_out;
                 // slv_pkt_in.SCLK_in  = vif.SCLK_out;
                 @(negedge vif.SCLK_out) begin
-                    slv_pkt_in.MOSI_in = vif.MOSI_out;
+                    slv_pkt_in.name = "MOSI";
+                    slv_pkt_in.value = vif.MOSI_out;
                 end
                 @(posedge vif.SCLK_out) begin
-                    slv_pkt_in.MISO_out = vif.MISO_in;
+                    slv_pkt_in.name = "MISO";
+                    slv_pkt_in.value = vif.MISO_in;
                 end
             end
         endcase
