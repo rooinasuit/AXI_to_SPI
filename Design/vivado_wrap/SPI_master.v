@@ -146,9 +146,10 @@ always @ (posedge GCLK) begin
         sck_switch_cnt <= 6'd0;
         sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
     end
-    else
+    else begin
         sck_switch_cnt <= 6'd0;
         sck            <= (sck_pol) ? 1'd1 : 1'd0;
+    end
 end
 
 assign SCLK_o = sck;
