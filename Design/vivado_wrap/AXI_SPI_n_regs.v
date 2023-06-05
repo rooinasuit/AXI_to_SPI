@@ -1,6 +1,6 @@
 
 `timescale 1 ns / 1 ps
-
+`include "SPI_master.v"
 	module AXI_SPI_n_regs #
 	(
 		// Users to add parameters here

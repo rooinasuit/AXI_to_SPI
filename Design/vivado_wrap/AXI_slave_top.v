@@ -1,6 +1,6 @@
 
 `timescale 1 ns / 1 ps
-
+`include "AXI_SPI_n_regs.v"
 	module AXI_slave_top #
 	(
 		// Users to add parameters here
