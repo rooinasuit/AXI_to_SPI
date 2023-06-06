@@ -7,7 +7,7 @@ class environment_config extends uvm_object;
     dio_config       dio_cfg;
     spi_slave_config slv_cfg;
 
-    bit clock_enable;
+    // bit clock_enable;
 
     function new (string name = "environment_config");
         super.new(name);

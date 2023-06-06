@@ -4,12 +4,18 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     `uvm_component_utils(dio_driver)
 
     // instantiation of internal objects
-    dio_config dio_cfg;
     virtual dio_interface vif;
     dio_seq_item dio_pkt;
 
+    uvm_analysis_port#(dio_seq_item) dio_drv_port;
+
+    int spi_mode;
+
     function new(string name = "dio_driver", uvm_component parent = null);
         super.new(name,parent);
+
+        dio_drv_port = new("dio_drv_port", this);
+
     endfunction : new
 
     function void connect_phase(uvm_phase phase);
@@ -37,7 +43,10 @@ class dio_driver extends uvm_driver#(dio_seq_item);
             "RST": vif.RST = dio_pkt.value;
             "start_out": vif.start_in = dio_pkt.value;
 
-            "spi_mode_out":  vif.spi_mode_in = dio_pkt.value;
+            "spi_mode_out": begin 
+                vif.spi_mode_in = dio_pkt.value;
+                spi_mode = dio_pkt.value;
+            end
             "sck_speed_out": vif.sck_speed_in = dio_pkt.value;
             "word_len_out":  vif.word_len_in = dio_pkt.value;
 
@@ -55,11 +64,11 @@ class dio_driver extends uvm_driver#(dio_seq_item);
         dio_pkt = dio_seq_item::type_id::create("dio_pkt");
         seq_item_port.get_next_item(dio_pkt); // blocking
         `uvm_info("DIO_DRV", "Fetching next dio_pkt to put onto the DUT interface", UVM_LOW)
-        dio_pkt.print();
     endtask : create_handle
 
     function void transaction_done();
         `uvm_info("DIO_DRV", "Transaction finished, ready for another", UVM_LOW)
+        dio_drv_port.write(dio_pkt);
         seq_item_port.item_done(); // unblocking, ready for another send to the DUT
     endfunction : transaction_done
 

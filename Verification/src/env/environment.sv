@@ -49,11 +49,17 @@ class tb_environment extends uvm_env;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        `uvm_info("ENV", "Connecting ports: dio_mon_port -> dio_mon_imp", UVM_LOW)
-        dio_agt.dio_mtr.dio_mon_port.connect(scb.dio_mon_imp);
+        `uvm_info("ENV", "Connecting ports: dio_drv_port -> dio_drv_imp", UVM_LOW)
+        dio_agt.dio_drv.dio_drv_port.connect(scb.dio_drv_imp);
 
-        `uvm_info("ENV", "Connecting ports: slv_mon_port -> slv_mon_imp", UVM_LOW)
-        slv_agt.slv_mtr.slv_mon_port.connect(scb.slv_mon_imp);
+        `uvm_info("ENV", "Connecting ports: dio_mtr_port -> dio_mtr_imp", UVM_LOW)
+        dio_agt.dio_mtr.dio_mtr_port.connect(scb.dio_mtr_imp);
+
+        `uvm_info("ENV", "Connecting ports: slv_drv_port -> slv_drv_imp", UVM_LOW)
+        slv_agt.slv_drv.slv_drv_port.connect(scb.slv_drv_imp);
+
+        `uvm_info("ENV", "Connecting ports: slv_mtr_port -> slv_mtr_imp", UVM_LOW)
+        slv_agt.slv_mtr.slv_mtr_port.connect(scb.slv_mtr_imp);
 
         // `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
         // v_sqr.clk_sqr = clk_agt.clk_sqr;
@@ -63,6 +69,8 @@ class tb_environment extends uvm_env;
 
         `uvm_info("ENV", "Connecting sequencers: slv_sqr -> virtual_sqr", UVM_LOW)
         v_sqr.slv_sqr = slv_agt.slv_sqr;
+
+        env_cfg.slv_cfg.spi_mode = env_cfg.dio_cfg.spi_mode;
 
     endfunction : connect_phase
 

@@ -4,11 +4,12 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
     `uvm_component_utils(spi_slave_driver)
 
     // instantiation of internal objects
-    spi_slave_config slv_cfg;
     virtual spi_slave_interface vif;
     spi_slave_seq_item slv_pkt;
 
-    int spi_mode = 2;
+    int spi_mode;
+
+    uvm_analysis_port#(spi_slave_seq_item) slv_drv_port;
 
     function new (string name = "spi_slave_driver", uvm_component parent = null);
         super.new(name,parent);
@@ -16,6 +17,9 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
+
+        slv_drv_port = new("slv_drv_port", this);
+
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
@@ -73,11 +77,11 @@ class spi_slave_driver extends uvm_driver#(spi_slave_seq_item);
         slv_pkt = spi_slave_seq_item::type_id::create("slv_pkt");
         seq_item_port.get_next_item(slv_pkt);
         `uvm_info("SLV_DRV", "Fetching next slv_pkt to put onto the DUT interface", UVM_LOW)
-        slv_pkt.print();
     endtask : create_handle
 
     function void transaction_done();
         `uvm_info("SLV_DRV", "Transaction finished, ready for another", UVM_LOW)
+        slv_drv_port.write(slv_pkt);
         seq_item_port.item_done();
     endfunction : transaction_done
 

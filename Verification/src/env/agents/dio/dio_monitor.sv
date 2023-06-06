@@ -16,18 +16,17 @@ class dio_monitor extends uvm_monitor;
     `uvm_component_utils(dio_monitor)
 
     // instantiation of internal objects
-    dio_config dio_cfg;
     virtual dio_interface vif;
     dio_seq_item dio_pkt_in;
 
-    uvm_analysis_port#(dio_seq_item) dio_mon_port;
+    uvm_analysis_port#(dio_seq_item) dio_mtr_port;
 
     int pv [11], cv [11];
 
     function new(string name = "dio_monitor", uvm_component parent = null);
         super.new(name,parent);
 
-        dio_mon_port = new("dio_mon_port", this);
+        dio_mtr_port = new("dio_mtr_port", this);
 
     endfunction : new
 
@@ -74,8 +73,8 @@ class dio_monitor extends uvm_monitor;
     endtask : create_handle
 
     task write_transaction();
-        `uvm_info("DIO_MTR", "Writing collected dio_mon_pkt onto dio_mon_port", UVM_LOW)
-        dio_mon_port.write(dio_pkt_in);
+        `uvm_info("DIO_MTR", "Writing collected dio_mtr_pkt onto dio_mtr_port", UVM_LOW)
+        dio_mtr_port.write(dio_pkt_in);
     endtask : write_transaction
 
 endclass: dio_monitor

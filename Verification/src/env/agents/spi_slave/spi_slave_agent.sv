@@ -10,12 +10,14 @@ class spi_slave_agent extends uvm_agent;
     spi_slave_monitor   slv_mtr;
     spi_slave_driver    slv_drv;
 
-    uvm_analysis_port#(spi_slave_seq_item) slv_mon_port;
+    uvm_analysis_port#(spi_slave_seq_item) slv_drv_port;
+    uvm_analysis_port#(spi_slave_seq_item) slv_mtr_port;
 
     function new (string name = "spi_slave_agent", uvm_component parent = null);
         super.new(name,parent);
 
-        slv_mon_port = new("slv_mon_port", this);
+        slv_drv_port = new("slv_drv_port", this);
+        slv_mtr_port = new("slv_mtr_port", this);
 
     endfunction : new
 

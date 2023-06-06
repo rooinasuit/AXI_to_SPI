@@ -10,12 +10,14 @@ class dio_agent extends uvm_agent;
     dio_driver    dio_drv;
     dio_monitor   dio_mtr;
 
-    uvm_analysis_port#(dio_seq_item) dio_mon_port;
+    uvm_analysis_port#(dio_seq_item) dio_drv_port;
+    uvm_analysis_port#(dio_seq_item) dio_mtr_port;
     
     function new (string name = "dio_agent", uvm_component parent = null);
         super.new(name,parent);
 
-        dio_mon_port = new("dio_mon_port", this);
+        dio_drv_port = new("dio_drv_port", this);
+        dio_mtr_port = new("dio_mtr_port", this);
 
     endfunction : new
 
@@ -39,6 +41,8 @@ class dio_agent extends uvm_agent;
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
+
+        dio_cfg.spi_mode = dio_drv.spi_mode;
 
         `uvm_info("DIO_AGT", "Connecting export: dio_seq_item (DIO_DRV)", UVM_LOW)
         dio_drv.seq_item_port.connect(dio_sqr.seq_item_export);

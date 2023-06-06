@@ -3,7 +3,7 @@ class spi_slave_config extends uvm_object;
 
     `uvm_object_utils(spi_slave_config)
 
-    int spi_mode = 2;
+    int spi_mode;
 
     virtual spi_slave_interface vif;
 

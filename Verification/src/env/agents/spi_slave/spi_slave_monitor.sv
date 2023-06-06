@@ -4,18 +4,17 @@ class spi_slave_monitor extends uvm_monitor;
     `uvm_component_utils(spi_slave_monitor)
 
     // instantiation of internal objects
-    spi_slave_config slv_cfg;
     virtual spi_slave_interface vif;
     spi_slave_seq_item slv_pkt_in;
 
-    uvm_analysis_port#(spi_slave_seq_item) slv_mon_port;
+    uvm_analysis_port#(spi_slave_seq_item) slv_mtr_port;
 
-    int spi_mode = 2;
+    int spi_mode;
 
     function new (string name = "spi_slave_monitor", uvm_component parent = null);
         super.new(name,parent);
 
-        slv_mon_port = new("slv_mon_port", this);
+        slv_mtr_port = new("slv_mtr_port", this);
 
     endfunction : new
 
@@ -98,8 +97,8 @@ class spi_slave_monitor extends uvm_monitor;
     endfunction : create_handle
 
     function void write_transaction();
-        `uvm_info("SLV_MTR", "Writing collected slv_mon_pkt onto dio_mon_port", UVM_LOW)
-        slv_mon_port.write(slv_pkt_in);
+        `uvm_info("SLV_MTR", "Writing collected slv_mtr_pkt onto dio_mtr_port", UVM_LOW)
+        slv_mtr_port.write(slv_pkt_in);
     endfunction : write_transaction
 
 endclass: spi_slave_monitor

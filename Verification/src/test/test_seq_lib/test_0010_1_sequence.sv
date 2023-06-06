@@ -27,6 +27,8 @@ class test_0010_sequence extends test_base_sequence;
         drive_io("SCK_CS_out", 15);
         drive_io("mosi_data_out", 32'haa);
         #10ns;
+        drive_io("start_out", 0);
+        #10ns;
         drive_io("start_out", 1);
         #10ns;
         drive_io("start_out", 0);
