@@ -119,9 +119,9 @@ always @ (posedge GCLK) begin
     else begin
         case (word_len_i)
             0: chosen_word_len <= 5'd0; // 32-bit word
-            1: chosen_word_len <= 5'd15; // 16-bit word
-            2: chosen_word_len <= 5'd23; // 8-bit word
-            3: chosen_word_len <= 5'd27; // 4-bit word
+            1: chosen_word_len <= 5'd16; // 16-bit word
+            2: chosen_word_len <= 5'd24; // 8-bit word
+            3: chosen_word_len <= 5'd28; // 4-bit word
         endcase
     end
 end
@@ -282,10 +282,10 @@ always @ (posedge GCLK) begin
                                     state              <= FINISH;
                                 end
                                 else if (pos_sck) begin
-                                    mosi               <= mosi_buff[bit_cnt];
+                                    mosi               <= mosi_buff[bit_cnt-chosen_word_len];
                                 end
                                 else if (neg_sck) begin
-                                    miso_buff[bit_cnt] <= MISO_i;
+                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
                                     bit_cnt            <= bit_cnt - 1'b1;
                                 end
                             end
@@ -296,10 +296,10 @@ always @ (posedge GCLK) begin
                                     state              <= FINISH;
                                 end
                                 else if (pos_sck) begin
-                                    miso_buff[bit_cnt] <= MISO_i;
+                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
                                 end
                                 else if (neg_sck) begin
-                                    mosi               <= mosi_buff[bit_cnt];
+                                    mosi               <= mosi_buff[bit_cnt-chosen_word_len];
                                     bit_cnt            <= bit_cnt - 1'b1;
                                 end
                             end
@@ -315,11 +315,11 @@ always @ (posedge GCLK) begin
                                     state              <= FINISH;
                                 end
                                 else if (pos_sck) begin
-                                    mosi               <= mosi_buff[bit_cnt];
+                                    mosi               <= mosi_buff[bit_cnt-chosen_word_len];
                                     bit_cnt            <= bit_cnt - 1'b1;
                                 end
                                 else if (neg_sck) begin
-                                    miso_buff[bit_cnt] <= MISO_i;
+                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
                                 end
                             end
                             1: begin // send on falling edge/pick up on rising edge
@@ -329,11 +329,11 @@ always @ (posedge GCLK) begin
                                     state              <= FINISH;
                                 end
                                 else if (pos_sck) begin
-                                    miso_buff[bit_cnt] <= MISO_i;
+                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
                                     bit_cnt            <= bit_cnt - 1'b1;
                                 end
                                 else if (neg_sck) begin
-                                    mosi               <= mosi_buff[bit_cnt];
+                                    mosi               <= mosi_buff[bit_cnt-chosen_word_len];
                                 end
                             end
                         endcase
@@ -371,7 +371,7 @@ always @ (posedge GCLK) begin
     end
 end
 
-assign trans_done = (bit_cnt == chosen_word_len);
+assign trans_done = (bit_cnt == 0);
 
 assign MOSI_o = mosi;
 assign CS_o = chip_sel;
