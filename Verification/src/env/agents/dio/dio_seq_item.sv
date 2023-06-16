@@ -4,6 +4,9 @@ class dio_seq_item extends uvm_sequence_item;
     string name;
     int value;
 
+    // time ETA;
+    // time timestamp;
+
     `uvm_object_utils_begin(dio_seq_item)
         `uvm_field_string(name, UVM_DEFAULT)
         `uvm_field_int(value, UVM_DEFAULT)

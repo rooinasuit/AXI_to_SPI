@@ -4,12 +4,12 @@ package test_pkg;
     `include "uvm_macros.svh"
     //
     import dio_pkg::*;
-    import spi_slave_pkg::*;
+    import spi_pkg::*;
     //
     import env_pkg::*;
     //
     import dio_seq_pkg::*;
-    import spi_slave_seq_pkg::*;
+    import spi_seq_pkg::*;
     import test_seq_pkg::*;
     //
     `include "test_base.sv"

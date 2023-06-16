@@ -5,7 +5,7 @@ package test_seq_pkg;
     //
     // import clock_seq_pkg::*;
     import dio_seq_pkg::*;
-    import spi_slave_seq_pkg::*;
+    import spi_seq_pkg::*;
     //
     import env_pkg::*;
     //

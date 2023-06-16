@@ -371,7 +371,7 @@ always @ (posedge GCLK) begin
     end
 end
 
-assign trans_done = (bit_cnt == 0);
+assign trans_done = ((bit_cnt - chosen_word_len) == 0);
 
 assign MOSI_o = mosi;
 assign CS_o = chip_sel;

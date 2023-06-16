@@ -1,80 +1,59 @@
-`define MONITOR_WATCH(value_in, name_out, pkt_name_out, pkt_val_out, prev_val, curr_val) \
-begin \
-        prev_val = value_in; \
-        @(value_in) \
-            curr_val = value_in; \
-            if (curr_val != prev_val) begin \
-                pkt_name_out = name_out; \
-                pkt_val_out  = curr_val; \
-                `uvm_info("DIO_MTR", $sformatf("Detected change on %s: %0d -> %0d", name_out, prev_val, curr_val), UVM_LOW) \
-                prev_val = curr_val; \
-            end \
-end
 
 class dio_monitor extends uvm_monitor;
 
     `uvm_component_utils(dio_monitor)
 
     // instantiation of internal objects
+    dio_config dio_cfg;
     virtual dio_interface vif;
-    dio_seq_item dio_pkt_in;
+    dio_seq_item dio_pkt;
 
     uvm_analysis_port#(dio_seq_item) dio_mtr_port;
-
-    int pv [11], cv [11];
 
     function new(string name = "dio_monitor", uvm_component parent = null);
         super.new(name,parent);
 
+    endfunction : new
+
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
         dio_mtr_port = new("dio_mtr_port", this);
 
-    endfunction : new
+        if (!uvm_config_db #(dio_config)::get(this, "", "dio_config", dio_cfg)) begin
+            `uvm_fatal("DIO_AGT", {"clock config must be set for: ", get_full_name(), " dio_cfg"})
+        end
+
+    endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        if(!uvm_config_db#(virtual dio_interface)::get(this, "", "d_vif", vif)) begin
-            `uvm_error("DIO_MTR", {"virtual interface must be set for: ", get_full_name(), "vif"})
-        end
+        vif = dio_cfg.vif;
 
     endfunction : connect_phase
 
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        forever begin
-            create_handle();
             dio_capture();
-            if(dio_pkt_in.name !== "")
-                write_transaction();
-        end
 
     endtask : run_phase
 
     task dio_capture();
         fork
-            `MONITOR_WATCH(vif.RST, "RST", dio_pkt_in.name, dio_pkt_in.value, pv[0], cv[0])
-            `MONITOR_WATCH(vif.start_in, "start", dio_pkt_in.name, dio_pkt_in.value, pv[1], cv[1])
-            `MONITOR_WATCH(vif.spi_mode_in, "spi_mode", dio_pkt_in.name, dio_pkt_in.value, pv[2], cv[2])
-            `MONITOR_WATCH(vif.sck_speed_in, "sck_speed", dio_pkt_in.name, dio_pkt_in.value, pv[3], cv[3])
-            `MONITOR_WATCH(vif.word_len_in, "word_len", dio_pkt_in.name, dio_pkt_in.value, pv[4], cv[4])
-            `MONITOR_WATCH(vif.IFG_in, "IFG", dio_pkt_in.name, dio_pkt_in.value, pv[5], cv[5])
-            `MONITOR_WATCH(vif.CS_SCK_in, "CS_SCK", dio_pkt_in.name, dio_pkt_in.value, pv[6], cv[6])
-            `MONITOR_WATCH(vif.SCK_CS_in, "SCK_CS", dio_pkt_in.name, dio_pkt_in.value, pv[7], cv[7])
-            `MONITOR_WATCH(vif.mosi_data_in, "mosi_data", dio_pkt_in.name, dio_pkt_in.value, pv[8], cv[8])
-            `MONITOR_WATCH(vif.busy_out, "busy", dio_pkt_in.name, dio_pkt_in.value, pv[9], cv[9])
-            `MONITOR_WATCH(vif.miso_data_out, "miso_data", dio_pkt_in.name, dio_pkt_in.value, pv[10], cv[10])
-        join_any
-        disable fork;
+            `MONITOR_WATCH(RST, dio)
+            `MONITOR_WATCH(start_in, dio)
+            `MONITOR_WATCH(spi_mode_in, dio)
+            `MONITOR_WATCH(sck_speed_in, dio)
+            `MONITOR_WATCH(word_len_in, dio)
+            `MONITOR_WATCH(IFG_in, dio)
+            `MONITOR_WATCH(CS_SCK_in, dio)
+            `MONITOR_WATCH(SCK_CS_in, dio)
+            `MONITOR_WATCH(mosi_data_in, dio)
+            `MONITOR_WATCH(busy_out, dio)
+            `MONITOR_WATCH(miso_data_out, dio)
+        join_none
     endtask : dio_capture
-
-    task create_handle();
-        dio_pkt_in = dio_seq_item::type_id::create("dio_pkt_in");
-    endtask : create_handle
-
-    task write_transaction();
-        `uvm_info("DIO_MTR", "Writing collected dio_mtr_pkt onto dio_mtr_port", UVM_LOW)
-        dio_mtr_port.write(dio_pkt_in);
-    endtask : write_transaction
 
 endclass: dio_monitor

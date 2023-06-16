@@ -3,9 +3,12 @@ class environment_config extends uvm_object;
 
     `uvm_object_utils(environment_config)
 
+    virtual dio_interface d_vif;
+    virtual spi_interface s_vif;
+
     // clock_config     clk_cfg;
-    dio_config       dio_cfg;
-    spi_slave_config slv_cfg;
+    dio_config dio_cfg;
+    spi_config spi_cfg;
 
     // bit clock_enable;
 
@@ -13,7 +16,7 @@ class environment_config extends uvm_object;
         super.new(name);
         // clk_cfg = new("clk_cfg");
         dio_cfg = new("dio_cfg");
-        slv_cfg = new("slv_cfg");
+        spi_cfg = new("spi_cfg");
     endfunction : new
 
 endclass : environment_config

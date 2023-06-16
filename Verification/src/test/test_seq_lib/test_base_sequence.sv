@@ -31,17 +31,17 @@ class test_base_sequence extends uvm_sequence;
     endtask : drive_io_random
 
     task drive_spi(int value);
-        spi_slave_drive_sequence slv_seq = spi_slave_drive_sequence::type_id::create("slv_seq");
+        spi_drive_sequence spi_seq = spi_drive_sequence::type_id::create("spi_seq");
 
-        slv_seq.value = value;
+        spi_seq.value = value;
 
-        slv_seq.start(p_sequencer.slv_sqr);
+        spi_seq.start(p_sequencer.spi_sqr);
     endtask : drive_spi
 
     task drive_spi_random();
-        spi_slave_drive_random_sequence slv_seq_rnd = spi_slave_drive_random_sequence::type_id::create("slv_seq_rnd");
+        spi_drive_random_sequence spi_seq_rnd = spi_drive_random_sequence::type_id::create("spi_seq_rnd");
 
-        slv_seq_rnd.start(p_sequencer.slv_sqr);
+        spi_seq_rnd.start(p_sequencer.spi_sqr);
     endtask : drive_spi_random
 
 endclass : test_base_sequence

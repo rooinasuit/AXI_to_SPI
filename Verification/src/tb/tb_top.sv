@@ -4,15 +4,15 @@ import uvm_pkg::*;
 
 // `include "clock_interface.sv"
 `include "dio_interface.sv"
-`include "spi_slave_interface.sv"
+`include "spi_interface.sv"
 
 import test_pkg::*;
 
 module tb_top;
 
     // clock_interface     c_itf();
-    dio_interface       d_itf();
-    spi_slave_interface s_itf();
+    dio_interface d_itf();
+    spi_interface s_itf();
 
     bit GCLK;
     time period = 10ns;
@@ -44,9 +44,9 @@ module tb_top;
     initial begin
 
         // uvm_config_db#(virtual clock_interface)::set(null, "*", "c_vif", c_itf); // clock driver
-        uvm_config_db#(virtual dio_interface)::set(null, "*", "d_vif", d_itf); // dio driver/monitor
-        uvm_config_db#(virtual spi_slave_interface)::set(null, "*", "s_vif", s_itf); // spi slave driver/monitor
-
+        uvm_config_db#(virtual dio_interface)::set(null, "uvm_test_top*", "d_vif", d_itf); // dio driver/monitor
+        uvm_config_db#(virtual spi_interface)::set(null, "uvm_test_top*", "s_vif", s_itf); // spi slave driver/monitor
+        // tu zmienić scope na test
         run_test("test_0010_1");
     end
 

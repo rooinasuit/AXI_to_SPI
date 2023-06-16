@@ -1,9 +1,9 @@
 
-class test_0010_sequence extends test_base_sequence;
+class test_0010_1_sequence extends test_base_sequence;
 
-    `uvm_object_utils(test_0010_sequence)
+    `uvm_object_utils(test_0010_1_sequence)
 
-    function new (string name = "test_0010_sequence");
+    function new (string name = "test_0010_1_sequence");
         super.new(name);
     endfunction : new
 
@@ -19,24 +19,20 @@ class test_0010_sequence extends test_base_sequence;
         drive_io("RST", 1);
         #10ns;
         drive_io("RST", 0);
-        drive_io("spi_mode_out", 0);
+        // drive_io("spi_mode_out", 0);
         drive_io("sck_speed_out", 3);
-        drive_io("word_len_out", 2);
+        drive_io("word_len_out", 2); // 8 bit
         drive_io("IFG_out", 5);
         drive_io("CS_SCK_out", 10);
         drive_io("SCK_CS_out", 15);
         drive_io("mosi_data_out", 32'haa);
-        #10ns;
-        drive_io("start_out", 0);
-        #10ns;
+        drive_spi(32'haa);
+        //
         drive_io("start_out", 1);
         #10ns;
         drive_io("start_out", 0);
-        #1000ns;
-        drive_io("RST", 1);
-        #10ns;
-        drive_io("RST", 0);
+        #10000ns;
         // drive_clock(0);
     endtask : body
 
-endclass : test_0010_sequence
+endclass : test_0010_1_sequence
