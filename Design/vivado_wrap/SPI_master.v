@@ -63,8 +63,9 @@ reg [7:0] IFG_cnt;
 reg [4:0] chosen_word_len;
 //
 localparam IDLE        = 0;
-localparam TRANSACTION = 1;
-localparam FINISH      = 2;
+localparam PRE_TRANS   = 1;
+localparam TRANSACTION = 2;
+localparam FINISH      = 3;
 
 reg [1:0]  state;
 
@@ -75,16 +76,17 @@ reg [31:0] miso_buff;
 reg [31:0] mosi_buff;
 
 reg [4:0]  bit_cnt;
+reg        last_bit;
 
 wire trans_done;
 
 ////////////////////////
 // SPI MODE SELECTION //
 
-// 0: SCK active high, MOSI on rising SCK,  MISO on falling SCK
-// 1: SCK active high, MOSI on falling SCK, MISO on rising SCK
-// 2: SCK active low,  MOSI on rising SCK,  MISO on falling SCK
-// 3: SCK active low,  MOSI on falling SCK, MISO on rising SCK
+// 0: SCK idle low,  sample on rising SCK,  toggle on falling SCK
+// 1: SCK idle low,  sample on falling SCK, toggle on rising SCK
+// 2: SCK idle high, sample on rising SCK,  toggle on falling SCK
+// 3: SCK idle high, sample on falling SCK, toggle on rising SCK
 
 assign sck_pol = spi_mode_i[1];
 assign sck_pha = spi_mode_i[0];
@@ -134,10 +136,16 @@ always @ (posedge GCLK) begin
         sck_switch_cnt <= 6'd0;
         sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
     end
-    else if (!chip_sel & !SCK_to_CS) begin
-        if ((sck_switch_cnt >= sck_switch) & !CS_to_SCK) begin
+    else if (state == PRE_TRANS) begin
+        if (!CS_to_SCK) begin
             sck_switch_cnt <= 6'd0;
-            sck            <= ~sck; // marks half a period of sck cycle
+            sck            <= !sck; // marks half a period of sck cycle
+        end
+    end
+    else if (state == TRANSACTION) begin
+        if (sck_switch_cnt >= sck_switch) begin
+            sck_switch_cnt <= 6'd0;
+            sck            <= !sck; // marks half a period of sck cycle
         end
         else
             sck_switch_cnt <= sck_switch_cnt + 1'b1;
@@ -181,7 +189,7 @@ assign neg_sck = sck & (sck_switch_cnt >= sck_switch) & !CS_to_SCK;
 // CStoSCK - additional delay between the newly activated CS
 // and the first SCK polarity switch
 // SCKtoCS - additional delay between the last SCK polarity switch
-// in a (now finished) frame and the CS going idle  
+// in a (now finished) frame and the CS going idle
 
 always @ (posedge GCLK) begin
     if (RST) begin
@@ -192,9 +200,12 @@ always @ (posedge GCLK) begin
     //
     else if (chip_sel & trans_start & IFG_done) // nasty cond
         CS_to_SCK     <= 1'b1;
-    else if (trans_done)
-        SCK_to_CS     <= 1'b1;
-    //
+    else if (trans_done) begin
+        case (sck_pol)
+        0: SCK_to_CS  <= (!sck_pha & neg_sck) ? 1'b1 : (sck_pha & !sck) ? 1'b1 : SCK_to_CS;
+        1: SCK_to_CS  <= (!sck_pha & sck) ? 1'b1 : (sck_pha & pos_sck) ? 1'b1 : SCK_to_CS;
+        endcase
+    end
     else if (CS_to_SCK & (CSnSCK_cnt == t_CS_SCK_i)) begin
         CSnSCK_cnt    <= 8'd0;
         CS_to_SCK     <= 1'b0;
@@ -244,13 +255,14 @@ always @ (posedge GCLK) begin
         mosi_buff <= 32'd0;
 
         bit_cnt   <= 5'd31;
+        last_bit  <= 1'b0;
 
         state     <= IDLE;
     end
     else begin
         case (state)
             IDLE: begin
-                busy_o      <= 1'b0; // ready
+                busy_o    <= 1'b0; // ready
                 mosi      <= 1'b0;
                 chip_sel  <= 1'b1;
 
@@ -258,49 +270,99 @@ always @ (posedge GCLK) begin
                 mosi_buff <= 32'd0;
 
                 bit_cnt   <= 5'd31;
+                last_bit  <= 1'b0;
                 //
                 if (trans_start & IFG_done) begin // start signal and the minimum IFG time passed
                     busy_o      <= 1'b1; // TRULY busy
                     chip_sel  <= 1'b0; // start SCK to CS timer
                     mosi_buff <= mosi_data_i;
                     //
-                    state <= TRANSACTION;
+                    state <= PRE_TRANS;
                     // state <= START;
                 end
                 else
                     state <= IDLE;
             end
+            PRE_TRANS: begin
+                if (!CS_to_SCK) begin
+                    case (sck_pol)
+                    0: begin
+                        if (!sck_pha) begin
+                            miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                            bit_cnt <= bit_cnt - 1'b1;
+                        end
+                        else if (sck_pha) begin
+                            mosi    <= mosi_buff[bit_cnt-chosen_word_len];
+                        end
+                    end
+                    1: begin
+                        if (!sck_pha) begin
+                            mosi    <= mosi_buff[bit_cnt-chosen_word_len];
+                        end
+                        else if (sck_pha) begin
+                            miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                            bit_cnt <= bit_cnt - 1'b1; 
+                        end
+                    end
+                    endcase
+                    state <= TRANSACTION;
+                end
+                else begin
+                    case (sck_pol)
+                    0: begin
+                        if (!sck_pha) begin
+                            mosi <= mosi_buff[bit_cnt-chosen_word_len];
+                        end
+                    end
+                    1: begin
+                        if (sck_pha) begin
+                            mosi <= mosi_buff[bit_cnt-chosen_word_len];
+                        end
+                    end
+                    endcase
+                    state <= PRE_TRANS;
+                end
+            end
             TRANSACTION: begin
-                case (sck_pol) 
+                case (sck_pol)
                     0: begin // subtract from bit_cnt upon detection of a falling SCK edge
-                        // (SCK IDLE '0')    
+                        // (SCK IDLE '0')
                         case (sck_pha)
-                            0: begin // send on rising edge/pick up on falling edge
+                            0: begin // pick up on rising edge/send on falling edge
                                 if (trans_done) begin
-                                    miso_data_o          <= miso_buff;
-                                    bit_cnt            <= 5'd31;
-                                    state              <= FINISH;
+                                    if (pos_sck) begin
+                                        miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                                    end
+                                    else if (neg_sck) begin
+                                        state    <= (last_bit) ? FINISH : TRANSACTION;
+                                        mosi     <= mosi_buff[bit_cnt-chosen_word_len];
+                                        last_bit <= 1'b1;
+                                    end
                                 end
                                 else if (pos_sck) begin
-                                    mosi               <= mosi_buff[bit_cnt-chosen_word_len];
+                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                                    bit_cnt <= bit_cnt - 1'b1;
                                 end
                                 else if (neg_sck) begin
-                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
-                                    bit_cnt            <= bit_cnt - 1'b1;
+                                    mosi    <= mosi_buff[bit_cnt-chosen_word_len];
                                 end
                             end
-                            1: begin // send on falling edge/pick up on rising edge
+                            1: begin // send on rising edge/pick up on falling edge
                                 if (trans_done) begin
-                                    miso_data_o          <= miso_buff;
-                                    bit_cnt            <= 5'd31;
-                                    state              <= FINISH;
+                                    if (pos_sck) begin
+                                        mosi    <= mosi_buff[bit_cnt-chosen_word_len];
+                                    end
+                                    else if (neg_sck) begin
+                                        miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                                        state   <= FINISH;
+                                    end
                                 end
                                 else if (pos_sck) begin
-                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                                    mosi    <= mosi_buff[bit_cnt-chosen_word_len];
                                 end
                                 else if (neg_sck) begin
-                                    mosi               <= mosi_buff[bit_cnt-chosen_word_len];
-                                    bit_cnt            <= bit_cnt - 1'b1;
+                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                                    bit_cnt <= bit_cnt - 1'b1;
                                 end
                             end
                         endcase
@@ -308,32 +370,41 @@ always @ (posedge GCLK) begin
                     1: begin // subtract from bit_cnt upon detection of a rising SCK edge
                         // (SCK IDLE '1')
                         case (sck_pha)
-                            0: begin // send on rising edge/pick up on falling edge
+                            0: begin // send on falling edge/pick up on rising edge
                                 if (trans_done) begin
-                                    miso_data_o          <= miso_buff;
-                                    bit_cnt            <= 5'd31;
-                                    state              <= FINISH;
-                                end
-                                else if (pos_sck) begin
-                                    mosi               <= mosi_buff[bit_cnt-chosen_word_len];
-                                    bit_cnt            <= bit_cnt - 1'b1;
+                                    if (neg_sck) begin
+                                        mosi    <= mosi_buff[bit_cnt-chosen_word_len];
+                                    end
+                                    else if (pos_sck) begin
+                                        miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                                        state   <= FINISH;
+                                    end
                                 end
                                 else if (neg_sck) begin
+                                    mosi    <= mosi_buff[bit_cnt-chosen_word_len];
+                                end
+                                else if (pos_sck) begin
                                     miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                                    bit_cnt <= bit_cnt - 1'b1;
                                 end
                             end
-                            1: begin // send on falling edge/pick up on rising edge
+                            1: begin // pick up on falling edge/send on rising edge
                                 if (trans_done) begin
-                                    miso_data_o          <= miso_buff;
-                                    bit_cnt            <= 5'd31;
-                                    state              <= FINISH;
-                                end
-                                else if (pos_sck) begin
-                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
-                                    bit_cnt            <= bit_cnt - 1'b1;
+                                    if (neg_sck) begin
+                                        miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                                    end
+                                    else if (pos_sck) begin
+                                        state    <= (last_bit) ? FINISH : TRANSACTION;
+                                        mosi    <= mosi_buff[bit_cnt-chosen_word_len];
+                                        last_bit <= 1'b1;
+                                    end
                                 end
                                 else if (neg_sck) begin
-                                    mosi               <= mosi_buff[bit_cnt-chosen_word_len];
+                                    miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
+                                    bit_cnt <= bit_cnt - 1'b1;
+                                end
+                                else if (pos_sck) begin
+                                    mosi    <= mosi_buff[bit_cnt-chosen_word_len];
                                 end
                             end
                         endcase
@@ -341,28 +412,32 @@ always @ (posedge GCLK) begin
                 endcase
             end
             FINISH: begin
-                if (!SCK_to_CS)
-                    state <= IDLE;
-                else
-                    state <= FINISH;
+                if (!SCK_to_CS) begin
+                    miso_data_o <= miso_buff;
+                    state       <= IDLE;
+                end
+                else begin
+                    bit_cnt     <= 5'd31;
+                    state       <= FINISH;
+                end
             end
             default: begin
-                busy_o      <= 1'b0;
-                mosi      <= 1'b0;
-                chip_sel  <= 1'b1;
+                busy_o     <= 1'b0;
+                mosi       <= 1'b0;
+                chip_sel   <= 1'b1;
 
-                miso_buff <= 32'd0;
-                mosi_buff <= 32'd0;
+                miso_buff  <= 32'd0;
+                mosi_buff  <= 32'd0;
 
-                bit_cnt   <= 5'd31;
+                bit_cnt    <= 5'd31;
+                last_bit   <= 1'b0;
                 //
                 if (trans_start & IFG_done) begin
-                    busy_o      <= 1'b1; // TRULY busy
-                    chip_sel  <= 1'b0; // start SCK
+                    busy_o    <= 1'b1; // TRULY busy
+                    chip_sel  <= 1'b0; // start SCLK
                     mosi_buff <= mosi_data_i;
                     //
                     state <= TRANSACTION;
-                    // state <= START;
                 end
                 else
                     state <= IDLE;

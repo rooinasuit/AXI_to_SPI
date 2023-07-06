@@ -19,19 +19,29 @@ class test_0010_1_sequence extends test_base_sequence;
         drive_io("RST", 1);
         #10ns;
         drive_io("RST", 0);
-        // drive_io("spi_mode_out", 0);
-        drive_io("sck_speed_out", 3);
-        drive_io("word_len_out", 2); // 8 bit
-        drive_io("IFG_out", 5);
-        drive_io("CS_SCK_out", 10);
-        drive_io("SCK_CS_out", 15);
-        drive_io("mosi_data_out", 32'haa);
-        drive_spi(32'haa);
         //
+        drive_io("spi_mode_out", 1);
+        config_spi("spi_mode", 1);
+        //
+        drive_io("word_len_out", 2);
+        config_spi("word_len", 2);
+        //
+        drive_io("sck_speed_out", 3);
+        //
+        drive_io("IFG_out", 5);
+        drive_io("CS_SCK_out", 15);
+        drive_io("SCK_CS_out", 10);
+        //
+        drive_io("mosi_data_out", 32'h55);
+        drive_spi("MISO", 32'hab);
+        //
+        #20ns;
         drive_io("start_out", 1);
         #10ns;
         drive_io("start_out", 0);
-        #10000ns;
+        //
+        wait_spi_ready(20ns);
+        // #2000ns;
         // drive_clock(0);
     endtask : body
 

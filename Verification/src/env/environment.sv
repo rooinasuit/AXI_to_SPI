@@ -9,7 +9,7 @@ class tb_environment extends uvm_env;
     virtual_sequencer v_sqr;
 
     // clock_agent     clk_agt;
-    dio_agent       dio_agt;
+    dio_agent dio_agt;
     spi_agent spi_agt;
 
     tb_scoreboard scb;
@@ -49,13 +49,11 @@ class tb_environment extends uvm_env;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        // `uvm_info("ENV", "Connecting ports: dio_mtr_port -> dio_mtr_imp", UVM_LOW)
-        // dio_agt.dio_mtr.dio_mtr_port.connect(scb.dio_mtr_imp);
+        `uvm_info("ENV", "Connecting ports: dio_mtr_port -> dio_mtr_imp", UVM_LOW)
+        dio_agt.dio_mtr.dio_mtr_port.connect(scb.dio_mtr_imp);
 
-        // `uvm_info("ENV", "Connecting ports: slv_mtr_port -> slv_mtr_imp", UVM_LOW)
-        // slv_agt.slv_mtr.slv_mtr_port.connect(scb.slv_mtr_imp);
-
-        dio_agt.dio_mtr.dio_mtr_port.connect(scb.dio_fifo_imp.analysis_export);
+        `uvm_info("ENV", "Connecting ports: slv_mtr_port -> slv_mtr_imp", UVM_LOW)
+        spi_agt.spi_mtr.spi_mtr_port.connect(scb.spi_mtr_imp);
 
         // `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
         // v_sqr.clk_sqr = clk_agt.clk_sqr;

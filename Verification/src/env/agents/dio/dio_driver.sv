@@ -31,8 +31,10 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-            dio_reset();
-            dio_drive();
+        dio_reset();
+        forever begin
+            dio_transaction();
+        end
 
     endtask : run_phase
 
@@ -51,37 +53,34 @@ class dio_driver extends uvm_driver#(dio_seq_item);
             vif.mosi_data_in = 0;
     endtask : dio_reset
 
-    task dio_drive();
-        forever begin
-            dio_pkt = dio_seq_item::type_id::create("dio_pkt");
-            seq_item_port.get_next_item(dio_pkt); // blocking
-            case (dio_pkt.name)
-                "RST": vif.RST = dio_pkt.value;
-                "start_out": vif.start_in = dio_pkt.value;
+    task dio_transaction();
+        create_handle();
+        case (dio_pkt.name)
+            "RST": vif.RST = dio_pkt.value;
+            "start_out": vif.start_in = dio_pkt.value;
 
-                "spi_mode_out": vif.spi_mode_in = dio_pkt.value;
-                "sck_speed_out": vif.sck_speed_in = dio_pkt.value;
-                "word_len_out":  vif.word_len_in = dio_pkt.value;
+            "spi_mode_out": vif.spi_mode_in = dio_pkt.value;
+            "sck_speed_out": vif.sck_speed_in = dio_pkt.value;
+            "word_len_out":  vif.word_len_in = dio_pkt.value;
 
-                "IFG_out":    vif.IFG_in = dio_pkt.value;
-                "CS_SCK_out": vif.CS_SCK_in = dio_pkt.value;
-                "SCK_CS_out": vif.SCK_CS_in = dio_pkt.value;
+            "IFG_out":    vif.IFG_in = dio_pkt.value;
+            "CS_SCK_out": vif.CS_SCK_in = dio_pkt.value;
+            "SCK_CS_out": vif.SCK_CS_in = dio_pkt.value;
 
-                "mosi_data_out": vif.mosi_data_in = dio_pkt.value;
+            "mosi_data_out": vif.mosi_data_in = dio_pkt.value;
 
-                default: vif.RST = 0;
-            endcase
-            seq_item_port.item_done(); // unblocking, ready for another send to the DUT
-        end
-    endtask : dio_drive
+            default: vif.RST = 0;
+        endcase
+        transaction_done();
+    endtask : dio_transaction
 
-    // task create_handle();
+    task create_handle();
+        dio_pkt = dio_seq_item::type_id::create("dio_pkt");
+        seq_item_port.get_next_item(dio_pkt); // blocking
+    endtask : create_handle
 
-    //     `uvm_info("DIO_DRV", "Fetching next dio_pkt to put onto the DUT interface", UVM_LOW)
-    // endtask : create_handle
-
-    // function void transaction_done();
-    //     `uvm_info("DIO_DRV", "Transaction finished, ready for another", UVM_LOW)
-    // endfunction : transaction_done
+    function void transaction_done();
+        seq_item_port.item_done(); // unblocking, ready for another send to the DUT
+    endfunction : transaction_done
 
 endclass: dio_driver

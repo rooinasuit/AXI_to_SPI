@@ -13,7 +13,7 @@ class spi_base_sequence extends uvm_sequence#(spi_seq_item);
 
     endtask : body
 
-    task drive_spi(string name, bit value);
+    task drive_spi(string name, int value);
         spi_pkt.name  = name;
         spi_pkt.value = value;
     endtask : drive_spi

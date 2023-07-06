@@ -3,7 +3,7 @@ package dio_pkg;
     import uvm_pkg::*;
     `include "uvm_macros.svh"
     //
-    `include "monitor_watch.sv"
+    `include "dio_defines.sv"
     //
     `include "dio_config.sv"
     //

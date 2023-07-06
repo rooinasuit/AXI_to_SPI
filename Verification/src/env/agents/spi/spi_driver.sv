@@ -8,8 +8,11 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     virtual spi_interface vif;
     spi_seq_item spi_pkt;
 
-    bit sck_pol;
-    int MISO_buff;
+    int i;
+
+    logic [1:0] spi_mode;
+    logic [4:0] word_len;
+    logic [31:0] MISO_buff;
 
     function new (string name = "spi_driver", uvm_component parent = null);
         super.new(name,parent);
@@ -34,61 +37,82 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        // forever begin
-        MISO_data_assert();
-        spi_mode_assert();
-        spi_slave_send();
-        // end
+        spi_reset();
+        //
+        spi_transaction();
+        spi_get_config();
+        spi_drive();
 
     endtask : run_phase
 
-    task MISO_data_assert();
-        fork
-            begin
-                // if (vif.CS_out) begin
-                    create_handle();
-                    MISO_buff = spi_pkt.value;
-                    `uvm_info("SPI_DRV", $sformatf("Fetched MISO buffer: %d", MISO_buff), UVM_LOW)
-                    transaction_done();
-                // end
-            end
-        join_none
-    endtask : MISO_data_assert
+    task spi_reset();
+            vif.MISO_in = 0;
+            vif.MOSI_out = 0;
 
-    task spi_mode_assert();
-        fork
-            begin
-                if (vif.CS_out) begin
-                    sck_pol = (vif.SCLK_out) ? 1 : 0;
+            vif.SCLK_out = 0;
+            vif.CS_out = 1;
+    endtask : spi_reset
+
+    task spi_get_config();
+        @(negedge vif.CS_out);
+            spi_mode = spi_cfg.spi_mode;
+            word_len = spi_cfg.word_len;
+            `uvm_info("SPI_MTR", $sformatf("loaded spi_mode: %h", spi_mode), UVM_LOW)
+            `uvm_info("SPI_MTR", $sformatf("loaded word_len: %h", word_len), UVM_LOW)
+    endtask : spi_get_config
+
+    task spi_transaction();
+        create_handle();
+        case (spi_pkt.name)
+            "MISO": begin
+                MISO_buff = spi_pkt.value;
+                `uvm_info("SPI_DRV", $sformatf("Fetched MISO buffer: %h", MISO_buff), UVM_LOW)
+            end
+            default: begin
+                MISO_buff = MISO_buff;
+            end
+        endcase
+        transaction_done();
+    endtask : spi_transaction
+
+    task spi_drive();
+        case (spi_mode)
+            0: begin
+                for(i=(word_len); i>0; i--) begin
+                if (i == (word_len)) begin
+                    vif.MISO_in <= MISO_buff[i]; // MISO_out
+                end
+                else begin
+                    @(negedge vif.SCLK_out)
+                        vif.MISO_in <= MISO_buff[i]; // MISO_out
+                end
                 end
             end
-        join_none
-    endtask : spi_mode_assert
-
-    task spi_slave_send();
-        fork
-            begin
-                int i;
-                @(negedge vif.CS_out)
-                    while (!vif.CS_out) begin
-                        case (sck_pol)
-                            0: begin
-                                for(i=0; i<32; i++) begin
-                                @(posedge vif.SCLK_out)
-                                    vif.MISO_in <= MISO_buff[i]; // MISO_out
-                                end
-                            end
-                            1: begin
-                                for(i=0; i<32; i++) begin
-                                @(negedge vif.SCLK_out)
-                                    vif.MISO_in <= MISO_buff[i]; // MISO_out
-                                end
-                            end
-                        endcase
-                    end
+            1: begin
+                for(i=(word_len); i>0; i--) begin
+                    @(posedge vif.SCLK_out)
+                        vif.MISO_in <= MISO_buff[i]; // MISO_out
+                end
             end
-        join_none
-    endtask : spi_slave_send
+            2: begin
+                for(i=(word_len); i>0; i--) begin
+                    @(negedge vif.SCLK_out)
+                        vif.MISO_in <= MISO_buff[i]; // MISO_out
+                end
+            end
+            3: begin
+                for(i=(word_len); i>0; i--) begin
+                if (i == (word_len)) begin
+                    vif.MISO_in <= MISO_buff[i]; // MISO_out
+                end
+                else begin
+                    @(posedge vif.SCLK_out)
+                        vif.MISO_in <= MISO_buff[i]; // MISO_out
+                end
+                end
+            end
+        endcase
+    endtask : spi_drive
 
     task create_handle();
         spi_pkt = spi_seq_item::type_id::create("spi_pkt");
@@ -96,7 +120,6 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     endtask : create_handle
 
     function void transaction_done();
-        `uvm_info("SPI_DRV", "MISO fetch done", UVM_LOW)
         seq_item_port.item_done();
     endfunction : transaction_done
 

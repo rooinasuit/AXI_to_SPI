@@ -3,6 +3,8 @@ package spi_pkg;
     import uvm_pkg::*;
     `include "uvm_macros.svh"
     //
+    // `include "spi_defines.sv"
+    //
     `include "spi_config.sv"
     //
     `include "spi_seq_item.sv"

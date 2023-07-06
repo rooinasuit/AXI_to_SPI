@@ -7,6 +7,16 @@ class tb_checker extends uvm_component;
         super.new(name,parent);
     endfunction : new
 
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
+    endfunction : build_phase
+
+    function void connect_phase(uvm_phase phase);
+        super.connect_phase(phase);
+
+    endfunction : connect_phase
+
     // various comps
     // comparing values from imports - done with fifos
     // monitor value vs ref_model value on every different type of value

@@ -25,6 +25,7 @@ class dio_agent extends uvm_agent;
             `uvm_fatal("DIO_AGT", {"dio config must be set for: ", get_full_name(), " dio_cfg"})
         end
 
+        uvm_config_db#(dio_config)::set(this, "dio_sqr", "dio_config", dio_cfg);
         `uvm_info("DIO_AGT", "Creating DIO_SQR handle", UVM_LOW)
         dio_sqr = dio_sequencer::type_id::create("dio_sqr", this);
 

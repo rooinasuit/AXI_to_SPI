@@ -17,7 +17,6 @@ class spi_agent extends uvm_agent;
     endfunction : new
 
     function void build_phase(uvm_phase phase);
-        // uvm_verbosity verbosity_v = UVM_LOW;
         super.build_phase(phase);
 
         spi_mtr_port = new("spi_mtr_port", this);
@@ -26,6 +25,7 @@ class spi_agent extends uvm_agent;
             `uvm_fatal("SPI_AGT", {"spi config must be set for: ", get_full_name(), " spi_cfg"})
         end
 
+        uvm_config_db#(spi_config)::set(this, "spi_sqr", "spi_config", spi_cfg);
         `uvm_info("SPI_AGT", "Creating SPI_SQR handle", UVM_LOW)
         spi_sqr = spi_sequencer::type_id::create("spi_sqr", this);
 

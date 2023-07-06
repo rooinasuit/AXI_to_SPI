@@ -4,7 +4,7 @@ class spi_drive_sequence extends spi_base_sequence;
     `uvm_object_utils(spi_drive_sequence)
 
     string name;
-    bit value;
+    int value;
 
     function new (string name = "spi_drive_sequence");
         super.new(name);
