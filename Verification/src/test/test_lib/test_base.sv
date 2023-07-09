@@ -3,7 +3,7 @@ class test_base extends uvm_test;
 
     `uvm_component_utils(test_base)
 
-    // clock_config     clk_cfg;
+    clock_config clk_cfg;
     dio_config dio_cfg;
     spi_config spi_cfg;
     environment_config env_cfg;
@@ -21,7 +21,7 @@ class test_base extends uvm_test;
         env_cfg = environment_config::type_id::create("env_cfg", this);
 
         `uvm_info("TEST", "Creating AGT_CFG handles", UVM_LOW)
-        // clk_cfg = clock_config::type_id::create("clk_cfg", this);
+        clk_cfg = clock_config::type_id::create("clk_cfg", this);
         dio_cfg = dio_config::type_id::create("dio_cfg", this);
         spi_cfg = spi_config::type_id::create("spi_cfg", this);
 
@@ -30,6 +30,7 @@ class test_base extends uvm_test;
 
         uvm_config_db #(environment_config)::set(this, "env", "environment_config", env_cfg);
 
+        uvm_config_db#(virtual clock_interface)::get(this, "env_cfg", "c_vif", env_cfg.clk_cfg.vif);
         uvm_config_db#(virtual dio_interface)::get(this, "env_cfg", "d_vif", env_cfg.dio_cfg.vif);
         uvm_config_db#(virtual spi_interface)::get(this, "env_cfg", "s_vif", env_cfg.spi_cfg.vif);
 

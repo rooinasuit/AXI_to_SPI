@@ -8,9 +8,9 @@ class tb_environment extends uvm_env;
 
     virtual_sequencer v_sqr;
 
-    // clock_agent     clk_agt;
-    dio_agent dio_agt;
-    spi_agent spi_agt;
+    clock_agent clk_agt;
+    dio_agent   dio_agt;
+    spi_agent   spi_agt;
 
     tb_scoreboard scb;
 
@@ -25,12 +25,12 @@ class tb_environment extends uvm_env;
             `uvm_error("ENV", {"environment config must be set for: ", get_full_name(), " env_cfg"})
         end
 
-        // uvm_config_db#(clock_config)::set(null, "*clk_agt", "clock_config", env_cfg.clk_cfg);
+        uvm_config_db#(clock_config)::set(this, "*clk_agt", "clock_config", env_cfg.clk_cfg);
         uvm_config_db#(dio_config)::set(this, "*dio_agt", "dio_config", env_cfg.dio_cfg);
         uvm_config_db#(spi_config)::set(this, "*spi_agt", "spi_config", env_cfg.spi_cfg);
 
-        // `uvm_info("ENV", "Creating CLK_AGT handle", UVM_LOW)
-        // clk_agt = clock_agent::type_id::create("clk_agt", this);
+        `uvm_info("ENV", "Creating CLK_AGT handle", UVM_LOW)
+        clk_agt = clock_agent::type_id::create("clk_agt", this);
 
         `uvm_info("ENV", "Creating DIO_AGT handle", UVM_LOW)
         dio_agt = dio_agent::type_id::create("dio_agt", this);
@@ -55,8 +55,8 @@ class tb_environment extends uvm_env;
         `uvm_info("ENV", "Connecting ports: slv_mtr_port -> slv_mtr_imp", UVM_LOW)
         spi_agt.spi_mtr.spi_mtr_port.connect(scb.spi_mtr_imp);
 
-        // `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
-        // v_sqr.clk_sqr = clk_agt.clk_sqr;
+        `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
+        v_sqr.clk_sqr = clk_agt.clk_sqr;
 
         `uvm_info("ENV", "Connecting sequencers: dio_sqr -> virtual_sqr", UVM_LOW)
         v_sqr.dio_sqr = dio_agt.dio_sqr;
@@ -64,6 +64,7 @@ class tb_environment extends uvm_env;
         `uvm_info("ENV", "Connecting sequencers: slv_sqr -> virtual_sqr", UVM_LOW)
         v_sqr.spi_sqr = spi_agt.spi_sqr;
 
+        env_cfg.clk_cfg = clk_agt.clk_cfg;
         env_cfg.dio_cfg = dio_agt.dio_cfg;
         env_cfg.spi_cfg = spi_agt.spi_cfg;
 

@@ -31,27 +31,26 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        dio_reset();
         forever begin
             dio_transaction();
         end
 
     endtask : run_phase
 
-    task dio_reset();
-            vif.RST = 0;
-            vif.start_in = 0;
+    // task dio_reset();
+    //         vif.RST = 0;
+    //         vif.start_in = 0;
 
-            vif.spi_mode_in = 0;
-            vif.sck_speed_in = 0;
-            vif.word_len_in = 0;
+    //         vif.spi_mode_in = 0;
+    //         vif.sck_speed_in = 0;
+    //         vif.word_len_in = 0;
 
-            vif.IFG_in = 0;
-            vif.CS_SCK_in = 0;
-            vif.SCK_CS_in = 0;
+    //         vif.IFG_in = 0;
+    //         vif.CS_SCK_in = 0;
+    //         vif.SCK_CS_in = 0;
 
-            vif.mosi_data_in = 0;
-    endtask : dio_reset
+    //         vif.mosi_data_in = 0;
+    // endtask : dio_reset
 
     task dio_transaction();
         create_handle();

@@ -12,6 +12,22 @@ class test_base_sequence extends uvm_sequence;
 
     endtask : body
 
+    task drive_clock_period(int value);
+        clock_period_sequence clk_p_seq = clock_period_sequence::type_id::create("clk_p_seq");
+
+        clk_p_seq.period = value;
+
+        clk_p_seq.start(p_sequencer.clk_sqr);
+    endtask : drive_clock_period
+
+    task drive_clock_state(bit value);
+        clock_state_sequence clk_s_seq = clock_state_sequence::type_id::create("clk_s_seq");
+
+        clk_s_seq.clock_enable = value;
+
+        clk_s_seq.start(p_sequencer.clk_sqr);
+    endtask : drive_clock_state
+
     task drive_io(string port_name, int port_value);
         dio_drive_sequence dio_seq = dio_drive_sequence::type_id::create("dio_seq");
 
@@ -30,6 +46,21 @@ class test_base_sequence extends uvm_sequence;
         dio_seq_rnd.start(p_sequencer.dio_sqr);
     endtask : drive_io_random
 
+    task reset_io();
+        p_sequencer.dio_sqr.vif.RST = 0;
+        p_sequencer.dio_sqr.vif.start_in = 0;
+
+        p_sequencer.dio_sqr.vif.spi_mode_in = 0;
+        p_sequencer.dio_sqr.vif.sck_speed_in = 0;
+        p_sequencer.dio_sqr.vif.word_len_in = 0;
+
+        p_sequencer.dio_sqr.vif.IFG_in = 0;
+        p_sequencer.dio_sqr.vif.CS_SCK_in = 0;
+        p_sequencer.dio_sqr.vif.SCK_CS_in = 0;
+
+        p_sequencer.dio_sqr.vif.mosi_data_in = 0;
+    endtask : reset_io
+
     task drive_spi(string name, int value);
         spi_drive_sequence spi_seq = spi_drive_sequence::type_id::create("spi_seq");
 
@@ -47,8 +78,15 @@ class test_base_sequence extends uvm_sequence;
         spi_seq_rnd.start(p_sequencer.spi_sqr);
     endtask : drive_spi_random
 
+    task reset_spi();
+        p_sequencer.spi_sqr.vif.MISO_in = 0;
+        p_sequencer.spi_sqr.vif.MOSI_out = 0;
+
+        p_sequencer.spi_sqr.vif.SCLK_out = 0;
+        p_sequencer.spi_sqr.vif.CS_out = 1;
+    endtask : reset_spi
+
     task config_spi(string name, int value);
-        // environment_config env_cfg = environment_config::type_id::create("env_cfg", this);
         case (name)
         "spi_mode": begin
             p_sequencer.spi_sqr.spi_cfg.spi_mode = value;

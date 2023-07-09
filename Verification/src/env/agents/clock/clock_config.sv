@@ -5,8 +5,6 @@ class clock_config extends uvm_object;
 
     virtual clock_interface vif;
 
-    bit clock_enable = 0;
-
     function new (string name = "clock_config");
         super.new(name);
     endfunction : new

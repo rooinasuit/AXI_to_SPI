@@ -37,7 +37,6 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        spi_reset();
         //
         spi_transaction();
         spi_get_config();
@@ -45,13 +44,13 @@ class spi_driver extends uvm_driver#(spi_seq_item);
 
     endtask : run_phase
 
-    task spi_reset();
-            vif.MISO_in = 0;
-            vif.MOSI_out = 0;
+    // task spi_reset();
+    //         vif.MISO_in = 0;
+    //         vif.MOSI_out = 0;
 
-            vif.SCLK_out = 0;
-            vif.CS_out = 1;
-    endtask : spi_reset
+    //         vif.SCLK_out = 0;
+    //         vif.CS_out = 1;
+    // endtask : spi_reset
 
     task spi_get_config();
         @(negedge vif.CS_out);

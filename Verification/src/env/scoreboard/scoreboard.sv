@@ -67,9 +67,4 @@ class tb_scoreboard extends uvm_scoreboard;
 
     endfunction : write_spi_monitor_imp
 
-    // function void run_phase(uvm_phase phase);
-    //     super.run_phase(phase);
-
-    // endfunction : run_phase
-
 endclass : tb_scoreboard

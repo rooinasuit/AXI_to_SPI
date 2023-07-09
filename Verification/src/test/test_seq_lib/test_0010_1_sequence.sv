@@ -14,17 +14,21 @@ class test_0010_1_sequence extends test_base_sequence;
     //////////////////////////////////////////////////////////
 
     task body();
-        // drive_clock(10ns);
+        reset_io();
+        reset_spi();
+        #10ns;
+        drive_clock_period(30); // ns
+        drive_clock_state(1);
         //
         drive_io("RST", 1);
-        #10ns;
+        #30ns;
         drive_io("RST", 0);
         //
-        drive_io("spi_mode_out", 1);
-        config_spi("spi_mode", 1);
+        drive_io("spi_mode_out", 2);
+        config_spi("spi_mode", 2); // make it come from ref model by supplying drive_io of a given spi master config parameter
         //
         drive_io("word_len_out", 2);
-        config_spi("word_len", 2);
+        config_spi("word_len", 2); // same as above
         //
         drive_io("sck_speed_out", 3);
         //
@@ -37,12 +41,12 @@ class test_0010_1_sequence extends test_base_sequence;
         //
         #20ns;
         drive_io("start_out", 1);
-        #10ns;
+        #30ns;
         drive_io("start_out", 0);
         //
         wait_spi_ready(20ns);
-        // #2000ns;
-        // drive_clock(0);
+        #20ns;
+        drive_clock_state(0);
     endtask : body
 
 endclass : test_0010_1_sequence

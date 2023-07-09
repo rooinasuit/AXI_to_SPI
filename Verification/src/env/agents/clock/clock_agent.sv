@@ -11,7 +11,6 @@ class clock_agent extends uvm_agent;
 
     function new (string name = "clock_agent", uvm_component parent = null);
         super.new(name,parent);
-
     endfunction : new
 
     function void build_phase(uvm_phase phase);
@@ -21,9 +20,11 @@ class clock_agent extends uvm_agent;
             `uvm_fatal("CLK_AGT", {"clock config must be set for: ", get_full_name(), " clk_cfg"})
         end
 
+        uvm_config_db#(clock_config)::set(this, "clk_sqr", "clock_config", clk_cfg);
         `uvm_info("CLK_AGT", "Creating CLK_SQR handle", UVM_LOW)
         clk_sqr = clock_sequencer::type_id::create("clk_sqr", this);
 
+        uvm_config_db#(clock_config)::set(this, "clk_drv", "clock_config", clk_cfg);
         `uvm_info("CLK_AGT", "Creating CLK_DRV handle", UVM_LOW)
         clk_drv = clock_driver::type_id::create("clk_drv", this);
 
