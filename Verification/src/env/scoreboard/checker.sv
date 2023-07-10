@@ -26,12 +26,12 @@ class tb_checker extends uvm_component;
 
     endfunction : connect_phase
 
-    function void run_phase(uvm_phase phase);
+    task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
     // here we will compare :D
 
-    endfunction : run_phase
+    endtask : run_phase
 
     // function void check_phase(uvm_phase phase);
     //     super.check_phase(phase);
