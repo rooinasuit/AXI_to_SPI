@@ -8,25 +8,50 @@ class tb_scoreboard extends uvm_scoreboard;
 
     `uvm_component_utils(tb_scoreboard)
 
+    string dio_items_to_rfm [] = {"RST", "start_in", "spi_mode_in",
+                                  "sck_speed_in", "word_len_in", "IFG_in",
+                                  "CS_SCK_in", "SCK_CS_in", "mosi_data_in"};
+
+    string dio_items_to_chk [] = {"busy_out", "miso_data_out"};
+
+    string spi_items_to_rfm [] = {};
+
+    string spi_items_to_chk [] = {"MOSI_frame", "MISO_frame"};
+
+    spi_config spi_cfg;
+
     ref_model rfm;
     tb_checker chk;
-
-    dio_seq_item dio_pkt_mtr2scb;
-    spi_seq_item spi_pkt_mtr2scb;
 
     uvm_analysis_imp_dio_monitor_imp#(dio_seq_item, tb_scoreboard) dio_mtr_imp;
     uvm_analysis_imp_spi_monitor_imp#(spi_seq_item, tb_scoreboard) spi_mtr_imp;
 
+    uvm_analysis_port#(dio_seq_item) dio_rfm_ap;
+    uvm_analysis_port#(spi_seq_item) spi_rfm_ap;
+
+    uvm_analysis_port#(dio_seq_item) dio_chk_ap;
+    uvm_analysis_port#(spi_seq_item) spi_chk_ap;
+
     function new(string name = "tb_scoreboard", uvm_component parent = null);
         super.new(name,parent);
-
-        dio_mtr_imp = new("dio_mtr_imp", this);
-        spi_mtr_imp = new("spi_mtr_imp", this);
 
     endfunction : new
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
+
+        dio_mtr_imp = new("dio_mtr_imp", this);
+        spi_mtr_imp = new("spi_mtr_imp", this);
+
+        dio_rfm_ap = new("dio_rfm_ap", this);
+        spi_rfm_ap = new("spi_rfm_ap", this);
+
+        dio_chk_ap = new("dio_chk_ap", this);
+        spi_chk_ap = new("spi_chk_ap", this);
+
+        if (!uvm_config_db #(spi_config)::get(this, "", "spi_config", spi_cfg)) begin
+            `uvm_fatal("SCB", {"spi config must be set for: ", get_full_name(), " spi_cfg"})
+        end
 
         `uvm_info("SCB", "Creating RFM handle", UVM_LOW)
         rfm = ref_model::type_id::create("rfm", this);
@@ -39,31 +64,59 @@ class tb_scoreboard extends uvm_scoreboard;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        // `uvm_info("SCB", "Connecting import: dio_mtr_imp -> dio_mtr_in (RFM)", UVM_LOW)
-        // dio_fifo_imp.connect(rfm.dio_mtr_rfm);
-        // dio_fifo_imp.connect(chk.dio_mtr_cmp);
+        `uvm_info("ENV", "Connecting ports: dio_rfm_ap -> dio_scb_imp", UVM_LOW)
+        dio_rfm_ap.connect(rfm.dio_scb_imp);
 
-        // `uvm_info("SCB", "Connecting import: slv_mtr_imp -> slv_mtr_in (RFM)", UVM_LOW)
-        // spi_fifo_imp.connect(rfm.spi_mtr_rfm);
-        // spi_fifo_imp.connect(chk.spi_mtr_cmp);
+        `uvm_info("ENV", "Connecting ports: spi_rfm_ap -> spi_scb_imp", UVM_LOW)
+        spi_rfm_ap.connect(rfm.spi_scb_imp);
+
+        `uvm_info("ENV", "Connecting ports: dio_chk_ap -> dio_scb_imp", UVM_LOW)
+        dio_chk_ap.connect(chk.dio_scb_imp);
+
+        `uvm_info("ENV", "Connecting ports: spi_chk_ap -> spi_scb_imp", UVM_LOW)
+        spi_chk_ap.connect(chk.spi_scb_imp);
 
     endfunction : connect_phase
 
     function void write_dio_monitor_imp(dio_seq_item dio_pkt_in);
 
-        dio_pkt_mtr2scb = dio_seq_item::type_id::create("dio_pkt_mtr2scb", this);
-        dio_pkt_mtr2scb.copy(dio_pkt_in);
-        `uvm_info("SCB", $sformatf("Data received from DIO_MTR: "), UVM_LOW)
-        dio_pkt_mtr2scb.print();
+        if(dio_pkt_in.name inside {dio_items_to_rfm}) begin
+            dio_rfm_ap.write(dio_pkt_in);
+        end
+        else if(dio_pkt_in.name inside {dio_items_to_chk}) begin
+            dio_chk_ap.write(dio_pkt_in);
+        end
+
+        case(dio_pkt_in.name)
+            "spi_mode_in": begin
+                spi_cfg.spi_mode = dio_pkt_in.value;
+                `uvm_info("SCB", $sformatf("value of spi_mode in spi_cfg: %d", spi_cfg.spi_mode), UVM_LOW)
+            end
+            "sck_speed_in": begin
+                spi_cfg.sck_speed = dio_pkt_in.value;
+                `uvm_info("SCB", $sformatf("value of sck_speed in spi_cfg: %d", spi_cfg.sck_speed), UVM_LOW)
+            end
+            "word_len_in": begin
+                case (dio_pkt_in.value)
+                    0: spi_cfg.word_len = 31;
+                    1: spi_cfg.word_len = 15;
+                    2: spi_cfg.word_len = 7;
+                    3: spi_cfg.word_len = 3;
+                endcase
+                `uvm_info("SCB", $sformatf("value of word_len in spi_cfg: %d(%d)", dio_pkt_in.value, spi_cfg.word_len), UVM_LOW)
+            end
+        endcase
 
     endfunction : write_dio_monitor_imp
 
     function void write_spi_monitor_imp(spi_seq_item spi_pkt_in);
 
-        spi_pkt_mtr2scb = spi_seq_item::type_id::create("spi_pkt_mtr2scb", this);
-        spi_pkt_mtr2scb.copy(spi_pkt_in);
-        `uvm_info("SCB", $sformatf("Data received from SPI_MTR: "), UVM_LOW)
-        spi_pkt_mtr2scb.print();
+        if(spi_pkt_in.name inside {spi_items_to_rfm}) begin
+            spi_rfm_ap.write(spi_pkt_in);
+        end
+        if(spi_pkt_in.name inside {spi_items_to_chk}) begin
+            spi_chk_ap.write(spi_pkt_in);
+        end
 
     endfunction : write_spi_monitor_imp
 

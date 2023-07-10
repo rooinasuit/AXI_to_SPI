@@ -25,10 +25,9 @@ class test_base extends uvm_test;
         dio_cfg = dio_config::type_id::create("dio_cfg", this);
         spi_cfg = spi_config::type_id::create("spi_cfg", this);
 
+        uvm_config_db #(environment_config)::set(this, "env", "environment_config", env_cfg);
         `uvm_info("TEST", "Creating ENV handle", UVM_LOW)
         env = tb_environment::type_id::create("env", this);
-
-        uvm_config_db #(environment_config)::set(this, "env", "environment_config", env_cfg);
 
         uvm_config_db#(virtual clock_interface)::get(this, "env_cfg", "c_vif", env_cfg.clk_cfg.vif);
         uvm_config_db#(virtual dio_interface)::get(this, "env_cfg", "d_vif", env_cfg.dio_cfg.vif);

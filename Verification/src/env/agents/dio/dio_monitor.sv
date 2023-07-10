@@ -6,7 +6,7 @@ class dio_monitor extends uvm_monitor;
     // instantiation of internal objects
     dio_config dio_cfg;
     virtual dio_interface vif;
-    dio_seq_item dio_pkt;
+    dio_seq_item dio_pkt_in;
 
     uvm_analysis_port#(dio_seq_item) dio_mtr_port;
 

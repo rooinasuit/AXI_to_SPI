@@ -1,7 +1,13 @@
 
+`uvm_analysis_imp_decl(_dio_scb2chk)
+`uvm_analysis_imp_decl(_spi_scb2chk)
+
 class tb_checker extends uvm_component;
 
     `uvm_component_utils(tb_checker)
+
+    uvm_analysis_imp_dio_scb2chk#(dio_seq_item, tb_checker) dio_scb_imp;
+    uvm_analysis_imp_spi_scb2chk#(spi_seq_item, tb_checker) spi_scb_imp;
 
     function new(string name = "tb_checker", uvm_component parent = null);
         super.new(name,parent);
@@ -10,12 +16,27 @@ class tb_checker extends uvm_component;
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
 
+        dio_scb_imp = new("dio_scb_imp", this);
+        spi_scb_imp = new("spi_scb_imp", this);
+
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
     endfunction : connect_phase
+
+    function void run_phase(uvm_phase phase);
+        super.run_phase(phase);
+
+    // here we will compare :D
+
+    endfunction : run_phase
+
+    // function void check_phase(uvm_phase phase);
+    //     super.check_phase(phase);
+
+    // endfunction : check_phase
 
     // various comps
     // comparing values from imports - done with fifos
@@ -27,22 +48,18 @@ class tb_checker extends uvm_component;
     // do received_comp(seq_item) - it uses the compare function of the seq_item in question - makes the comparator more generic
     // be selective with incoming packets - incoming spi seq item will need to be selected as one of 4 different modes
 
-    // function void write_dio_monitor_imp(dio_seq_item dio_pkt_in);
+    function void write_dio_scb2chk(dio_seq_item dio_pkt_in);
 
-    //     dio_pkt_mtr2scb = dio_seq_item::type_id::create("dio_pkt_mtr2scb", this);
-    //     dio_pkt_mtr2scb.copy(dio_pkt_in);
-    //     `uvm_info("SCB", $sformatf("Data received from DIO_MTR: "), UVM_LOW)
-    //     dio_pkt_mtr2scb.print();
+        `uvm_info("CHK", $sformatf("Data received from DIO_MTR: "), UVM_LOW)
+        dio_pkt_in.print();
 
-    // endfunction : write_dio_monitor_imp
+    endfunction : write_dio_scb2chk
 
-    // function void write_slv_monitor_imp(spi_slave_seq_item slv_pkt_in);
+    function void write_spi_scb2chk(spi_seq_item spi_pkt_in);
 
-    //     slv_pkt_mtr2scb = spi_slave_seq_item::type_id::create("slv_pkt_mtr2scb", this);
-    //     slv_pkt_mtr2scb.copy(slv_pkt_in);
-    //     `uvm_info("SCB", $sformatf("Data received from SLV_MTR: "), UVM_LOW)
-    //     slv_pkt_mtr2scb.print();
+        `uvm_info("CHK", $sformatf("Data received from SPI_MTR: "), UVM_LOW)
+        spi_pkt_in.print();
 
-    // endfunction : write_slv_monitor_imp
+    endfunction : write_spi_scb2chk
 
 endclass

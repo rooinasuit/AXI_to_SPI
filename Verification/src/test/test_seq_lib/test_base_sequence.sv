@@ -28,6 +28,10 @@ class test_base_sequence extends uvm_sequence;
         clk_s_seq.start(p_sequencer.clk_sqr);
     endtask : drive_clock_state
 
+    task reset_clock();
+        p_sequencer.clk_sqr.vif.reset_clock();
+    endtask : reset_clock
+
     task drive_io(string port_name, int port_value);
         dio_drive_sequence dio_seq = dio_drive_sequence::type_id::create("dio_seq");
 
@@ -47,18 +51,7 @@ class test_base_sequence extends uvm_sequence;
     endtask : drive_io_random
 
     task reset_io();
-        p_sequencer.dio_sqr.vif.RST = 0;
-        p_sequencer.dio_sqr.vif.start_in = 0;
-
-        p_sequencer.dio_sqr.vif.spi_mode_in = 0;
-        p_sequencer.dio_sqr.vif.sck_speed_in = 0;
-        p_sequencer.dio_sqr.vif.word_len_in = 0;
-
-        p_sequencer.dio_sqr.vif.IFG_in = 0;
-        p_sequencer.dio_sqr.vif.CS_SCK_in = 0;
-        p_sequencer.dio_sqr.vif.SCK_CS_in = 0;
-
-        p_sequencer.dio_sqr.vif.mosi_data_in = 0;
+        p_sequencer.dio_sqr.vif.reset_io();
     endtask : reset_io
 
     task drive_spi(string name, int value);
@@ -79,28 +72,8 @@ class test_base_sequence extends uvm_sequence;
     endtask : drive_spi_random
 
     task reset_spi();
-        p_sequencer.spi_sqr.vif.MISO_in = 0;
-        p_sequencer.spi_sqr.vif.MOSI_out = 0;
-
-        p_sequencer.spi_sqr.vif.SCLK_out = 0;
-        p_sequencer.spi_sqr.vif.CS_out = 1;
+        p_sequencer.spi_sqr.vif.reset_spi();
     endtask : reset_spi
-
-    task config_spi(string name, int value);
-        case (name)
-        "spi_mode": begin
-            p_sequencer.spi_sqr.spi_cfg.spi_mode = value;
-        end
-        "word_len": begin
-            case (value)
-            0: p_sequencer.spi_sqr.spi_cfg.word_len = 31;
-            1: p_sequencer.spi_sqr.spi_cfg.word_len = 15;
-            2: p_sequencer.spi_sqr.spi_cfg.word_len = 7;
-            3: p_sequencer.spi_sqr.spi_cfg.word_len = 3;
-            endcase
-        end
-        endcase
-    endtask : config_spi
 
     task wait_spi_ready(time wait_buff);
         @(posedge p_sequencer.spi_sqr.vif.CS_out);

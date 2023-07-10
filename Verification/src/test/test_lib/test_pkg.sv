@@ -7,6 +7,8 @@ package test_pkg;
     import dio_pkg::*;
     import spi_pkg::*;
     //
+    import scb_pkg::*;
+    //
     import env_pkg::*;
     //
     import clock_seq_pkg::*;

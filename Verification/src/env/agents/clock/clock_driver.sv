@@ -64,7 +64,7 @@ class clock_driver extends uvm_driver#(clock_seq_item);
         `uvm_info("CLK_DRV", "Fetching next clk_pkt", UVM_LOW)
         clk_pkt = clock_seq_item::type_id::create("clk_pkt");
         seq_item_port.get_next_item(clk_pkt); // blocking
-        clk_pkt.print();
+        // clk_pkt.print();
     endtask : create_handle
 
     function void transaction_done();

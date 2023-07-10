@@ -14,9 +14,6 @@ module tb_top;
     dio_interface   d_itf();
     spi_interface   s_itf();
 
-    // bit GCLK;
-    // time period = 10ns;
-
     SPI_top DUT(
         .GCLK          (c_itf.GCLK),
         //
@@ -37,10 +34,6 @@ module tb_top;
         .SCLK_out      (s_itf.SCLK_out),
         .CS_out        (s_itf.CS_out)
     );
-
-    // initial begin
-    //     forever#(period/2) GCLK = ~GCLK;
-    // end
 
     initial begin
         uvm_config_db#(virtual clock_interface)::set(null, "uvm_test_top*", "c_vif", c_itf); // clock driver

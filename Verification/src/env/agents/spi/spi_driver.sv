@@ -44,20 +44,12 @@ class spi_driver extends uvm_driver#(spi_seq_item);
 
     endtask : run_phase
 
-    // task spi_reset();
-    //         vif.MISO_in = 0;
-    //         vif.MOSI_out = 0;
-
-    //         vif.SCLK_out = 0;
-    //         vif.CS_out = 1;
-    // endtask : spi_reset
-
     task spi_get_config();
         @(negedge vif.CS_out);
             spi_mode = spi_cfg.spi_mode;
             word_len = spi_cfg.word_len;
-            `uvm_info("SPI_MTR", $sformatf("loaded spi_mode: %h", spi_mode), UVM_LOW)
-            `uvm_info("SPI_MTR", $sformatf("loaded word_len: %h", word_len), UVM_LOW)
+            `uvm_info("SPI_DRV", $sformatf("loaded spi_mode: %h", spi_mode), UVM_LOW)
+            `uvm_info("SPI_DRV", $sformatf("loaded word_len: %h", word_len), UVM_LOW)
     endtask : spi_get_config
 
     task spi_transaction();

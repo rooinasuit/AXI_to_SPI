@@ -9,4 +9,8 @@ interface spi_interface();
     bit SCLK_out;
     bit CS_out;
 
+    task reset_spi();
+        MISO_in = 0;
+    endtask : reset_spi
+
 endinterface : spi_interface
