@@ -6,6 +6,12 @@ class tb_checker extends uvm_component;
 
     `uvm_component_utils(tb_checker)
 
+    string dio_items_to_comp [] = {"busy_out",
+                                  "miso_data_out"};
+
+    string spi_items_to_comp [] = {"MOSI_frame",
+                                  "MISO_frame"};
+
     uvm_analysis_imp_dio_scb2chk#(dio_seq_item, tb_checker) dio_scb_imp;
     uvm_analysis_imp_spi_scb2chk#(spi_seq_item, tb_checker) spi_scb_imp;
 
@@ -33,11 +39,6 @@ class tb_checker extends uvm_component;
 
     endtask : run_phase
 
-    // function void check_phase(uvm_phase phase);
-    //     super.check_phase(phase);
-
-    // endfunction : check_phase
-
     // various comps
     // comparing values from imports - done with fifos
     // monitor value vs ref_model value on every different type of value
@@ -46,7 +47,6 @@ class tb_checker extends uvm_component;
     // let it have write_received() and write_expected()
     // let the comparators be generic
     // do received_comp(seq_item) - it uses the compare function of the seq_item in question - makes the comparator more generic
-    // be selective with incoming packets - incoming spi seq item will need to be selected as one of 4 different modes
 
     function void write_dio_scb2chk(dio_seq_item dio_pkt_in);
 

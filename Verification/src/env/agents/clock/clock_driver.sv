@@ -34,8 +34,6 @@ class clock_driver extends uvm_driver#(clock_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        // Time-zero setup
-        vif.GCLK = 0;
         forever begin
             fork
                 begin

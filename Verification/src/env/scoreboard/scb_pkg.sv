@@ -9,6 +9,6 @@ package scb_pkg;
 
     `include "checker.sv"
     `include "ref_model.sv"
-    `include "scoreboard.sv"
+    `include "tb_scoreboard.sv"
 
 endpackage : scb_pkg

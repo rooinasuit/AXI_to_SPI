@@ -14,25 +14,67 @@ module tb_top;
     dio_interface   d_itf();
     spi_interface   s_itf();
 
+    logic GCLK;
+    //
+    logic RST;
+    logic start_in;
+    logic [1:0] spi_mode_in;
+    logic [1:0] sck_speed_in;
+    logic [1:0] word_len_in;
+    logic [7:0] IFG_in;
+    logic [7:0] CS_SCK_in;
+    logic [7:0] SCK_CS_in;
+    logic [31:0] mosi_data_in;
+
+    logic busy_out;
+    logic [31:0] miso_data_out;
+    //
+    logic MISO_in;
+
+    logic MOSI_out;
+    logic SCLK_out;
+    logic CS_out;
+
+    assign GCLK = c_itf.GCLK;
+    //
+    assign RST            = d_itf.RST;
+    assign start_in       = d_itf.start_in;
+    assign spi_mode_in    = d_itf.spi_mode_in;
+    assign sck_speed_in   = d_itf.sck_speed_in;
+    assign word_len_in    = d_itf.word_len_in;
+    assign IFG_in         = d_itf.IFG_in;
+    assign CS_SCK_in      = d_itf.CS_SCK_in;
+    assign SCK_CS_in      = d_itf.SCK_CS_in;
+    assign mosi_data_in   = d_itf.mosi_data_in;
+
+    assign d_itf.busy_out = busy_out;
+    assign d_itf.miso_data_out = miso_data_out;
+    //
+    assign MISO_in = s_itf.MISO_in;
+
+    assign s_itf.MOSI_out = MOSI_out;
+    assign s_itf.SCLK_out = SCLK_out;
+    assign s_itf.CS_out   = CS_out;
+
     SPI_top DUT(
-        .GCLK          (c_itf.GCLK),
+        .GCLK          (GCLK),
         //
-        .RST           (d_itf.RST),
-        .start_in      (d_itf.start_in),
-        .busy_out      (d_itf.busy_out),
-        .spi_mode_in   (d_itf.spi_mode_in),
-        .sck_speed_in  (d_itf.sck_speed_in),
-        .word_len_in   (d_itf.word_len_in),
-        .IFG_in        (d_itf.IFG_in),
-        .CS_SCK_in     (d_itf.CS_SCK_in),
-        .SCK_CS_in     (d_itf.SCK_CS_in),
-        .mosi_data_in  (d_itf.mosi_data_in),
-        .miso_data_out (d_itf.miso_data_out),
+        .RST           (RST),
+        .start_in      (start_in),
+        .busy_out      (busy_out),
+        .spi_mode_in   (spi_mode_in),
+        .sck_speed_in  (sck_speed_in),
+        .word_len_in   (word_len_in),
+        .IFG_in        (IFG_in),
+        .CS_SCK_in     (CS_SCK_in),
+        .SCK_CS_in     (SCK_CS_in),
+        .mosi_data_in  (mosi_data_in),
+        .miso_data_out (miso_data_out),
         //
-        .MISO_in       (s_itf.MISO_in),
-        .MOSI_out      (s_itf.MOSI_out),
-        .SCLK_out      (s_itf.SCLK_out),
-        .CS_out        (s_itf.CS_out)
+        .MISO_in       (MISO_in),
+        .MOSI_out      (MOSI_out),
+        .SCLK_out      (SCLK_out),
+        .CS_out        (CS_out)
     );
 
     initial begin

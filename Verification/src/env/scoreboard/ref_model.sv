@@ -9,6 +9,9 @@ class ref_model extends uvm_component;
     uvm_analysis_imp_dio_scb2rfm#(dio_seq_item, ref_model) dio_scb_imp;
     uvm_analysis_imp_spi_scb2rfm#(spi_seq_item, ref_model) spi_scb_imp;
 
+    uvm_analysis_port#(dio_seq_item) dio_pred_port;
+    uvm_analysis_port#(spi_seq_item) spi_pred_port;
+
     function new(string name = "ref_model", uvm_component parent);
         super.new(name,parent);
     endfunction : new
@@ -19,12 +22,22 @@ class ref_model extends uvm_component;
         dio_scb_imp = new("dio_scb_imp", this);
         spi_scb_imp = new("spi_scb_imp", this);
 
+        dio_pred_port = new("dio_pred_port", this);
+        spi_pred_port = new("spi_pred_port", this);
+
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
     endfunction : connect_phase
+
+    task run_phase(uvm_phase phase);
+        super.run_phase(phase);
+
+    // here we will compare :D
+
+    endtask : run_phase
 
     function void write_dio_scb2rfm(dio_seq_item dio_pkt_in);
 

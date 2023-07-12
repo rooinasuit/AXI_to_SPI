@@ -15,7 +15,6 @@ begin \
                     HANDLE_NAME``_pkt_in.name = `"VAL_NAME`"; \
                     HANDLE_NAME``_pkt_in.value = curr_val; \
                     HANDLE_NAME``_mtr_port.write(HANDLE_NAME``_pkt_in); \
-                    prev_val = curr_val; \
                 end \
         end \
 end

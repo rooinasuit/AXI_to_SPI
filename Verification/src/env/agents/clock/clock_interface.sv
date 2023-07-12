@@ -2,7 +2,7 @@
 interface clock_interface();
 
     // GLOBAL INPUT SIGNALS
-    bit GCLK;
+    logic GCLK;
 
     task reset_clock();
         GCLK = 0;
