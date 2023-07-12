@@ -38,9 +38,11 @@ class spi_driver extends uvm_driver#(spi_seq_item);
         super.run_phase(phase);
 
         //
+        forever begin
         spi_transaction();
         spi_get_config();
         spi_drive();
+        end
 
     endtask : run_phase
 
@@ -53,23 +55,27 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     endtask : spi_get_config
 
     task spi_transaction();
-        create_handle();
-        case (spi_pkt.name)
-            "MISO": begin
-                MISO_buff = spi_pkt.value;
-                `uvm_info("SPI_DRV", $sformatf("Fetched MISO buffer: %h", MISO_buff), UVM_LOW)
+        fork
+            begin
+                create_handle();
+                case (spi_pkt.name)
+                    "MISO": begin
+                        MISO_buff = spi_pkt.value;
+                        `uvm_info("SPI_DRV", $sformatf("Fetched MISO buffer: %h", MISO_buff), UVM_LOW)
+                    end
+                    default: begin
+                        MISO_buff = MISO_buff;
+                    end
+                endcase
+                transaction_done();
             end
-            default: begin
-                MISO_buff = MISO_buff;
-            end
-        endcase
-        transaction_done();
+        join_none;
     endtask : spi_transaction
 
     task spi_drive();
         case (spi_mode)
             0: begin
-                for(i=(word_len); i>0; i--) begin
+                for(i=(word_len); i>=0; i--) begin
                 if (i == (word_len)) begin
                     vif.MISO_in <= MISO_buff[i]; // MISO_out
                 end
@@ -80,19 +86,19 @@ class spi_driver extends uvm_driver#(spi_seq_item);
                 end
             end
             1: begin
-                for(i=(word_len); i>0; i--) begin
+                for(i=(word_len); i>=0; i--) begin
                     @(posedge vif.SCLK_out)
                         vif.MISO_in <= MISO_buff[i]; // MISO_out
                 end
             end
             2: begin
-                for(i=(word_len); i>0; i--) begin
+                for(i=(word_len); i>=0; i--) begin
                     @(negedge vif.SCLK_out)
                         vif.MISO_in <= MISO_buff[i]; // MISO_out
                 end
             end
             3: begin
-                for(i=(word_len); i>0; i--) begin
+                for(i=(word_len); i>=0; i--) begin
                 if (i == (word_len)) begin
                     vif.MISO_in <= MISO_buff[i]; // MISO_out
                 end

@@ -45,9 +45,11 @@ class spi_monitor extends uvm_monitor;
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
+        forever begin
         spi_get_config();
         spi_capture();
         spi_to_scb();
+        end
 
     endtask : run_phase
 

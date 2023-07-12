@@ -44,12 +44,6 @@ class test_0010_1_sequence extends test_base_sequence;
         drive_io("start_out", 0);
         //
         wait_spi_ready(20ns);
-        #100ns;
-        drive_io("start_out", 1);
-        #30ns;
-        drive_io("start_out", 0);
-
-        wait_spi_ready(20ns);
         #1000ns;
         drive_clock_state(0);
     endtask : body
