@@ -6,7 +6,6 @@ class clock_driver extends uvm_driver#(clock_seq_item);
     // instantiation of internal objects
     clock_config clk_cfg;
     virtual clock_interface vif;
-    clock_seq_item clk_pkt;
 
     int period;
     bit clock_enable;
@@ -36,38 +35,42 @@ class clock_driver extends uvm_driver#(clock_seq_item);
 
         // Time-zero action
         vif.GCLK = 0;
-
-        forever begin
-            fork
-                begin
-                    create_handle();
-                    case(clk_pkt.name)
-                        "period": period = clk_pkt.value;
-                        "clock_enable": clock_enable = clk_pkt.value;
-                        default: begin
-                            period = 0;
-                            clock_enable = 0;
-                        end
-                    endcase
-                    transaction_done();
-                end
-                begin
-                    if (clock_enable) begin
-                        forever #((period/2)*1ns) vif.GCLK = ~vif.GCLK;
-                    end
-                end
-            join
-        end
+        fork
+            get_and_drive();
+            drive_clock();
+        join
 
     endtask : run_phase
 
-    task create_handle();
-        clk_pkt = clock_seq_item::type_id::create("clk_pkt");
-        seq_item_port.get_next_item(clk_pkt); // blocking
-    endtask : create_handle
+    task get_and_drive();
+        forever begin
+            clock_seq_item clk_pkt = clock_seq_item::type_id::create("clk_pkt");
+            seq_item_port.get_next_item(clk_pkt); // blocking
+            case(clk_pkt.name)
+                "period": period = clk_pkt.value;
+                "clock_enable": clock_enable = clk_pkt.value;
+                default: begin
+                    period = 0;
+                    clock_enable = 0;
+                end
+            endcase
+            seq_item_port.item_done(); // unblocking, ready for another send to the DUT
+        end
+    endtask : get_and_drive
 
-    function void transaction_done();
-        seq_item_port.item_done(); // unblocking, ready for another send to the DUT
-    endfunction : transaction_done
+    task drive_clock();
+        forever begin
+            wait(clock_enable);
+            fork
+                begin
+                    wait(!clock_enable);
+                    wait(!vif.GCLK);
+                end
+                begin
+                    forever #((period/2)*1ns) vif.GCLK = ~vif.GCLK;
+                end
+            join_any
+        end
+    endtask : drive_clock
 
 endclass : clock_driver

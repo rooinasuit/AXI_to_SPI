@@ -6,7 +6,6 @@ class spi_monitor extends uvm_monitor;
     // instantiation of internal objects
     spi_config spi_cfg;
     virtual spi_interface vif;
-    spi_seq_item spi_pkt_in;
 
     uvm_analysis_port#(spi_seq_item) spi_mtr_port;
 
@@ -96,30 +95,23 @@ class spi_monitor extends uvm_monitor;
     endtask : spi_capture
 
     task spi_to_scb();
+        spi_seq_item spi_pkt_in;
         @(posedge vif.CS_out);
             fork
                 begin
-                create_handle();
+                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
                 spi_pkt_in.name  = "MISO_frame";
                 spi_pkt_in.value = MISO_buff;
-                write_transaction();
+                spi_mtr_port.write(spi_pkt_in);
                 end
                 //
                 begin
-                create_handle();
+                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
                 spi_pkt_in.name  = "MOSI_frame";
                 spi_pkt_in.value = MOSI_buff;
-                write_transaction();
+                spi_mtr_port.write(spi_pkt_in);
                 end
             join
     endtask : spi_to_scb
-
-    function void create_handle();
-        spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
-    endfunction : create_handle
-
-    function void write_transaction();
-        spi_mtr_port.write(spi_pkt_in);
-    endfunction : write_transaction
 
 endclass: spi_monitor

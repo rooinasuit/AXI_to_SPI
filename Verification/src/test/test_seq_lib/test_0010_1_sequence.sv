@@ -15,7 +15,6 @@ class test_0010_1_sequence extends test_base_sequence;
 
     task body();
         reset_io();
-        reset_spi();
         #10ns;
         drive_clock_period(30); // ns
         drive_clock_state(1);

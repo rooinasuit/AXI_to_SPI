@@ -6,7 +6,6 @@ class dio_monitor extends uvm_monitor;
     // instantiation of internal objects
     dio_config dio_cfg;
     virtual dio_interface vif;
-    dio_seq_item dio_pkt_in;
 
     uvm_analysis_port#(dio_seq_item) dio_mtr_port;
 
@@ -36,11 +35,12 @@ class dio_monitor extends uvm_monitor;
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-            dio_capture();
+        dio_capture();
 
     endtask : run_phase
 
     task dio_capture();
+        dio_seq_item dio_pkt_in;
         fork
             `MONITOR_WATCH(RST, dio)
             `MONITOR_WATCH(start_in, dio)

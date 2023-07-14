@@ -25,8 +25,12 @@ class ref_model extends uvm_component;
     endtask : run_phase
 
     task predict_spi(int data, time period);
-        
+
     endtask : predict_spi
+
+    // task predict_dio
+
+    // endtask : predict_dio
 
     function void write_dio(dio_seq_item dio_pkt_in);
 

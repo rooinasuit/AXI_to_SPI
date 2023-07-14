@@ -75,10 +75,6 @@ class test_base_sequence extends uvm_sequence;
         spi_seq_rnd.start(p_sequencer.spi_sqr);
     endtask : drive_spi_random
 
-    task reset_spi();
-        p_sequencer.spi_sqr.vif.reset_spi();
-    endtask : reset_spi
-
     task wait_spi_ready(time wait_buff);
         @(posedge p_sequencer.spi_sqr.vif.CS_out);
         #wait_buff;

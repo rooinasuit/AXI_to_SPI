@@ -6,7 +6,6 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     // instantiation of internal objects
     spi_config spi_cfg;
     virtual spi_interface vif;
-    spi_seq_item spi_pkt;
 
     int i;
 
@@ -38,9 +37,9 @@ class spi_driver extends uvm_driver#(spi_seq_item);
         super.run_phase(phase);
 
         forever begin
-        spi_transaction();
-        spi_get_config();
-        spi_drive();
+            spi_transaction();
+            spi_get_config();
+            spi_drive();
         end
 
     endtask : run_phase
@@ -56,7 +55,8 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     task spi_transaction();
         fork
             begin
-                create_handle();
+                spi_seq_item spi_pkt = spi_seq_item::type_id::create("spi_pkt");
+                seq_item_port.get_next_item(spi_pkt);
                 case (spi_pkt.name)
                     "MISO": begin
                         MISO_buff = spi_pkt.value;
@@ -65,7 +65,7 @@ class spi_driver extends uvm_driver#(spi_seq_item);
                         MISO_buff = MISO_buff;
                     end
                 endcase
-                transaction_done();
+                seq_item_port.item_done();
             end
         join_none;
     endtask : spi_transaction
@@ -108,14 +108,5 @@ class spi_driver extends uvm_driver#(spi_seq_item);
             end
         endcase
     endtask : spi_drive
-
-    task create_handle();
-        spi_pkt = spi_seq_item::type_id::create("spi_pkt");
-        seq_item_port.get_next_item(spi_pkt);
-    endtask : create_handle
-
-    function void transaction_done();
-        seq_item_port.item_done();
-    endfunction : transaction_done
 
 endclass: spi_driver

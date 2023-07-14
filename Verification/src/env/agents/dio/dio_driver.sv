@@ -6,7 +6,6 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     // instantiation of internal objects
     dio_config dio_cfg;
     virtual dio_interface vif;
-    dio_seq_item dio_pkt;
 
     function new(string name = "dio_driver", uvm_component parent = null);
         super.new(name,parent);
@@ -53,7 +52,8 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     endtask : reset_io
 
     task dio_transaction();
-        create_handle();
+        dio_seq_item dio_pkt = dio_seq_item::type_id::create("dio_pkt");
+        seq_item_port.get_next_item(dio_pkt); // blocking
         case (dio_pkt.name)
             "RST": vif.RST = dio_pkt.value;
             "start_out": vif.start_in = dio_pkt.value;
@@ -71,16 +71,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
             "reset_all" : reset_io();
             default: vif.RST = 0;
         endcase
-        transaction_done();
-    endtask : dio_transaction
-
-    task create_handle();
-        dio_pkt = dio_seq_item::type_id::create("dio_pkt");
-        seq_item_port.get_next_item(dio_pkt); // blocking
-    endtask : create_handle
-
-    function void transaction_done();
         seq_item_port.item_done(); // unblocking, ready for another send to the DUT
-    endfunction : transaction_done
+    endtask : dio_transaction
 
 endclass: dio_driver

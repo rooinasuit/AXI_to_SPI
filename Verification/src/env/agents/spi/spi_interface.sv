@@ -2,15 +2,11 @@
 interface spi_interface();
 
     // requested inputs
-    bit MISO_in;
+    logic MISO_in;
 
     // received outputs
-    bit MOSI_out;
-    bit SCLK_out;
-    bit CS_out;
-
-    task reset_spi();
-        MISO_in = 0;
-    endtask : reset_spi
+    logic MOSI_out;
+    logic SCLK_out;
+    logic CS_out;
 
 endinterface : spi_interface
