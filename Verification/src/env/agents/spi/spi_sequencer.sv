@@ -14,7 +14,7 @@ class spi_sequencer extends uvm_sequencer#(spi_seq_item);
         super.build_phase(phase);
 
         if (!uvm_config_db #(spi_config)::get(this, "", "spi_config", spi_cfg)) begin
-            `uvm_fatal("SPI_SQR", {"spi config must be set for: ", get_full_name(), " spi_cfg"})
+            `uvm_fatal(get_name(), {"spi config must be set for: ", get_full_name()})
         end
 
     endfunction : build_phase

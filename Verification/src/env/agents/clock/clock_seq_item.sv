@@ -1,7 +1,6 @@
 
 class clock_seq_item extends uvm_sequence_item;
 
-    // requested inputs:
     string name;
     int value;
 

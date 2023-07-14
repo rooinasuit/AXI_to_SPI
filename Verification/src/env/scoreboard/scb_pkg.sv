@@ -7,8 +7,12 @@ package scb_pkg;
     import dio_pkg::*;
     import spi_pkg::*;
 
-    `include "checker.sv"
+    `include "comparator.sv"
+    `include "scoreboard_defines.sv"
+    `include "tb_checker.sv"
+
     `include "ref_model.sv"
+
     `include "tb_scoreboard.sv"
 
 endpackage : scb_pkg

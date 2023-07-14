@@ -22,19 +22,19 @@ class spi_agent extends uvm_agent;
         spi_mtr_port = new("spi_mtr_port", this);
 
         if (!uvm_config_db #(spi_config)::get(this, "", "spi_config", spi_cfg)) begin
-            `uvm_fatal("SPI_AGT", {"spi config must be set for: ", get_full_name(), " spi_cfg"})
+            `uvm_fatal(get_name(), {"spi config must be set for: ", get_full_name()})
         end
 
         uvm_config_db#(spi_config)::set(this, "spi_sqr", "spi_config", spi_cfg);
-        `uvm_info("SPI_AGT", "Creating SPI_SQR handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating SPI_SQR handle", UVM_LOW)
         spi_sqr = spi_sequencer::type_id::create("spi_sqr", this);
 
         uvm_config_db#(spi_config)::set(this, "spi_drv", "spi_config", spi_cfg);
-        `uvm_info("SPI_AGT", "Creating SPI_DRV handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating SPI_DRV handle", UVM_LOW)
         spi_drv = spi_driver::type_id::create("spi_drv", this);
 
         uvm_config_db#(spi_config)::set(this, "spi_mtr", "spi_config", spi_cfg);
-        `uvm_info("SPI_AGT", "Creating SPI_MTR handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating SPI_MTR handle", UVM_LOW)
         spi_mtr = spi_monitor::type_id::create("spi_mtr", this);
 
     endfunction : build_phase
@@ -42,7 +42,7 @@ class spi_agent extends uvm_agent;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        `uvm_info("SPI_AGT", "Connecting export: spi_seq_item (SPI_DRV)", UVM_LOW)
+        `uvm_info(get_name(), "Connecting export: spi_seq_item (SPI_DRV)", UVM_LOW)
         spi_drv.seq_item_port.connect(spi_sqr.seq_item_export);
 
     endfunction : connect_phase

@@ -21,7 +21,7 @@ class dio_monitor extends uvm_monitor;
         dio_mtr_port = new("dio_mtr_port", this);
 
         if (!uvm_config_db #(dio_config)::get(this, "", "dio_config", dio_cfg)) begin
-            `uvm_fatal("DIO_AGT", {"clock config must be set for: ", get_full_name(), " dio_cfg"})
+            `uvm_fatal(get_name(), {"clock config must be set for: ", get_full_name()})
         end
 
     endfunction : build_phase

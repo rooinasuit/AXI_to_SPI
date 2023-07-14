@@ -28,9 +28,9 @@ class test_base_sequence extends uvm_sequence;
         clk_s_seq.start(p_sequencer.clk_sqr);
     endtask : drive_clock_state
 
-    task reset_clock();
-        p_sequencer.clk_sqr.vif.reset_clock();
-    endtask : reset_clock
+    // task reset_clock();
+    //     p_sequencer.clk_sqr.vif.reset_clock();
+    // endtask : reset_clock
 
     task drive_io(string port_name, int port_value);
         dio_drive_sequence dio_seq = dio_drive_sequence::type_id::create("dio_seq");
@@ -51,7 +51,11 @@ class test_base_sequence extends uvm_sequence;
     endtask : drive_io_random
 
     task reset_io();
-        p_sequencer.dio_sqr.vif.reset_io();
+        dio_drive_sequence dio_seq = dio_drive_sequence::type_id::create("dio_seq");
+
+        dio_seq.name  = "reset_all";
+
+        dio_seq.start(p_sequencer.dio_sqr);
     endtask : reset_io
 
     task drive_spi(string name, int value);

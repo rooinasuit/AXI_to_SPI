@@ -16,7 +16,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
         super.build_phase(phase);
 
         if (!uvm_config_db #(dio_config)::get(this, "", "dio_config", dio_cfg)) begin
-            `uvm_fatal("DIO_DRV", {"dio config must be set for: ", get_full_name(), " dio_cfg"})
+            `uvm_fatal(get_name(), {"dio config must be set for: ", get_full_name()})
         end
 
     endfunction : build_phase
@@ -37,20 +37,20 @@ class dio_driver extends uvm_driver#(dio_seq_item);
 
     endtask : run_phase
 
-    // task dio_reset();
-    //         vif.RST = 0;
-    //         vif.start_in = 0;
+    task reset_io();
+            vif.RST = 0;
+            vif.start_in = 0;
 
-    //         vif.spi_mode_in = 0;
-    //         vif.sck_speed_in = 0;
-    //         vif.word_len_in = 0;
+            vif.spi_mode_in = 0;
+            vif.sck_speed_in = 0;
+            vif.word_len_in = 0;
 
-    //         vif.IFG_in = 0;
-    //         vif.CS_SCK_in = 0;
-    //         vif.SCK_CS_in = 0;
+            vif.IFG_in = 0;
+            vif.CS_SCK_in = 0;
+            vif.SCK_CS_in = 0;
 
-    //         vif.mosi_data_in = 0;
-    // endtask : dio_reset
+            vif.mosi_data_in = 0;
+    endtask : reset_io
 
     task dio_transaction();
         create_handle();
@@ -68,6 +68,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
 
             "mosi_data_out": vif.mosi_data_in = dio_pkt.value;
 
+            "reset_all" : reset_io();
             default: vif.RST = 0;
         endcase
         transaction_done();

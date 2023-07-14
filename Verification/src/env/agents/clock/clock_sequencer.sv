@@ -14,7 +14,7 @@ class clock_sequencer extends uvm_sequencer#(clock_seq_item);
         super.build_phase(phase);
 
         if (!uvm_config_db #(clock_config)::get(this, "", "clock_config", clk_cfg)) begin
-            `uvm_fatal("CLK_SQR", {"spi config must be set for: ", get_full_name(), " clk_cfg"})
+            `uvm_fatal(get_name(), {"clock config must be set for: ", get_full_name()})
         end
 
     endfunction : build_phase

@@ -22,7 +22,7 @@ class spi_driver extends uvm_driver#(spi_seq_item);
         super.build_phase(phase);
 
         if (!uvm_config_db #(spi_config)::get(this, "", "spi_config", spi_cfg)) begin
-            `uvm_fatal("SPI_DRV", {"spi config must be set for: ", get_full_name(), " spi_cfg"})
+            `uvm_fatal(get_name(), {"spi config must be set for: ", get_full_name()})
         end
 
     endfunction : build_phase
@@ -37,7 +37,6 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        //
         forever begin
         spi_transaction();
         spi_get_config();
@@ -50,8 +49,8 @@ class spi_driver extends uvm_driver#(spi_seq_item);
         @(negedge vif.CS_out);
             spi_mode = spi_cfg.spi_mode;
             word_len = spi_cfg.word_len;
-            `uvm_info("SPI_DRV", $sformatf("loaded spi_mode: %h", spi_mode), UVM_LOW)
-            `uvm_info("SPI_DRV", $sformatf("loaded word_len: %h", word_len), UVM_LOW)
+            `uvm_info(get_name(), $sformatf("loaded spi_mode: %h", spi_mode), UVM_LOW)
+            `uvm_info(get_name(), $sformatf("loaded word_len: %h", word_len), UVM_LOW)
     endtask : spi_get_config
 
     task spi_transaction();
@@ -61,7 +60,6 @@ class spi_driver extends uvm_driver#(spi_seq_item);
                 case (spi_pkt.name)
                     "MISO": begin
                         MISO_buff = spi_pkt.value;
-                        `uvm_info("SPI_DRV", $sformatf("Fetched MISO buffer: %h", MISO_buff), UVM_LOW)
                     end
                     default: begin
                         MISO_buff = MISO_buff;

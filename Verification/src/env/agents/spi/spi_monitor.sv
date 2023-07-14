@@ -30,7 +30,7 @@ class spi_monitor extends uvm_monitor;
         spi_mtr_port = new("spi_mtr_port", this);
 
         if (!uvm_config_db #(spi_config)::get(this, "", "spi_config", spi_cfg)) begin
-            `uvm_fatal("SPI_AGT", {"spi config must be set for: ", get_full_name(), " spi_cfg"})
+            `uvm_fatal(get_name(), {"spi config must be set for: ", get_full_name()})
         end
 
     endfunction : build_phase
@@ -46,9 +46,9 @@ class spi_monitor extends uvm_monitor;
         super.run_phase(phase);
 
         forever begin
-        spi_get_config();
-        spi_capture();
-        spi_to_scb();
+            spi_get_config();
+            spi_capture();
+            spi_to_scb();
         end
 
     endtask : run_phase
@@ -73,21 +73,21 @@ class spi_monitor extends uvm_monitor;
         end
         1: begin
             for (i=(word_len); i>=0; i--) begin
-                @(negedge vif.SCLK_out)
+                @(negedge vif.SCLK_out);
                 MISO_buff[i] <= vif.MISO_in;
                 MOSI_buff[i] <= vif.MOSI_out;
             end
         end
         2: begin
             for (i=(word_len); i>=0; i--) begin
-                @(posedge vif.SCLK_out)
+                @(posedge vif.SCLK_out);
                 MISO_buff[i] <= vif.MISO_in;
                 MOSI_buff[i] <= vif.MOSI_out;
             end
         end
         3: begin
             for (i=(word_len); i>=0; i--) begin
-                @(negedge vif.SCLK_out)
+                @(negedge vif.SCLK_out);
                 MISO_buff[i] <= vif.MISO_in;
                 MOSI_buff[i] <= vif.MOSI_out;
             end

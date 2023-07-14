@@ -31,19 +31,19 @@ class tb_environment extends uvm_env;
         uvm_config_db#(spi_config)::set(this, "*spi_agt", "spi_config", env_cfg.spi_cfg);
         uvm_config_db#(spi_config)::set(this, "*scb", "spi_config", env_cfg.spi_cfg);
 
-        `uvm_info("ENV", "Creating CLK_AGT handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating CLK_AGT handle", UVM_LOW)
         clk_agt = clock_agent::type_id::create("clk_agt", this);
 
-        `uvm_info("ENV", "Creating DIO_AGT handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating DIO_AGT handle", UVM_LOW)
         dio_agt = dio_agent::type_id::create("dio_agt", this);
 
-        `uvm_info("ENV", "Creating SPI_AGENT handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating SPI_AGENT handle", UVM_LOW)
         spi_agt = spi_agent::type_id::create("spi_agt", this);
 
-        `uvm_info("ENV", "Creating SCB handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating SCB handle", UVM_LOW)
         scb = tb_scoreboard::type_id::create("scb", this);
 
-        `uvm_info("ENV", "Creating V_SQR handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating V_SQR handle", UVM_LOW)
         v_sqr = virtual_sequencer::type_id::create("v_sqr", this);
 
     endfunction : build_phase
@@ -51,19 +51,19 @@ class tb_environment extends uvm_env;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        `uvm_info("ENV", "Connecting ports: dio_mtr_port -> dio_mtr_imp", UVM_LOW)
+        `uvm_info(get_name(), "Connecting ports: dio_mtr_port -> dio_mtr_imp", UVM_LOW)
         dio_agt.dio_mtr.dio_mtr_port.connect(scb.dio_mtr_imp);
 
-        `uvm_info("ENV", "Connecting ports: slv_mtr_port -> slv_mtr_imp", UVM_LOW)
+        `uvm_info(get_name(), "Connecting ports: slv_mtr_port -> slv_mtr_imp", UVM_LOW)
         spi_agt.spi_mtr.spi_mtr_port.connect(scb.spi_mtr_imp);
 
-        `uvm_info("ENV", "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
+        `uvm_info(get_name(), "Connecting sequencers: clk_sqr -> virtual_sqr", UVM_LOW)
         v_sqr.clk_sqr = clk_agt.clk_sqr;
 
-        `uvm_info("ENV", "Connecting sequencers: dio_sqr -> virtual_sqr", UVM_LOW)
+        `uvm_info(get_name(), "Connecting sequencers: dio_sqr -> virtual_sqr", UVM_LOW)
         v_sqr.dio_sqr = dio_agt.dio_sqr;
 
-        `uvm_info("ENV", "Connecting sequencers: slv_sqr -> virtual_sqr", UVM_LOW)
+        `uvm_info(get_name(), "Connecting sequencers: slv_sqr -> virtual_sqr", UVM_LOW)
         v_sqr.spi_sqr = spi_agt.spi_sqr;
 
         env_cfg.clk_cfg = clk_agt.clk_cfg;

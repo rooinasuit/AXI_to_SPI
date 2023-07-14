@@ -19,7 +19,7 @@ class clock_driver extends uvm_driver#(clock_seq_item);
         super.build_phase(phase);
 
         if(!uvm_config_db#(clock_config)::get(this, "", "clock_config", clk_cfg)) begin
-            `uvm_error("CLK_DRV", {"virtual interface must be set for: ", get_full_name(), " clk_cfg"})
+            `uvm_error(get_name(), {"clock config must be set for: ", get_full_name()})
         end
 
     endfunction : build_phase
@@ -33,6 +33,9 @@ class clock_driver extends uvm_driver#(clock_seq_item);
 
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
+
+        // Time-zero action
+        vif.GCLK = 0;
 
         forever begin
             fork
@@ -59,14 +62,11 @@ class clock_driver extends uvm_driver#(clock_seq_item);
     endtask : run_phase
 
     task create_handle();
-        `uvm_info("CLK_DRV", "Fetching next clk_pkt", UVM_LOW)
         clk_pkt = clock_seq_item::type_id::create("clk_pkt");
         seq_item_port.get_next_item(clk_pkt); // blocking
-        // clk_pkt.print();
     endtask : create_handle
 
     function void transaction_done();
-        `uvm_info("CLK_DRV", "Transaction finished, ready for another", UVM_LOW)
         seq_item_port.item_done(); // unblocking, ready for another send to the DUT
     endfunction : transaction_done
 

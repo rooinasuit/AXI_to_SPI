@@ -14,7 +14,7 @@ class dio_sequencer extends uvm_sequencer#(dio_seq_item);
         super.build_phase(phase);
 
         if (!uvm_config_db #(dio_config)::get(this, "", "dio_config", dio_cfg)) begin
-            `uvm_fatal("DIO_SQR", {"dio config must be set for: ", get_full_name(), " dio_cfg"})
+            `uvm_fatal(get_name(), {"dio config must be set for: ", get_full_name()})
         end
 
     endfunction : build_phase

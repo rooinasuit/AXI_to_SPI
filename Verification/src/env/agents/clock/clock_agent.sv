@@ -17,15 +17,15 @@ class clock_agent extends uvm_agent;
         super.build_phase(phase);
 
         if (!uvm_config_db #(clock_config)::get(this, "", "clock_config", clk_cfg)) begin
-            `uvm_fatal("CLK_AGT", {"clock config must be set for: ", get_full_name(), " clk_cfg"})
+            `uvm_fatal(get_name(), {"clock config must be set for: ", get_full_name()})
         end
 
         uvm_config_db#(clock_config)::set(this, "clk_sqr", "clock_config", clk_cfg);
-        `uvm_info("CLK_AGT", "Creating CLK_SQR handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating CLK_SQR handle", UVM_LOW)
         clk_sqr = clock_sequencer::type_id::create("clk_sqr", this);
 
         uvm_config_db#(clock_config)::set(this, "clk_drv", "clock_config", clk_cfg);
-        `uvm_info("CLK_AGT", "Creating CLK_DRV handle", UVM_LOW)
+        `uvm_info(get_name(), "Creating CLK_DRV handle", UVM_LOW)
         clk_drv = clock_driver::type_id::create("clk_drv", this);
 
     endfunction : build_phase
@@ -33,7 +33,7 @@ class clock_agent extends uvm_agent;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        `uvm_info("CLK_AGT", "Connecting export: clock_seq_item (CLK_DRV)", UVM_LOW)
+        `uvm_info(get_name(), "Connecting export: clock_seq_item (CLK_DRV)", UVM_LOW)
         clk_drv.seq_item_port.connect(clk_sqr.seq_item_export);
 
     endfunction : connect_phase

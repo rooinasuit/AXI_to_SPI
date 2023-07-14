@@ -14,7 +14,6 @@ class test_0010_1_sequence extends test_base_sequence;
     //////////////////////////////////////////////////////////
 
     task body();
-        reset_clock();
         reset_io();
         reset_spi();
         #10ns;
