@@ -24,13 +24,16 @@ class ref_model extends uvm_component;
 
     endtask : run_phase
 
-    task predict_spi(int data, time period);
-
+    task predict_spi(int value, time period);
+        spi_seq_item spi_pkt_exp = spi_seq_item::type_id::create("spi_pkt_exp");
+        spi_pkt_exp.item_type = "exp_item";
+        spi_pkt_exp.name  = "MOSI_frame";
+        spi_pkt_exp.value = value;
     endtask : predict_spi
 
-    // task predict_dio
+    task predict_dio();
 
-    // endtask : predict_dio
+    endtask : predict_dio
 
     function void write_dio(dio_seq_item dio_pkt_in);
 

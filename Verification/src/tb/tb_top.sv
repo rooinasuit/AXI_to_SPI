@@ -1,6 +1,5 @@
 import uvm_pkg::*;
-
-`include "SPI_top.v"
+`include "uvm_macros.svh"
 
 `include "clock_interface.sv"
 `include "dio_interface.sv"
@@ -35,8 +34,10 @@ module tb_top;
     logic SCLK_out;
     logic CS_out;
 
+    // clk_to_DUT
     assign GCLK = c_itf.GCLK;
-    //
+
+    // dio_to_DUT
     assign RST            = d_itf.RST;
     assign start_in       = d_itf.start_in;
     assign spi_mode_in    = d_itf.spi_mode_in;
@@ -46,12 +47,13 @@ module tb_top;
     assign CS_SCK_in      = d_itf.CS_SCK_in;
     assign SCK_CS_in      = d_itf.SCK_CS_in;
     assign mosi_data_in   = d_itf.mosi_data_in;
-
+    // dio_from_DUT
     assign d_itf.busy_out = busy_out;
     assign d_itf.miso_data_out = miso_data_out;
-    //
-    assign MISO_in = s_itf.MISO_in;
 
+    // spi_to_DUT
+    assign MISO_in = s_itf.MISO_in;
+    // spi_from_DUT
     assign s_itf.MOSI_out = MOSI_out;
     assign s_itf.SCLK_out = SCLK_out;
     assign s_itf.CS_out   = CS_out;
@@ -80,8 +82,8 @@ module tb_top;
     initial begin
         uvm_config_db#(virtual clock_interface)::set(null, "uvm_test_top*", "c_vif", c_itf); // clock driver
         uvm_config_db#(virtual dio_interface)::set(null, "uvm_test_top*", "d_vif", d_itf); // dio driver/monitor
-        uvm_config_db#(virtual spi_interface)::set(null, "uvm_test_top*", "s_vif", s_itf); // spi slave driver/monitor
-        // tu zmienić scope na test
+        uvm_config_db#(virtual spi_interface)::set(null, "uvm_test_top*", "s_vif", s_itf); // spi driver/monitor
+
         run_test("test_0010_1");
     end
 
