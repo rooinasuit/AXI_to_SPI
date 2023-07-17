@@ -53,6 +53,7 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     endtask : spi_get_config
 
     task spi_transaction();
+        spi_seq_item spi_rsp;
         fork
             begin
                 spi_seq_item spi_pkt = spi_seq_item::type_id::create("spi_pkt");
@@ -60,12 +61,21 @@ class spi_driver extends uvm_driver#(spi_seq_item);
                 case (spi_pkt.name)
                     "MISO": begin
                         MISO_buff = spi_pkt.value;
+                        seq_item_port.item_done();
+                    end
+                    "CS": begin
+                        spi_rsp = spi_seq_item::type_id::create("spi_rsp");
+                        @(posedge vif.CS_out);
+                        spi_rsp.name = "ready";
+                        spi_rsp.set_id_info(spi_pkt);
+                        seq_item_port.item_done(spi_rsp);
                     end
                     default: begin
                         MISO_buff = MISO_buff;
+                        seq_item_port.item_done();
                     end
                 endcase
-                seq_item_port.item_done();
+                // seq_item_port.item_done();
             end
         join_none;
     endtask : spi_transaction

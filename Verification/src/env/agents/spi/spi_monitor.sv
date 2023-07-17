@@ -102,6 +102,7 @@ class spi_monitor extends uvm_monitor;
                 spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
                 spi_pkt_in.name  = "MISO_frame";
                 spi_pkt_in.value = MISO_buff;
+                spi_pkt_in.obs_time_stamp = $realtime;
                 spi_mtr_port.write(spi_pkt_in);
                 end
                 //
@@ -109,6 +110,7 @@ class spi_monitor extends uvm_monitor;
                 spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
                 spi_pkt_in.name  = "MOSI_frame";
                 spi_pkt_in.value = MOSI_buff;
+                spi_pkt_in.obs_time_stamp = $realtime;
                 spi_mtr_port.write(spi_pkt_in);
                 end
             join

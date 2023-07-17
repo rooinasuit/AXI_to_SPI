@@ -1,4 +1,7 @@
 
+`uvm_analysis_imp_decl(_dio_expected)
+`uvm_analysis_imp_decl(_spi_expected)
+
 class tb_checker extends uvm_component;
 
     `uvm_component_utils(tb_checker)
@@ -8,8 +11,11 @@ class tb_checker extends uvm_component;
 
     `COMP_DECLARE(dio_seq_item, busy_out)
     `COMP_DECLARE(dio_seq_item, miso_data_out)
-    // `COMP_DECLARE(spi_seq_item, MOSI_frame)
-    `COMP_DECLARE(spi_seq_item, MISO_frame)
+    `COMP_DECLARE(spi_seq_item, MOSI_frame)
+    // `COMP_DECLARE(spi_seq_item, MISO_frame)
+
+    uvm_analysis_imp_dio_expected#(dio_seq_item, tb_checker) dio_rfm_imp;
+    uvm_analysis_imp_spi_expected#(spi_seq_item, tb_checker) spi_rfm_imp;
 
     function new(string name = "tb_checker", uvm_component parent = null);
         super.new(name,parent);
@@ -18,10 +24,13 @@ class tb_checker extends uvm_component;
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
 
+        dio_rfm_imp = new("dio_rfm_imp", this);
+        spi_rfm_imp = new("spi_rfm_imp", this);
+
         `COMP_CREATE(dio_seq_item, busy_out)
         `COMP_CREATE(dio_seq_item, miso_data_out)
-        // `COMP_CREATE(spi_seq_item, MOSI_frame)
-        `COMP_CREATE(spi_seq_item, MISO_frame)
+        `COMP_CREATE(spi_seq_item, MOSI_frame)
+        // `COMP_CREATE(spi_seq_item, MISO_frame)
 
         foreach(dio_comp_array[i]) begin
             `uvm_info(get_name(), $sformatf("comparator handle name: %s", dio_comp_array[i].get_name()), UVM_LOW)
@@ -65,7 +74,7 @@ class tb_checker extends uvm_component;
     function void write_dio_expected(dio_seq_item dio_pkt_in);
 
         `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
-        dio_pkt_in.item_type = "exp_item";
+        // dio_pkt_in.item_type = "exp_item";
         dio_pkt_in.print();
         get_comp(dio_pkt_in).write_exp(dio_pkt_in);
 
@@ -76,16 +85,16 @@ class tb_checker extends uvm_component;
         `uvm_info(get_name(), $sformatf("Data received from SPI_MTR: "), UVM_LOW)
         spi_pkt_in.item_type = "obs_item";
         spi_pkt_in.print();
-        comp_MISO_frame.write_obs(spi_pkt_in);
+        comp_MOSI_frame.write_obs(spi_pkt_in);
 
     endfunction : write_spi_observed
 
     function void write_spi_expected(spi_seq_item spi_pkt_in);
 
         `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
-        spi_pkt_in.item_type = "exp_item";
+        // spi_pkt_in.item_type = "exp_item";
         spi_pkt_in.print();
-        comp_MISO_frame.write_exp(spi_pkt_in);
+        comp_MOSI_frame.write_exp(spi_pkt_in);
 
     endfunction : write_spi_expected
 

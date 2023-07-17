@@ -76,7 +76,12 @@ class test_base_sequence extends uvm_sequence;
     endtask : drive_spi_random
 
     task wait_spi_ready(time wait_buff);
-        @(posedge p_sequencer.spi_sqr.vif.CS_out);
+        spi_rsp_sequence spi_seq_rsp = spi_rsp_sequence::type_id::create("spi_seq_rsp");
+
+        spi_seq_rsp.name  = "CS";
+
+        spi_seq_rsp.start(p_sequencer.spi_sqr);
+        // @(posedge p_sequencer.spi_sqr.vif.CS_out);
         #wait_buff;
     endtask : wait_spi_ready
 

@@ -42,8 +42,9 @@ class spi_agent extends uvm_agent;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        `uvm_info(get_name(), "Connecting export: spi_seq_item (SPI_DRV)", UVM_LOW)
+        `uvm_info(get_name(), "Connecting exports: spi_seq_item (SPI_DRV)", UVM_LOW)
         spi_drv.seq_item_port.connect(spi_sqr.seq_item_export);
+        // spi_drv.rsp_port.connect(spi_sqr.rsp_export);
 
     endfunction : connect_phase
 

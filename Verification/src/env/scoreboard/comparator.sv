@@ -49,7 +49,7 @@ class comparator#(type T = uvm_sequence_item) extends uvm_component;
     function write_obs(T item);
         fork
         fifo_obs.put(item);
-        write_exp(item);
+        // write_exp(item);
         join_none
     endfunction : write_obs
 

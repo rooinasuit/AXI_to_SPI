@@ -21,10 +21,10 @@ class tb_scoreboard extends uvm_scoreboard;
     string dio_items_to_chk [] = {"busy_out",
                                   "miso_data_out"};
 
-    string spi_items_to_rfm [] = {};
+    string spi_items_to_rfm [] = {"MOSI_frame"};
 
-    string spi_items_to_chk [] = {
-                                  "MISO_frame"};
+    string spi_items_to_chk [] = {"MOSI_frame"};
+                                //   "MISO_frame"};
 
     spi_config spi_cfg;
 
@@ -59,6 +59,12 @@ class tb_scoreboard extends uvm_scoreboard;
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
+
+        `uvm_info(get_name(), "Connecting ports: dio_rfm_port -> dio_rfm_imp", UVM_LOW)
+        rfm.dio_rfm_port.connect(chk.dio_rfm_imp);
+
+        `uvm_info(get_name(), "Connecting ports: spi_rfm_port -> spi_rfm_imp", UVM_LOW)
+        rfm.spi_rfm_port.connect(chk.spi_rfm_imp);
 
     endfunction : connect_phase
 
