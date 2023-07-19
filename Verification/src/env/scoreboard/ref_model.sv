@@ -26,6 +26,8 @@ class ref_model extends uvm_component;
     `RFM_DECLARE(CS_out, 1)
     // logic [WIDTH-1:0] PORT_NAME_mirror; event PORT_NAME_change_e;
 
+    event cs_error_e;
+
     function new(string name = "ref_model", uvm_component parent);
         super.new(name,parent);
     endfunction : new
@@ -50,16 +52,37 @@ class ref_model extends uvm_component;
         fork
             // monitor_cs();
             predict_spi_frames();
+            monitor_cs();
+            spi_watchdog();
         join_none
 
     endtask : run_phase
 
-    // task monitor_cs();
-    //     forever begin
-            
-            
-    //     end
-    // endtask : monitor_cs
+    task spi_watchdog();
+        forever begin
+            `FIRST_OF
+            begin
+                @(cs_error_e);
+                `uvm_fatal(get_name(), "CS_out is being pulled down for too long")
+            end
+            `END_FIRST_OF
+        end
+    endtask : spi_watchdog
+
+    task monitor_cs(); // CS timeout monitor
+        forever begin
+            wait(CS_out_mirror == 0);
+            `FIRST_OF
+            begin
+                #3ms;
+                ->cs_error_e;
+            end
+            begin
+                wait(CS_out_mirror == 1);
+            end
+            `END_FIRST_OF
+        end
+    endtask : monitor_cs
 
     function void spi_unpack();
         for(int i=(true_word_len-1); i>=0; i--) begin
