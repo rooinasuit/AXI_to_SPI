@@ -25,9 +25,9 @@ class test_0010_1_sequence extends test_base_sequence;
         //
         drive_io("spi_mode_out", 1);
         //
-        drive_io("word_len_out", 2);
-        //
         drive_io("sck_speed_out", 2);
+        //
+        drive_io("word_len_out", 2);
         //
         drive_io("IFG_out", 5);
         drive_io("CS_SCK_out", 15);

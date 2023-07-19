@@ -6,7 +6,11 @@ class ref_model extends uvm_component;
     uvm_analysis_port#(dio_seq_item) dio_rfm_port;
     uvm_analysis_port#(spi_seq_item) spi_rfm_port;
 
-    // logic MOSI_value [$];
+    int true_sck_speed;
+    int true_word_len;
+    //
+    logic MOSI_value [$];
+    logic MISO_value [$];
     // DIO
     `RFM_DECLARE(RST, 1)
     `RFM_DECLARE(start_in, 1)
@@ -17,7 +21,6 @@ class ref_model extends uvm_component;
     `RFM_DECLARE(CS_SCK_in, 8)
     `RFM_DECLARE(SCK_CS_in, 8)
     `RFM_DECLARE(mosi_data_in, 32)
-    `RFM_DECLARE(busy_out, 1)
     `RFM_DECLARE(miso_data_out, 32)
     // SPI
     `RFM_DECLARE(CS_out, 1)
@@ -46,7 +49,7 @@ class ref_model extends uvm_component;
     // here we will predict :D
         fork
             // monitor_cs();
-            predict_spi();
+            predict_spi_frames();
         join_none
 
     endtask : run_phase
@@ -58,31 +61,54 @@ class ref_model extends uvm_component;
     //     end
     // endtask : monitor_cs
 
-    task predict_spi();//, time timestamp);
-        // spi_seq_item spi_pkt_exp;
-        // forever begin
-        //     @(start_spi);
-        //     spi_pkt_exp = spi_seq_item::type_id::create("spi_pkt_exp");
-        //     spi_pkt_exp.item_type = "exp_item";
-        //     spi_pkt_exp.name = "MOSI_frame";
-        //     spi_pkt_exp.data = value;
-        //     spi_pkt_exp.bit_count = value.size();
-        //     `uvm_info(get_name(), $sformatf("the bit count is:\n %0d", spi_pkt_exp.bit_count), UVM_LOW)
-        //     spi_pkt_exp.exp_time_stamp_min = $time;
-        //     spi_pkt_exp.exp_time_stamp_min = $time + 30ns;
+    function void spi_unpack();
+        dio_case();
+        for(int i=(true_word_len-1); i>=0; i--) begin
+            MOSI_value.push_back(mosi_data_in_mirror[i]);
+            MISO_value.push_back(miso_data_out_mirror[i]);
+        end
+    endfunction : spi_unpack
 
-        //     spi_rfm_port.write(spi_pkt_exp);
-        // end
-    endtask : predict_spi
+    task predict_spi_frames();//, time timestamp);
+        spi_seq_item spi_pkt_exp;
+        forever begin
+            @(CS_out_change_e);
+            if (CS_out_mirror == 1) begin
+                spi_unpack();
+                fork
+                    begin // MOSI
+                    spi_pkt_exp = spi_seq_item::type_id::create("spi_pkt_exp");
+                    spi_pkt_exp.item_type = "exp_item";
+                    spi_pkt_exp.name = "MOSI_frame";
+                    spi_pkt_exp.data = MOSI_value;
+                    `uvm_info(get_name(), $sformatf("the bit count of MOSI frame is:\n %0d", spi_pkt_exp.data.size()), UVM_LOW)
+                    spi_pkt_exp.exp_timestamp_min = $realtime;
+                    spi_pkt_exp.exp_timestamp_max = $realtime + 10ns;
+                    spi_rfm_port.write(spi_pkt_exp);
+                    end
+                    begin // MISO
+                    spi_pkt_exp = spi_seq_item::type_id::create("spi_pkt_exp");
+                    spi_pkt_exp.item_type = "exp_item";
+                    spi_pkt_exp.name = "MISO_frame";
+                    spi_pkt_exp.data = MISO_value;
+                    `uvm_info(get_name(), $sformatf("the bit count of MISO frame is:\n %0d", spi_pkt_exp.data.size()), UVM_LOW)
+                    spi_pkt_exp.exp_timestamp_min = $realtime;
+                    spi_pkt_exp.exp_timestamp_max = $realtime + 10ns;
+                    spi_rfm_port.write(spi_pkt_exp);
+                    end
+                join
+            end
+        end
+    endtask : predict_spi_frames
 
-    task predict_dio(string name, int value);
-        dio_seq_item dio_pkt_exp = dio_seq_item::type_id::create("dio_pkt_exp");
-        dio_pkt_exp.item_type = "exp_item";
-        dio_pkt_exp.name = name;
-        dio_pkt_exp.value = value;
+    // task predict_dio(string name, int value);
+    //     dio_seq_item dio_pkt_exp = dio_seq_item::type_id::create("dio_pkt_exp");
+    //     dio_pkt_exp.item_type = "exp_item";
+    //     dio_pkt_exp.name = name;
+    //     dio_pkt_exp.value = value;
 
-        dio_rfm_port.write(dio_pkt_exp);
-    endtask : predict_dio
+    //     dio_rfm_port.write(dio_pkt_exp);
+    // endtask : predict_dio
 
     function void write_dio(dio_seq_item item);
 
@@ -101,9 +127,21 @@ class ref_model extends uvm_component;
         end
         "sck_speed_in": begin
             `RFM_CHECK(item, sck_speed_in)
+            case(sck_speed_in_mirror)
+            0: true_sck_speed = 64;
+            1: true_sck_speed = 32;
+            2: true_sck_speed = 16;
+            3: true_sck_speed = 8;
+            endcase
         end
         "word_len_in": begin
             `RFM_CHECK(item, word_len_in)
+            case(word_len_in_mirror)
+            0: true_word_len = 32;
+            1: true_word_len = 16;
+            2: true_word_len = 8;
+            3: true_word_len = 4;
+            endcase
         end
         "IFG_in": begin
             `RFM_CHECK(item, IFG_in)
@@ -116,9 +154,6 @@ class ref_model extends uvm_component;
         end
         "mosi_data_in": begin
             `RFM_CHECK(item, mosi_data_in)
-        end
-        "busy_out": begin
-            `RFM_CHECK(item, busy_out)
         end
         "miso_data_out": begin
             `RFM_CHECK(item, miso_data_out)

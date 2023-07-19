@@ -17,7 +17,6 @@ class spi_monitor extends uvm_monitor;
 
     logic MISO_data_o [$];
     logic MOSI_data_i [$];
-    int bit_count;
 
     logic [1:0] spi_mode; // lets leave monitor with access to it
     // logic [4:0] word_len; // this should not be known
@@ -110,7 +109,7 @@ class spi_monitor extends uvm_monitor;
     task spi_get_ready();
         forever begin
         @(negedge vif.CS_out);
-            bit_count   = 0;
+            // bit_count   = 0;
             spi_mode    = spi_cfg.spi_mode;
             //
             `uvm_info(get_name(), $sformatf("loaded spi_mode: %h", spi_mode), UVM_LOW)
@@ -126,25 +125,25 @@ class spi_monitor extends uvm_monitor;
                         @(posedge vif.SCLK_out);
                             MISO_data_o.push_back(vif.MISO_in);
                             MOSI_data_i.push_back(vif.MOSI_out);
-                            bit_count = bit_count + 1;
+                            // bit_count = bit_count + 1;
                     end
                     1: begin
                         @(negedge vif.SCLK_out);
                             MISO_data_o.push_back(vif.MISO_in);
                             MOSI_data_i.push_back(vif.MOSI_out);
-                            bit_count = bit_count + 1;
+                            // bit_count = bit_count + 1;
                     end
                     2: begin
                         @(posedge vif.SCLK_out);
                             MISO_data_o.push_back(vif.MISO_in);
                             MOSI_data_i.push_back(vif.MOSI_out);
-                            bit_count = bit_count + 1;
+                            // bit_count = bit_count + 1;
                     end
                     3: begin
                         @(negedge vif.SCLK_out);
                             MISO_data_o.push_back(vif.MISO_in);
                             MOSI_data_i.push_back(vif.MOSI_out);
-                            bit_count = bit_count + 1;
+                            // bit_count = bit_count + 1;
                     end
                     endcase
                 end
@@ -184,7 +183,7 @@ class spi_monitor extends uvm_monitor;
                     spi_pkt_in.item_type = "obs_item";
                     spi_pkt_in.name = "MISO_frame";
                     spi_pkt_in.data = MISO_data_o;
-                    spi_pkt_in.bit_count = bit_count;
+                    // spi_pkt_in.bit_count = bit_count;
                     spi_pkt_in.obs_timestamp = $realtime;
                     spi_mtr_port.write(spi_pkt_in);
                     MISO_data_o.delete();
@@ -195,7 +194,7 @@ class spi_monitor extends uvm_monitor;
                     spi_pkt_in.item_type = "obs_item";
                     spi_pkt_in.name  = "MOSI_frame";
                     spi_pkt_in.data = MOSI_data_i;
-                    spi_pkt_in.bit_count = bit_count;
+                    // spi_pkt_in.bit_count = bit_count;
                     spi_pkt_in.obs_timestamp = $realtime;
                     spi_mtr_port.write(spi_pkt_in);
                     MOSI_data_i.delete();

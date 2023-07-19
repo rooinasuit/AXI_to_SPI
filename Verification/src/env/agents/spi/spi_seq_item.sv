@@ -7,7 +7,6 @@ class spi_seq_item extends uvm_sequence_item;
     int value;
 
     logic data [$];
-    int unsigned bit_count;
 
     time CS_to_SCK;
     time SCK_to_CS;
@@ -15,9 +14,6 @@ class spi_seq_item extends uvm_sequence_item;
     time obs_timestamp; // make those equeal to $time or $realtime
     time exp_timestamp_min;
     time exp_timestamp_max;
-
-    int freq;
-    int duty;
 
     // min time between rising and falling edges
     // max time between rising and falling edges
@@ -29,14 +25,11 @@ class spi_seq_item extends uvm_sequence_item;
         `uvm_field_string(name, UVM_DEFAULT)
         `uvm_field_int(value, UVM_DEFAULT)
         `uvm_field_queue_int(data, UVM_DEFAULT)
-        `uvm_field_int(bit_count, UVM_DEFAULT)
         `uvm_field_int(CS_to_SCK, UVM_DEFAULT)
         `uvm_field_int(SCK_to_CS, UVM_DEFAULT)
         `uvm_field_int(obs_timestamp, UVM_DEFAULT)
         `uvm_field_int(exp_timestamp_min, UVM_DEFAULT)
         `uvm_field_int(exp_timestamp_max, UVM_DEFAULT)
-        `uvm_field_int(freq, UVM_DEFAULT)
-        `uvm_field_int(duty, UVM_DEFAULT)
     `uvm_object_utils_end
 
     function new (string name = "spi_seq_item");
@@ -65,7 +58,7 @@ class spi_seq_item extends uvm_sequence_item;
 
         res = compare_field(obs_item, exp_item, "name") &&
               compare_field(obs_item, exp_item, "value") &&
-            //   compare_field(obs_item, exp_item, "timestamp");
+              compare_field(obs_item, exp_item, "timestamp") &&
               compare_field(obs_item, exp_item, "data");
             //   compare_field(obs_item, exp_item, "timings") &&
         
@@ -102,8 +95,7 @@ class spi_seq_item extends uvm_sequence_item;
             end
         end
         "data": begin
-            if(obs_item.bit_count == exp_item.bit_count) begin
-                
+            if(obs_item.data.size() == exp_item.data.size()) begin
                 if(obs_item.data == exp_item.data) begin
                     return 1;
                 end
@@ -117,22 +109,6 @@ class spi_seq_item extends uvm_sequence_item;
         end
         "timings": begin
             if((obs_item.CS_to_SCK == exp_item.CS_to_SCK) && (obs_item.SCK_to_CS == exp_item.SCK_to_CS)) begin
-                return 1;
-            end
-            else begin
-                return 0;
-            end
-        end
-        "frequency": begin
-            if(obs_item.freq == exp_item.freq) begin
-                return 1;
-            end
-            else begin
-                return 0;
-            end
-        end
-        "duty": begin
-            if(obs_item.duty == exp_item.duty) begin
                 return 1;
             end
             else begin
