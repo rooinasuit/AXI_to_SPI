@@ -38,7 +38,7 @@ class test_base extends uvm_test;
     function void end_of_elaboration_phase(uvm_phase phase);
         super.end_of_elaboration_phase(phase);
 
-        uvm_top.print_topology();
+        // uvm_top.print_topology();
 
     endfunction : end_of_elaboration_phase
 

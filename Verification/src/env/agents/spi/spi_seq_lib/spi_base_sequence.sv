@@ -14,14 +14,14 @@ class spi_base_sequence extends uvm_sequence#(spi_seq_item);
 
     endtask : body
 
-    task drive_spi(string name, int value);
+    task drive_spi(string name, logic value [$]);
         spi_pkt.name  = name;
-        spi_pkt.value = value;
+        spi_pkt.data = value;
     endtask : drive_spi
 
     task drive_spi_random(string name);
         spi_pkt.name  = name;
-        spi_pkt.value = $urandom;
+        // spi_pkt.data = $urandom;
     endtask : drive_spi_random
 
     task check_rsp(string name);

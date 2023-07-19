@@ -7,11 +7,13 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     spi_config spi_cfg;
     virtual spi_interface vif;
 
-    int i;
+    // MAYBE THINK ABOUT HOW TO DO THE 3rd MODE IN SPI
+    // BOTH AS A MONITOR AND AS A DRIVER
+
+    logic MISO_data_i [$];
+    int bit_count;
 
     logic [1:0] spi_mode;
-    logic [4:0] word_len;
-    logic [31:0] MISO_buff;
 
     function new (string name = "spi_driver", uvm_component parent = null);
         super.new(name,parent);
@@ -36,87 +38,90 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-        forever begin
+        fork
             spi_transaction();
-            spi_get_config();
-            spi_drive();
-        end
+            spi_get_ready();
+        join_none
+
+        spi_drive();
 
     endtask : run_phase
 
-    task spi_get_config();
-        @(negedge vif.CS_out);
-            spi_mode = spi_cfg.spi_mode;
-            word_len = spi_cfg.word_len;
-            `uvm_info(get_name(), $sformatf("loaded spi_mode: %h", spi_mode), UVM_LOW)
-            `uvm_info(get_name(), $sformatf("loaded word_len: %h", word_len), UVM_LOW)
-    endtask : spi_get_config
-
     task spi_transaction();
-        spi_seq_item spi_rsp;
-        fork
-            begin
-                spi_seq_item spi_pkt = spi_seq_item::type_id::create("spi_pkt");
-                seq_item_port.get_next_item(spi_pkt);
-                case (spi_pkt.name)
-                    "MISO": begin
-                        MISO_buff = spi_pkt.value;
-                        seq_item_port.item_done();
-                    end
-                    "CS": begin
-                        spi_rsp = spi_seq_item::type_id::create("spi_rsp");
-                        @(posedge vif.CS_out);
-                        spi_rsp.name = "ready";
-                        spi_rsp.set_id_info(spi_pkt);
-                        seq_item_port.item_done(spi_rsp);
-                    end
-                    default: begin
-                        MISO_buff = MISO_buff;
-                        seq_item_port.item_done();
-                    end
-                endcase
-                // seq_item_port.item_done();
-            end
-        join_none;
+        forever begin
+            spi_seq_item spi_rsp;
+            spi_seq_item spi_pkt = spi_seq_item::type_id::create("spi_pkt");
+            seq_item_port.get_next_item(spi_pkt);
+            case (spi_pkt.name)
+                "MISO": begin
+                    MISO_data_i = spi_pkt.data;
+                    seq_item_port.item_done();
+                end
+                "CS": begin
+                    spi_rsp = spi_seq_item::type_id::create("spi_rsp");
+                    @(posedge vif.CS_out);
+                    spi_rsp.name = "ready";
+                    spi_rsp.set_id_info(spi_pkt);
+                    seq_item_port.item_done(spi_rsp);
+                end
+                default: begin
+                    MISO_data_i = MISO_data_i;
+                    seq_item_port.item_done();
+                end
+            endcase
+        end
     endtask : spi_transaction
 
+    task spi_get_ready();
+        forever begin
+        @(negedge vif.CS_out);
+            bit_count = MISO_data_i.size();
+            spi_mode = spi_cfg.spi_mode;
+            `uvm_info(get_name(), $sformatf("loaded spi_mode: %h", spi_mode), UVM_LOW)
+        end
+    endtask : spi_get_ready
+
     task spi_drive();
-        case (spi_mode)
+        forever begin
+        int i;
+        @(negedge vif.CS_out);
+            case(spi_mode)
             0: begin
-                for(i=(word_len); i>=0; i--) begin
-                if (i == (word_len)) begin
-                    vif.MISO_in <= MISO_buff[i]; // MISO_out
-                end
-                else begin
-                    @(negedge vif.SCLK_out)
-                        vif.MISO_in <= MISO_buff[i]; // MISO_out
-                end
+                for(i=bit_count; i>=0; i--) begin
+                    if (i == bit_count) begin
+                        vif.MISO_in = MISO_data_i.pop_front();
+                    end
+                    else begin
+                        @(negedge vif.SCLK_out);
+                            vif.MISO_in = MISO_data_i.pop_front();
+                    end
                 end
             end
             1: begin
-                for(i=(word_len); i>=0; i--) begin
-                    @(posedge vif.SCLK_out)
-                        vif.MISO_in <= MISO_buff[i]; // MISO_out
+                for(i=bit_count; i>=0; i--) begin
+                    @(posedge vif.SCLK_out);
+                        vif.MISO_in = MISO_data_i.pop_front();
                 end
             end
             2: begin
-                for(i=(word_len); i>=0; i--) begin
-                    @(negedge vif.SCLK_out)
-                        vif.MISO_in <= MISO_buff[i]; // MISO_out
+                for(i=bit_count; i>=0; i--) begin
+                    @(negedge vif.SCLK_out);
+                        vif.MISO_in = MISO_data_i.pop_front();
                 end
             end
             3: begin
-                for(i=(word_len); i>=0; i--) begin
-                if (i == (word_len)) begin
-                    vif.MISO_in <= MISO_buff[i]; // MISO_out
-                end
-                else begin
-                    @(posedge vif.SCLK_out)
-                        vif.MISO_in <= MISO_buff[i]; // MISO_out
-                end
+                for(i=bit_count; i>=0; i--) begin
+                    if (i == bit_count) begin
+                        vif.MISO_in = MISO_data_i.pop_front();
+                    end
+                    else begin
+                        @(posedge vif.SCLK_out);
+                            vif.MISO_in = MISO_data_i.pop_front();
+                    end
                 end
             end
-        endcase
+            endcase
+        end
     endtask : spi_drive
 
 endclass: spi_driver

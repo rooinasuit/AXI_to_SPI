@@ -54,6 +54,7 @@ class clock_driver extends uvm_driver#(clock_seq_item);
                     clock_enable = 0;
                 end
             endcase
+            // `uvm_info(get_name(), $sformatf("received item: %s", clk_pkt.sprint()), UVM_LOW)
             seq_item_port.item_done(); // unblocking, ready for another send to the DUT
         end
     endtask : get_and_drive

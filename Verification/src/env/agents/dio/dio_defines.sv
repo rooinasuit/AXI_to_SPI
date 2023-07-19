@@ -3,8 +3,10 @@ begin \
         int prev_val; \
         int curr_val; \
         HANDLE_NAME``_pkt_in = HANDLE_NAME``_seq_item::type_id::create(`"``HANDLE_NAME``_pkt_in`"); \
+        HANDLE_NAME``_pkt_in.item_type = "obs_item"; \
         HANDLE_NAME``_pkt_in.name = `"VAL_NAME`"; \
         HANDLE_NAME``_pkt_in.value = vif.``VAL_NAME; \
+        HANDLE_NAME``_pkt_in.obs_timestamp = $realtime; \
         HANDLE_NAME``_mtr_port.write(HANDLE_NAME``_pkt_in); \
         forever begin \
             prev_val = vif.``VAL_NAME; \
@@ -12,8 +14,10 @@ begin \
                 curr_val = vif.``VAL_NAME; \
                 if (curr_val != prev_val) begin \
                     HANDLE_NAME``_pkt_in = HANDLE_NAME``_seq_item::type_id::create(`"``HANDLE_NAME``_pkt_in`"); \
+                    HANDLE_NAME``_pkt_in.item_type = "obs_item"; \
                     HANDLE_NAME``_pkt_in.name = `"VAL_NAME`"; \
                     HANDLE_NAME``_pkt_in.value = curr_val; \
+                    HANDLE_NAME``_pkt_in.obs_timestamp = $realtime; \
                     HANDLE_NAME``_mtr_port.write(HANDLE_NAME``_pkt_in); \
                 end \
         end \

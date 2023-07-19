@@ -53,7 +53,7 @@ wire [31:0] mosi_data;
 wire [31:0] miso_data;
 
 reg start_reg;
-reg busy_reg;
+// reg busy_reg;
 //
 reg [1:0] spi_mode_reg;
 reg [1:0] sck_speed_reg;
@@ -89,7 +89,7 @@ SPI_master SPI_master0 (
 always @ (posedge GCLK) begin
     if (RST) begin
         start_reg <= 1'd0;
-        busy_reg  <= 1'd0;
+        // busy_reg  <= 1'd0;
         //
         spi_mode_reg  <= 2'd0;
         sck_speed_reg <= 2'd0;
@@ -104,7 +104,7 @@ always @ (posedge GCLK) begin
     end
     else begin
         start_reg <= start_in;
-        busy_reg  <= busy;
+        // busy_reg  <= busy;
         //
         spi_mode_reg  <= spi_mode_in;  // do not change while busy
         sck_speed_reg <= sck_speed_in; // do not change while busy
@@ -120,7 +120,7 @@ always @ (posedge GCLK) begin
 end
 
 assign start     = start_reg;
-assign busy_out  = busy_reg;
+assign busy_out  = busy;
 //
 assign spi_mode  = spi_mode_reg;
 assign sck_speed = sck_speed_reg;

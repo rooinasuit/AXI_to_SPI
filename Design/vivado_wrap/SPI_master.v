@@ -273,7 +273,7 @@ always @ (posedge GCLK) begin
                 last_bit  <= 1'b0;
                 //
                 if (trans_start & IFG_done) begin // start signal and the minimum IFG time passed
-                    busy_o      <= 1'b1; // TRULY busy
+                    busy_o    <= 1'b1; // TRULY busy
                     chip_sel  <= 1'b0; // start SCK to CS timer
                     mosi_buff <= mosi_data_i;
                     //

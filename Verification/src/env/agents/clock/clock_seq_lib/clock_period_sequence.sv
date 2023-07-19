@@ -15,6 +15,7 @@ class clock_period_sequence extends clock_base_sequence;
         start_item(clk_pkt);
             clock_period(period);
         finish_item(clk_pkt);
+
     endtask : body
 
 endclass : clock_period_sequence

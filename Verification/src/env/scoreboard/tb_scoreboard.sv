@@ -8,6 +8,8 @@ class tb_scoreboard extends uvm_scoreboard;
 
     `uvm_component_utils(tb_scoreboard)
 
+    // not necessarily everything will be utilized in rfm
+
     string dio_items_to_rfm [] = {"RST",
                                   "start_in",
                                   "spi_mode_in",
@@ -16,15 +18,16 @@ class tb_scoreboard extends uvm_scoreboard;
                                   "IFG_in",
                                   "CS_SCK_in",
                                   "SCK_CS_in",
-                                  "mosi_data_in"};
-
-    string dio_items_to_chk [] = {"busy_out",
+                                  "mosi_data_in",
+                                //   "busy_out",
                                   "miso_data_out"};
 
-    string spi_items_to_rfm [] = {"MOSI_frame"};
+    string dio_items_to_chk [] = {"busy_out"};
 
-    string spi_items_to_chk [] = {"MOSI_frame"};
-                                //   "MISO_frame"};
+    string spi_items_to_rfm [] = {"CS_out"};
+
+    string spi_items_to_chk [] = {"MOSI_frame",
+                                  "MISO_frame"};
 
     spi_config spi_cfg;
 
@@ -68,44 +71,35 @@ class tb_scoreboard extends uvm_scoreboard;
 
     endfunction : connect_phase
 
-    function void write_dio_monitor_imp(dio_seq_item dio_pkt_in);
+    function void write_dio_monitor_imp(dio_seq_item item);
 
-        if(dio_pkt_in.name inside {dio_items_to_rfm}) begin
-            rfm.write_dio(dio_pkt_in);
+        if(item.name inside {dio_items_to_rfm}) begin
+            rfm.write_dio(item);
         end
-        else if(dio_pkt_in.name inside {dio_items_to_chk}) begin
-            chk.write_dio_observed(dio_pkt_in);
+        else if(item.name inside {dio_items_to_chk}) begin
+            chk.write_dio_observed(item);
         end
 
-        case(dio_pkt_in.name)
-            "spi_mode_in": begin
-                spi_cfg.spi_mode = dio_pkt_in.value;
-                `uvm_info(get_name(), $sformatf("value of spi_mode in spi_cfg: %d", spi_cfg.spi_mode), UVM_LOW)
-            end
-            "sck_speed_in": begin
-                spi_cfg.sck_speed = dio_pkt_in.value;
-                `uvm_info(get_name(), $sformatf("value of sck_speed in spi_cfg: %d", spi_cfg.sck_speed), UVM_LOW)
-            end
-            "word_len_in": begin
-                case (dio_pkt_in.value)
-                    0: spi_cfg.word_len = 31;
-                    1: spi_cfg.word_len = 15;
-                    2: spi_cfg.word_len = 7;
-                    3: spi_cfg.word_len = 3;
-                endcase
-                `uvm_info(get_name(), $sformatf("value of word_len in spi_cfg: %d(%d)", dio_pkt_in.value, spi_cfg.word_len), UVM_LOW)
-            end
-        endcase
+        if (item.name == "spi_mode_in") begin
+            spi_cfg.spi_mode = item.value;
+            `uvm_info(get_name(), $sformatf("value of spi_mode in spi_cfg: %d", spi_cfg.spi_mode), UVM_LOW)
+        end
+        // case(dio_pkt_in.name)
+        //     "spi_mode_in": begin
+        //         spi_cfg.spi_mode = dio_pkt_in.value;
+        //         `uvm_info(get_name(), $sformatf("value of spi_mode in spi_cfg: %d", spi_cfg.spi_mode), UVM_LOW)
+        //     end
+        // endcase
 
     endfunction : write_dio_monitor_imp
 
-    function void write_spi_monitor_imp(spi_seq_item spi_pkt_in);
+    function void write_spi_monitor_imp(spi_seq_item item);
 
-        if(spi_pkt_in.name inside {spi_items_to_rfm}) begin
-            rfm.write_spi(spi_pkt_in);
+        if(item.name inside {spi_items_to_rfm}) begin
+            rfm.write_spi(item);
         end
-        if(spi_pkt_in.name inside {spi_items_to_chk}) begin
-            chk.write_spi_observed(spi_pkt_in);
+        else if(item.name inside {spi_items_to_chk}) begin
+            chk.write_spi_observed(item);
         end
 
     endfunction : write_spi_monitor_imp

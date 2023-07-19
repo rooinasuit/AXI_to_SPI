@@ -58,7 +58,7 @@ class test_base_sequence extends uvm_sequence;
         dio_seq.start(p_sequencer.dio_sqr);
     endtask : reset_io
 
-    task drive_spi(string name, int value);
+    task drive_spi(string name, logic value [$]);
         spi_drive_sequence spi_seq = spi_drive_sequence::type_id::create("spi_seq");
 
         spi_seq.name  = name;
@@ -81,7 +81,6 @@ class test_base_sequence extends uvm_sequence;
         spi_seq_rsp.name  = "CS";
 
         spi_seq_rsp.start(p_sequencer.spi_sqr);
-        // @(posedge p_sequencer.spi_sqr.vif.CS_out);
         #wait_buff;
     endtask : wait_spi_ready
 

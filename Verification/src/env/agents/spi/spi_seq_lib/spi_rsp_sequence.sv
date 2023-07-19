@@ -4,7 +4,7 @@ class spi_rsp_sequence extends spi_base_sequence;
     `uvm_object_utils(spi_rsp_sequence)
 
     string name;
-    int value;
+    logic value [$];
 
     function new (string name = "spi_rsp_sequence");
         super.new(name);

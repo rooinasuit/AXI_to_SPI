@@ -16,11 +16,11 @@ class test_0010_1_sequence extends test_base_sequence;
     task body();
         reset_io();
         #10ns;
-        drive_clock_period(30); // ns
+        drive_clock_period(10); // ns
         drive_clock_state(1);
         //
         drive_io("RST", 1);
-        #30ns;
+        #10ns;
         drive_io("RST", 0);
         //
         drive_io("spi_mode_out", 1);
@@ -34,11 +34,11 @@ class test_0010_1_sequence extends test_base_sequence;
         drive_io("SCK_CS_out", 10);
         //
         drive_io("mosi_data_out", 32'h55);
-        drive_spi("MISO", 32'hab);
+        drive_spi("MISO", {1,0,1,0,1,0,1,0}); // wysylane od lewej do prawej :(
         //
-        #30ns;
+        #10ns;
         drive_io("start_out", 1);
-        #30ns;
+        #10ns;
         drive_io("start_out", 0);
         //
         wait_spi_ready(20ns);

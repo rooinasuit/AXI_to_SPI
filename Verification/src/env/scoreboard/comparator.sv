@@ -29,12 +29,13 @@ class comparator#(type T = uvm_sequence_item) extends uvm_component;
         forever begin
             fifo_exp.get(exp_pkt);
             fifo_obs.get(obs_pkt);
-            result = exp_pkt.compare(obs_pkt);
+
+            result = exp_pkt.compare_packet(obs_pkt);
             if (result) begin
-                `uvm_info(this.get_name(), $sformatf("THE VALUES OF %s AND %s ARE IDENTICAL", exp_pkt.name, obs_pkt.name), UVM_LOW)
+                `uvm_info(get_name(), $sformatf("BOTH VALUES OF %s ARE IDENTICAL", obs_pkt.name), UVM_LOW)
             end
             else begin
-                `uvm_info(this.get_name(), $sformatf("THE VALUES OF %s AND %s DO NOT MATCH", exp_pkt.name, obs_pkt.name), UVM_LOW)
+                `uvm_info(get_name(), $sformatf("THE VALUES OF %s DO NOT MATCH", obs_pkt.name), UVM_LOW)
             end
         end
 
@@ -42,14 +43,16 @@ class comparator#(type T = uvm_sequence_item) extends uvm_component;
 
     function void write_exp(T item);
         fork
-        fifo_exp.put(item);
+            fifo_exp.put(item);
         join_none
     endfunction : write_exp
 
     function write_obs(T item);
         fork
-        fifo_obs.put(item);
-        // write_exp(item);
+            begin
+            fifo_obs.put(item);
+            write_exp(item);
+            end
         join_none
     endfunction : write_obs
 
