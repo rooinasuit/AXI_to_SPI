@@ -62,7 +62,6 @@ class ref_model extends uvm_component;
     // endtask : monitor_cs
 
     function void spi_unpack();
-        dio_case();
         for(int i=(true_word_len-1); i>=0; i--) begin
             MOSI_value.push_back(mosi_data_in_mirror[i]);
             MISO_value.push_back(miso_data_out_mirror[i]);
