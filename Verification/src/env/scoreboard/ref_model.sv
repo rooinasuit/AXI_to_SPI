@@ -9,21 +9,22 @@ class ref_model extends uvm_component;
     int true_sck_speed;
     int true_word_len;
     //
-    logic MOSI_value [$];
-    logic MISO_value [$];
+    time global_clock_period = 10ns; // as per requirement
+    real clock_precision = 0.05; // as per requirement
+    time spi_period_min;
+    time spi_period_max;
     // DIO
-    `RFM_DECLARE(RST, 1)
-    `RFM_DECLARE(start_in, 1)
-    `RFM_DECLARE(spi_mode_in, 2)
-    `RFM_DECLARE(sck_speed_in, 2)
-    `RFM_DECLARE(word_len_in, 2)
-    `RFM_DECLARE(IFG_in, 8)
-    `RFM_DECLARE(CS_SCK_in, 8)
-    `RFM_DECLARE(SCK_CS_in, 8)
-    `RFM_DECLARE(mosi_data_in, 32)
-    `RFM_DECLARE(miso_data_out, 32)
-    // SPI
-    `RFM_DECLARE(CS_out, 1)
+    `RFM_DECLARE_P(RST, 1)
+    `RFM_DECLARE_P(start_i, 1)
+    `RFM_DECLARE_P(spi_mode_i, 2)
+    `RFM_DECLARE_P(sck_speed_i, 2)
+    `RFM_DECLARE_P(word_len_i, 2)
+    `RFM_DECLARE_P(IFG_i, 8)
+    `RFM_DECLARE_P(CS_SCK_i, 8)
+    `RFM_DECLARE_P(SCK_CS_i, 8)
+    `RFM_DECLARE_P(mosi_data_i, 32)
+    `RFM_DECLARE_P(CS_o, 1)
+    `RFM_DECLARE_UP(MISO_frame, $)
     // logic [WIDTH-1:0] PORT_NAME_mirror; event PORT_NAME_change_e;
 
     event cs_error_e;
@@ -50,135 +51,152 @@ class ref_model extends uvm_component;
 
     // here we will predict :D
         fork
-            // monitor_cs();
-            predict_spi_frames();
-            monitor_cs();
-            spi_watchdog();
+            predict_mosi();
+            predict_miso();
+            // spi_watchdog();
         join_none
 
     endtask : run_phase
 
-    task spi_watchdog();
+    // task spi_watchdog();
+    //     forever begin
+    //         `FIRST_OF
+    //         begin
+    //             @(cs_error_e);
+    //             `uvm_fatal(get_name(), "CS_out is being pulled down for too long")
+    //         end
+    //         `END_FIRST_OF
+    //     end
+    // endtask : spi_watchdog
+
+    // task monitor_cs(); // CS timeout monitor
+    //     forever begin
+    //         wait(CS_o_mirror == 0);
+    //         `FIRST_OF
+    //         begin
+    //             #3ms; // this needs to vary with clock speed, word length and timings
+    //             ->cs_error_e;
+    //         end
+    //         begin
+    //             wait(CS_o_mirror == 1);
+    //         end
+    //         `END_FIRST_OF
+    //     end
+    // endtask : monitor_cs
+
+    task predict_IFG();
         forever begin
-            `FIRST_OF
-            begin
-                @(cs_error_e);
-                `uvm_fatal(get_name(), "CS_out is being pulled down for too long")
+            // wait(CS_o_mirror == 0);
+            // @(CS_o_change_e);
+            // IFG_start_t = $realtime;
+            @(CS_o_change_e);
+            if(CS_o_mirror == 1) begin
+            // IFG_end_t = $realtime;
+                predict_dio("min_IFG", IFG_i_mirror, IFG_i_mirror*global_clock_period, IFG_i_mirror*global_clock_period);
             end
-            `END_FIRST_OF
+            // predict_dio("min_IFG", IFG_i_mirror, IFG_end_t-IFG_end_t, IFG_end_t-IFG_end_t);
         end
-    endtask : spi_watchdog
+    endtask : predict_IFG
 
-    task monitor_cs(); // CS timeout monitor
+    task predict_mosi();
+        logic MOSI_queue [$];
+        //
+        time spi_clock_period;
         forever begin
-            wait(CS_out_mirror == 0);
-            `FIRST_OF
-            begin
-                #3ms;
-                ->cs_error_e;
+            @(start_i_change_e);
+            if (start_i_mirror == 1) begin
+                //
+                MOSI_queue.delete();
+                for(int i=(true_word_len-1); i>=0; i--) begin
+                    MOSI_queue.push_back(mosi_data_i_mirror[i]);
+                end
+                spi_clock_period = 2*(true_sck_speed)*global_clock_period;
+                spi_period_min = spi_clock_period*(1-clock_precision);
+                spi_period_max = spi_clock_period*(1+clock_precision);
+                predict_spi("MOSI_frame", MOSI_queue, $realtime, $realtime+20ns, spi_period_min, spi_period_max);
             end
-            begin
-                wait(CS_out_mirror == 1);
-            end
-            `END_FIRST_OF
         end
-    endtask : monitor_cs
+    endtask : predict_mosi
 
-    function void spi_unpack();
-        for(int i=(true_word_len-1); i>=0; i--) begin
-            MOSI_value.push_back(mosi_data_in_mirror[i]);
-            MISO_value.push_back(miso_data_out_mirror[i]);
-        end
-    endfunction : spi_unpack
-
-    task predict_spi_frames();//, time timestamp);
-        spi_seq_item spi_pkt_exp;
+    task predict_miso();
         forever begin
-            @(CS_out_change_e);
-            if (CS_out_mirror == 1) begin
-                spi_unpack();
-                fork
-                    begin // MOSI
-                    spi_pkt_exp = spi_seq_item::type_id::create("spi_pkt_exp");
-                    spi_pkt_exp.item_type = "exp_item";
-                    spi_pkt_exp.name = "MOSI_frame";
-                    spi_pkt_exp.data = MOSI_value;
-                    `uvm_info(get_name(), $sformatf("the bit count of MOSI frame is:\n %0d", spi_pkt_exp.data.size()), UVM_LOW)
-                    spi_pkt_exp.exp_timestamp_min = $realtime;
-                    spi_pkt_exp.exp_timestamp_max = $realtime + 10ns;
-                    spi_rfm_port.write(spi_pkt_exp);
-                    end
-                    begin // MISO
-                    spi_pkt_exp = spi_seq_item::type_id::create("spi_pkt_exp");
-                    spi_pkt_exp.item_type = "exp_item";
-                    spi_pkt_exp.name = "MISO_frame";
-                    spi_pkt_exp.data = MISO_value;
-                    `uvm_info(get_name(), $sformatf("the bit count of MISO frame is:\n %0d", spi_pkt_exp.data.size()), UVM_LOW)
-                    spi_pkt_exp.exp_timestamp_min = $realtime;
-                    spi_pkt_exp.exp_timestamp_max = $realtime + 10ns;
-                    spi_rfm_port.write(spi_pkt_exp);
-                    end
-                join
-            end
+            @(MISO_frame_change_e);
+            predict_dio("miso_data_o", MISO_frame_mirror_packed, $realtime, $realtime+20ns);
         end
-    endtask : predict_spi_frames
+    endtask : predict_miso
 
-    // task predict_dio(string name, int value);
-    //     dio_seq_item dio_pkt_exp = dio_seq_item::type_id::create("dio_pkt_exp");
-    //     dio_pkt_exp.item_type = "exp_item";
-    //     dio_pkt_exp.name = name;
-    //     dio_pkt_exp.value = value;
+    task predict_spi(string name, logic data [$], time exp_timestamp_min,
+                    time exp_timestamp_max, time clk_period_min, time clk_period_max);
+        spi_seq_item spi_pkt_exp = spi_seq_item::type_id::create("spi_pkt_exp");
+        spi_pkt_exp.item_type = "exp_item";
+        spi_pkt_exp.name = name;
+        spi_pkt_exp.data = data;
+        spi_pkt_exp.exp_timestamp_min = exp_timestamp_min;
+        spi_pkt_exp.exp_timestamp_max = exp_timestamp_max;
+        spi_pkt_exp.clk_period_min = spi_period_min;
+        spi_pkt_exp.clk_period_max = spi_period_max;
+        spi_pkt_exp.CS_to_SCK = CS_SCK_i_mirror*global_clock_period;
+        spi_pkt_exp.SCK_to_CS = SCK_CS_i_mirror*global_clock_period;
+        spi_rfm_port.write(spi_pkt_exp);
+    endtask : predict_spi
 
-    //     dio_rfm_port.write(dio_pkt_exp);
-    // endtask : predict_dio
+    task predict_dio(string name, int value, time exp_timestamp_min, time exp_timestamp_max);
+        dio_seq_item dio_pkt_exp = dio_seq_item::type_id::create("dio_pkt_exp");
+        dio_pkt_exp.item_type = "exp_item";
+        dio_pkt_exp.name = name;
+        dio_pkt_exp.value = value;
+        dio_pkt_exp.exp_timestamp_min = exp_timestamp_min;
+        dio_pkt_exp.exp_timestamp_max = exp_timestamp_max;
+        dio_rfm_port.write(dio_pkt_exp);
+    endtask : predict_dio
 
     function void write_dio(dio_seq_item item);
 
-        `uvm_info(get_name(), $sformatf("Data received from DIO_MTR to predict on: "), UVM_LOW)
-        item.print();
+        // `uvm_info(get_name(), $sformatf("Data received from DIO_MTR to predict on: "), UVM_LOW)
+        // item.print();
 
         case(item.name)
         "RST": begin
             `RFM_CHECK(item, RST)
         end
-        "start_in": begin
-            `RFM_CHECK(item, start_in)
+        "start_i": begin
+            `RFM_CHECK(item, start_i)
         end
-        "spi_mode_in": begin
-            `RFM_CHECK(item, spi_mode_in)
+        "spi_mode_i": begin
+            `RFM_CHECK(item, spi_mode_i)
         end
-        "sck_speed_in": begin
-            `RFM_CHECK(item, sck_speed_in)
-            case(sck_speed_in_mirror)
+        "sck_speed_i": begin
+            `RFM_CHECK(item, sck_speed_i)
+            case(sck_speed_i_mirror)
             0: true_sck_speed = 64;
             1: true_sck_speed = 32;
             2: true_sck_speed = 16;
             3: true_sck_speed = 8;
             endcase
         end
-        "word_len_in": begin
-            `RFM_CHECK(item, word_len_in)
-            case(word_len_in_mirror)
+        "word_len_i": begin
+            `RFM_CHECK(item, word_len_i)
+            case(word_len_i_mirror)
             0: true_word_len = 32;
             1: true_word_len = 16;
             2: true_word_len = 8;
             3: true_word_len = 4;
             endcase
         end
-        "IFG_in": begin
-            `RFM_CHECK(item, IFG_in)
+        "IFG_i": begin
+            `RFM_CHECK(item, IFG_i)
         end
-        "CS_SCK_in": begin
-            `RFM_CHECK(item, CS_SCK_in)
+        "CS_SCK_i": begin
+            `RFM_CHECK(item, CS_SCK_i)
         end
-        "SCK_CS_in": begin
-            `RFM_CHECK(item, SCK_CS_in)
+        "SCK_CS_i": begin
+            `RFM_CHECK(item, SCK_CS_i)
         end
-        "mosi_data_in": begin
-            `RFM_CHECK(item, mosi_data_in)
+        "mosi_data_i": begin
+            `RFM_CHECK(item, mosi_data_i)
         end
-        "miso_data_out": begin
-            `RFM_CHECK(item, miso_data_out)
+        "CS_o": begin
+            `RFM_CHECK(item, CS_o)
         end
         default: begin
             `uvm_info(get_name(), $sformatf("Wrong %p name supplied: %s", item.get_name(), item.name), UVM_LOW)
@@ -189,12 +207,19 @@ class ref_model extends uvm_component;
 
     function void write_spi(spi_seq_item item);
 
-        `uvm_info(get_name(), $sformatf("Data received from SPI_MTR to predict on: "), UVM_LOW)
-        item.print();
+        // `uvm_info(get_name(), $sformatf("Data received from SPI_MTR to predict on: "), UVM_LOW)
+        // item.print();
 
         case (item.name)
-        "CS_out": begin
-            `RFM_CHECK(item, CS_out)
+        "MISO_frame": begin
+            if (item.data !== MISO_frame_mirror) begin
+                MISO_frame_mirror = item.data;
+                for(int i=(MISO_frame_mirror.size()-1); i>=0; i--) begin
+                    MISO_frame_mirror_packed[i] = MISO_frame_mirror[(MISO_frame_mirror.size()-1)-i];
+                end
+                ->MISO_frame_change_e;
+                `uvm_info(get_name(), ({"\nMISO_frame event called - value has changed"}), UVM_LOW)
+            end
         end
         default: begin
             `uvm_info(get_name(), $sformatf("Wrong %p name supplied: %s", item.get_name(), item.name), UVM_LOW)

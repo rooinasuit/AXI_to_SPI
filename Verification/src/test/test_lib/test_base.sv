@@ -29,9 +29,15 @@ class test_base extends uvm_test;
         `uvm_info(get_name(), "Creating ENV handle", UVM_LOW)
         env = tb_environment::type_id::create("env", this);
 
-        uvm_config_db#(virtual clock_interface)::get(this, "env_cfg", "c_vif", env_cfg.clk_cfg.vif);
-        uvm_config_db#(virtual dio_interface)::get(this, "env_cfg", "d_vif", env_cfg.dio_cfg.vif);
-        uvm_config_db#(virtual spi_interface)::get(this, "env_cfg", "s_vif", env_cfg.spi_cfg.vif);
+        if(!uvm_config_db#(virtual clock_interface)::get(this, "env_cfg", "c_vif", env_cfg.clk_cfg.vif)) begin
+            `uvm_fatal(get_name(), {"clock interface must be set for: ", get_full_name()})
+        end;
+        if(!uvm_config_db#(virtual dio_interface)::get(this, "env_cfg", "d_vif", env_cfg.dio_cfg.vif)) begin
+            `uvm_fatal(get_name(), {"dio interface must be set for: ", get_full_name()})
+        end
+        if(!uvm_config_db#(virtual spi_interface)::get(this, "env_cfg", "s_vif", env_cfg.spi_cfg.vif)) begin
+            `uvm_fatal(get_name(), {"spi interface must be set for: ", get_full_name()})
+        end
 
     endfunction : build_phase
 

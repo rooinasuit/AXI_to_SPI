@@ -68,6 +68,7 @@ class clock_driver extends uvm_driver#(clock_seq_item);
                     wait(!vif.GCLK);
                 end
                 begin
+                    `uvm_info(get_name(), $sformatf("period is: %0d", period/2), UVM_LOW)
                     forever #((period/2)*1ns) vif.GCLK = ~vif.GCLK;
                 end
             join_any

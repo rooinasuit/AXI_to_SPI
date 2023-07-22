@@ -11,23 +11,24 @@ class tb_scoreboard extends uvm_scoreboard;
     // not necessarily everything will be utilized in rfm
 
     string dio_items_to_rfm [] = {"RST",
-                                  "start_in",
-                                  "spi_mode_in",
-                                  "sck_speed_in",
-                                  "word_len_in",
-                                  "IFG_in",
-                                  "CS_SCK_in",
-                                  "SCK_CS_in",
-                                  "mosi_data_in",
+                                  "start_i",
+                                  "spi_mode_i",
+                                  "sck_speed_i",
+                                  "word_len_i",
+                                  "IFG_i",
+                                  "CS_SCK_i",
+                                  "SCK_CS_i",
+                                  "mosi_data_i",
+                                  "CS_o"
                                 //   "busy_out",
-                                  "miso_data_out"};
+                                  };
 
-    string dio_items_to_chk [] = {"busy_out"};
+    string dio_items_to_chk [] = {"miso_data_o"};
 
-    string spi_items_to_rfm [] = {"CS_out"};
+    string spi_items_to_rfm [] = {"MISO_frame"};
 
-    string spi_items_to_chk [] = {"MOSI_frame",
-                                  "MISO_frame"};
+    string spi_items_to_chk [] = {"MOSI_frame"};
+                                //   "MISO_frame"};
 
     spi_config spi_cfg;
 
@@ -80,20 +81,16 @@ class tb_scoreboard extends uvm_scoreboard;
             chk.write_dio_observed(item);
         end
 
-        if (item.name == "spi_mode_in") begin
+        if (item.name == "spi_mode_i") begin
             spi_cfg.spi_mode = item.value;
-            `uvm_info(get_name(), $sformatf("value of spi_mode in spi_cfg: %d", spi_cfg.spi_mode), UVM_LOW)
+            // `uvm_info(get_name(), $sformatf("value of spi_mode in spi_cfg: %d", spi_cfg.spi_mode), UVM_LOW)
         end
-        // case(dio_pkt_in.name)
-        //     "spi_mode_in": begin
-        //         spi_cfg.spi_mode = dio_pkt_in.value;
-        //         `uvm_info(get_name(), $sformatf("value of spi_mode in spi_cfg: %d", spi_cfg.spi_mode), UVM_LOW)
-        //     end
-        // endcase
 
     endfunction : write_dio_monitor_imp
 
     function void write_spi_monitor_imp(spi_seq_item item);
+
+        item.print();
 
         if(item.name inside {spi_items_to_rfm}) begin
             rfm.write_spi(item);

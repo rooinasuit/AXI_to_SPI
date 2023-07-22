@@ -5,6 +5,8 @@ import uvm_pkg::*;
 `include "dio_interface.sv"
 `include "spi_interface.sv"
 
+`include "SPI_top.v"
+
 import test_pkg::*;
 
 module tb_top;
@@ -17,66 +19,66 @@ module tb_top;
     //
     logic RST;
     logic start_in;
-    logic [1:0] spi_mode_in;
-    logic [1:0] sck_speed_in;
-    logic [1:0] word_len_in;
-    logic [7:0] IFG_in;
-    logic [7:0] CS_SCK_in;
-    logic [7:0] SCK_CS_in;
-    logic [31:0] mosi_data_in;
+    logic [1:0] spi_mode_i;
+    logic [1:0] sck_speed_i;
+    logic [1:0] word_len_i;
+    logic [7:0] IFG_i;
+    logic [7:0] CS_SCK_i;
+    logic [7:0] SCK_CS_i;
+    logic [31:0] mosi_data_i;
 
-    logic busy_out;
-    logic [31:0] miso_data_out;
+    logic busy_o;
+    logic [31:0] miso_data_o;
     //
-    logic MISO_in;
+    logic MISO_i;
 
-    logic MOSI_out;
-    logic SCLK_out;
-    logic CS_out;
+    logic MOSI_o;
+    logic SCLK_o;
+    logic CS_o;
 
     // clk_to_DUT
     assign GCLK = c_itf.GCLK;
 
     // dio_to_DUT
-    assign RST            = d_itf.RST;
-    assign start_in       = d_itf.start_in;
-    assign spi_mode_in    = d_itf.spi_mode_in;
-    assign sck_speed_in   = d_itf.sck_speed_in;
-    assign word_len_in    = d_itf.word_len_in;
-    assign IFG_in         = d_itf.IFG_in;
-    assign CS_SCK_in      = d_itf.CS_SCK_in;
-    assign SCK_CS_in      = d_itf.SCK_CS_in;
-    assign mosi_data_in   = d_itf.mosi_data_in;
+    assign RST           = d_itf.RST;
+    assign start_i       = d_itf.start_i;
+    assign spi_mode_i    = d_itf.spi_mode_i;
+    assign sck_speed_i   = d_itf.sck_speed_i;
+    assign word_len_i    = d_itf.word_len_i;
+    assign IFG_i         = d_itf.IFG_i;
+    assign CS_SCK_i      = d_itf.CS_SCK_i;
+    assign SCK_CS_i      = d_itf.SCK_CS_i;
+    assign mosi_data_i   = d_itf.mosi_data_i;
     // dio_from_DUT
-    assign d_itf.busy_out = busy_out;
-    assign d_itf.miso_data_out = miso_data_out;
+    assign d_itf.busy_o      = busy_o;
+    assign d_itf.miso_data_o = miso_data_o;
 
     // spi_to_DUT
-    assign MISO_in = s_itf.MISO_in;
+    assign MISO_i = s_itf.MISO_i;
     // spi_from_DUT
-    assign s_itf.MOSI_out = MOSI_out;
-    assign s_itf.SCLK_out = SCLK_out;
-    assign s_itf.CS_out   = CS_out;
+    assign s_itf.MOSI_o = MOSI_o;
+    assign s_itf.SCLK_o = SCLK_o;
+    assign s_itf.CS_o   = CS_o;
 
     SPI_top DUT(
-        .GCLK          (GCLK),
+        .GCLK        (GCLK),
         //
-        .RST           (RST),
-        .start_in      (start_in),
-        .busy_out      (busy_out),
-        .spi_mode_in   (spi_mode_in),
-        .sck_speed_in  (sck_speed_in),
-        .word_len_in   (word_len_in),
-        .IFG_in        (IFG_in),
-        .CS_SCK_in     (CS_SCK_in),
-        .SCK_CS_in     (SCK_CS_in),
-        .mosi_data_in  (mosi_data_in),
-        .miso_data_out (miso_data_out),
+        .RST         (RST),
+        .start_i     (start_i),
+        .busy_o      (busy_o),
+        .spi_mode_i  (spi_mode_i),
+        .sck_speed_i (sck_speed_i),
+        .word_len_i  (word_len_i),
+        .IFG_i       (IFG_i),
+        .CS_SCK_i    (CS_SCK_i),
+        .SCK_CS_i    (SCK_CS_i),
+        .mosi_data_i (mosi_data_i),
+        .miso_data_o (miso_data_o),
         //
-        .MISO_in       (MISO_in),
-        .MOSI_out      (MOSI_out),
-        .SCLK_out      (SCLK_out),
-        .CS_out        (CS_out)
+        .MISO_i      (MISO_i),
+        .MOSI_o      (MOSI_o),
+        .SCLK_o      (SCLK_o),
+        .CS_o        (CS_o)
     );
 
     initial begin

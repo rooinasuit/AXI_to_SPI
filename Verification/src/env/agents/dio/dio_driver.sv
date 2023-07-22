@@ -38,17 +38,17 @@ class dio_driver extends uvm_driver#(dio_seq_item);
 
     task reset_io();
             vif.RST = 0;
-            vif.start_in = 0;
+            vif.start_i = 0;
 
-            vif.spi_mode_in = 0;
-            vif.sck_speed_in = 0;
-            vif.word_len_in = 0;
+            vif.spi_mode_i = 0;
+            vif.sck_speed_i = 0;
+            vif.word_len_i = 0;
 
-            vif.IFG_in = 0;
-            vif.CS_SCK_in = 0;
-            vif.SCK_CS_in = 0;
+            vif.IFG_i = 0;
+            vif.CS_SCK_i = 0;
+            vif.SCK_CS_i = 0;
 
-            vif.mosi_data_in = 0;
+            vif.mosi_data_i = 0;
     endtask : reset_io
 
     task dio_transaction();
@@ -56,17 +56,17 @@ class dio_driver extends uvm_driver#(dio_seq_item);
         seq_item_port.get_next_item(dio_pkt); // blocking
         case (dio_pkt.name)
             "RST": vif.RST = dio_pkt.value;
-            "start_out": vif.start_in = dio_pkt.value;
+            "start": vif.start_i = dio_pkt.value;
 
-            "spi_mode_out": vif.spi_mode_in = dio_pkt.value;
-            "sck_speed_out": vif.sck_speed_in = dio_pkt.value;
-            "word_len_out":  vif.word_len_in = dio_pkt.value;
+            "spi_mode": vif.spi_mode_i = dio_pkt.value;
+            "sck_speed": vif.sck_speed_i = dio_pkt.value;
+            "word_len":  vif.word_len_i = dio_pkt.value;
 
-            "IFG_out":    vif.IFG_in = dio_pkt.value;
-            "CS_SCK_out": vif.CS_SCK_in = dio_pkt.value;
-            "SCK_CS_out": vif.SCK_CS_in = dio_pkt.value;
+            "IFG":    vif.IFG_i = dio_pkt.value;
+            "CS_SCK": vif.CS_SCK_i = dio_pkt.value;
+            "SCK_CS": vif.SCK_CS_i = dio_pkt.value;
 
-            "mosi_data_out": vif.mosi_data_in = dio_pkt.value;
+            "mosi_data": vif.mosi_data_i = dio_pkt.value;
 
             "reset_all" : reset_io();
             default: vif.RST = 0;

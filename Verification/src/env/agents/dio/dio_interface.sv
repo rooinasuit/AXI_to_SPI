@@ -5,21 +5,24 @@ interface dio_interface();
     logic RST;
 
     // requested inputs
-    logic start_in;
+    logic start_i;
     //
-    logic [1:0] spi_mode_in;
-    logic [1:0] sck_speed_in;
-    logic [1:0] word_len_in;
+    logic [1:0] spi_mode_i;
+    logic [1:0] sck_speed_i;
+    logic [1:0] word_len_i;
     //
-    logic [7:0] IFG_in;
-    logic [7:0] CS_SCK_in;
-    logic [7:0] SCK_CS_in;
+    logic [7:0] IFG_i;
+    logic [7:0] CS_SCK_i;
+    logic [7:0] SCK_CS_i;
     //
-    logic [31:0] mosi_data_in;
+    logic [31:0] mosi_data_i;
 
     // received outputs
-    logic busy_out;
+    logic busy_o;
     //
-    logic [31:0] miso_data_out;
+    logic [31:0] miso_data_o;
+
+    // borrowed from spi
+    logic CS_i;
 
 endinterface : dio_interface

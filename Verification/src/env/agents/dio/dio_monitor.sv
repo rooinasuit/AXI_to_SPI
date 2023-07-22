@@ -43,16 +43,16 @@ class dio_monitor extends uvm_monitor;
         dio_seq_item dio_pkt_in;
         fork
             `MONITOR_WATCH(RST, dio)
-            `MONITOR_WATCH(start_in, dio)
-            `MONITOR_WATCH(spi_mode_in, dio)
-            `MONITOR_WATCH(sck_speed_in, dio)
-            `MONITOR_WATCH(word_len_in, dio)
-            `MONITOR_WATCH(IFG_in, dio)
-            `MONITOR_WATCH(CS_SCK_in, dio)
-            `MONITOR_WATCH(SCK_CS_in, dio)
-            `MONITOR_WATCH(mosi_data_in, dio)
-            `MONITOR_WATCH(busy_out, dio)
-            `MONITOR_WATCH(miso_data_out, dio)
+            `MONITOR_WATCH(start_i, dio)
+            `MONITOR_WATCH(spi_mode_i, dio)
+            `MONITOR_WATCH(sck_speed_i, dio)
+            `MONITOR_WATCH(word_len_i, dio)
+            `MONITOR_WATCH(IFG_i, dio)
+            `MONITOR_WATCH(CS_SCK_i, dio)
+            `MONITOR_WATCH(SCK_CS_i, dio)
+            `MONITOR_WATCH(mosi_data_i, dio)
+            `MONITOR_WATCH(busy_o, dio)
+            `MONITOR_WATCH(miso_data_o, dio)
         join_none
     endtask : dio_capture
 

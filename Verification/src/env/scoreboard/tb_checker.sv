@@ -9,10 +9,11 @@ class tb_checker extends uvm_component;
     uvm_component dio_comp_array[$];
     uvm_component spi_comp_array[$];
 
-    `COMP_DECLARE(dio_seq_item, busy_out)
-    `COMP_DECLARE(dio_seq_item, miso_data_out)
+    // `COMP_DECLARE(dio_seq_item, busy_o)
     `COMP_DECLARE(spi_seq_item, MOSI_frame)
-    `COMP_DECLARE(spi_seq_item, MISO_frame)
+    // `COMP_DECLARE(dio_seq_item, MISO_frame)
+    `COMP_DECLARE(dio_seq_item, miso_data_o)
+    `COMP_DECLARE(dio_seq_item, min_IFG)
 
     uvm_analysis_imp_dio_expected#(dio_seq_item, tb_checker) dio_rfm_imp;
     uvm_analysis_imp_spi_expected#(spi_seq_item, tb_checker) spi_rfm_imp;
@@ -27,10 +28,12 @@ class tb_checker extends uvm_component;
         dio_rfm_imp = new("dio_rfm_imp", this);
         spi_rfm_imp = new("spi_rfm_imp", this);
 
-        `COMP_CREATE(dio_seq_item, busy_out)
-        `COMP_CREATE(dio_seq_item, miso_data_out)
+        // `COMP_CREATE(dio_seq_item, busy_o)
         `COMP_CREATE(spi_seq_item, MOSI_frame)
-        `COMP_CREATE(spi_seq_item, MISO_frame)
+        // `COMP_CREATE(dio_seq_item, MISO_frame)
+        `COMP_CREATE(dio_seq_item, miso_data_o)
+        `COMP_CREATE(dio_seq_item, min_IFG)
+        // `COMP_CREATE(spi_seq_item, MISO_frame)
 
         foreach(dio_comp_array[i]) begin
             `uvm_info(get_name(), $sformatf("comparator handle name: %s", dio_comp_array[i].get_name()), UVM_LOW)

@@ -14,7 +14,8 @@ class dio_drive_sequence extends dio_base_sequence;
         dio_pkt = dio_seq_item::type_id::create("dio_pkt");
 
         start_item(dio_pkt);
-            drive_io(name, value);
+            dio_pkt.name  = name;
+            dio_pkt.value = value;
         finish_item(dio_pkt);
     endtask : body
 

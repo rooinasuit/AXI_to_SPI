@@ -8,6 +8,7 @@ begin \
         HANDLE_NAME``_pkt_in.value = vif.``VAL_NAME; \
         HANDLE_NAME``_pkt_in.obs_timestamp = $realtime; \
         HANDLE_NAME``_mtr_port.write(HANDLE_NAME``_pkt_in); \
+        // `uvm_info(get_name(), $display("PORT %s monitored at time %0t: %d", VAL_NAME, $realtime, vif.``VAL_NAME), UVM_LOW) \
         forever begin \
             prev_val = vif.``VAL_NAME; \
             @(vif.``VAL_NAME) \

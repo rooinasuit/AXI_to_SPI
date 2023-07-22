@@ -28,10 +28,6 @@ class test_base_sequence extends uvm_sequence;
         clk_s_seq.start(p_sequencer.clk_sqr);
     endtask : drive_clock_state
 
-    // task reset_clock();
-    //     p_sequencer.clk_sqr.vif.reset_clock();
-    // endtask : reset_clock
-
     task drive_io(string port_name, int port_value);
         dio_drive_sequence dio_seq = dio_drive_sequence::type_id::create("dio_seq");
 
@@ -40,15 +36,6 @@ class test_base_sequence extends uvm_sequence;
 
         dio_seq.start(p_sequencer.dio_sqr);
     endtask : drive_io
-
-    task drive_io_random(string port_name, int value_range);
-        dio_drive_random_sequence dio_seq_rnd = dio_drive_random_sequence::type_id::create("dio_seq_rnd");
-
-        dio_seq_rnd.name  = port_name;
-        dio_seq_rnd.range = value_range;
-
-        dio_seq_rnd.start(p_sequencer.dio_sqr);
-    endtask : drive_io_random
 
     task reset_io();
         dio_drive_sequence dio_seq = dio_drive_sequence::type_id::create("dio_seq");
@@ -66,14 +53,6 @@ class test_base_sequence extends uvm_sequence;
 
         spi_seq.start(p_sequencer.spi_sqr);
     endtask : drive_spi
-
-    task drive_spi_random(string name);
-        spi_drive_random_sequence spi_seq_rnd = spi_drive_random_sequence::type_id::create("spi_seq_rnd");
-
-        spi_seq_rnd.name = name;
-
-        spi_seq_rnd.start(p_sequencer.spi_sqr);
-    endtask : drive_spi_random
 
     task wait_spi_ready(time wait_buff);
         spi_rsp_sequence spi_seq_rsp = spi_rsp_sequence::type_id::create("spi_seq_rsp");

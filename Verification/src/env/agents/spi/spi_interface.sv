@@ -2,11 +2,11 @@
 interface spi_interface();
 
     // requested inputs
-    logic MISO_in;
+    logic MISO_i;
 
     // received outputs
-    logic MOSI_out;
-    logic SCLK_out;
-    logic CS_out;
+    logic MOSI_o;
+    logic SCLK_o;
+    logic CS_o;
 
 endinterface : spi_interface

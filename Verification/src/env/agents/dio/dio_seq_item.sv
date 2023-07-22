@@ -39,9 +39,11 @@ class dio_seq_item extends uvm_sequence_item;
             exp_item = this;
         end
 
+        $display("DIO_SEQ_ITEM FIELD COMPARISON");
+        $display("=============================================");
         res = compare_field(obs_item, exp_item, "name") &&
-              compare_field(obs_item, exp_item, "value");
-            //   compare_field(obs_item, exp_item, "timestamp");
+              compare_field(obs_item, exp_item, "value") &&
+              compare_field(obs_item, exp_item, "timestamp");
         
         return res;
 
@@ -51,27 +53,40 @@ class dio_seq_item extends uvm_sequence_item;
 
         case(field_name)
         "name": begin
+            $display("obs_item | name:%s", obs_item.name);
+            $display("exp_item | name:%s", exp_item.name);
             if(obs_item.name == exp_item.name) begin
+                $display("COMPARISON OK\n");
                 return 1;
             end
             else begin
+                $display("COMPARISON NOK\n");
                 return 0;
             end
         end
         "value": begin
+            $display("obs_item | value:%0h", obs_item.value);
+            $display("exp_item | value:%0h", exp_item.value);
             if(obs_item.value == exp_item.value) begin
+                $display("COMPARISON OK\n");
                 return 1;
             end
             else begin
+                $display("COMPARISON NOK\n");
                 return 0;
             end
         end
         "timestamp": begin
+            $display("obs_item | obs_timestamp    : %0.1fns", obs_item.obs_timestamp);
+            $display("exp_item | exp_timestamp_min: %0.1fns", exp_item.exp_timestamp_min);
+            $display("exp_item | exp_timestamp_max: %0.1fns", exp_item.exp_timestamp_max);
             if(obs_item.obs_timestamp <= exp_item.exp_timestamp_max
             && obs_item.obs_timestamp >= exp_item.exp_timestamp_min) begin
+                $display("COMPARISON OK\n");
                 return 1;
             end
             else begin
+                $display("COMPARISON NOK\n");
                 return 0;
             end
         end

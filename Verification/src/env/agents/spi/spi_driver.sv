@@ -10,7 +10,7 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     // MAYBE THINK ABOUT HOW TO DO THE 3rd MODE IN SPI
     // BOTH AS A MONITOR AND AS A DRIVER
 
-    logic MISO_data_i [$];
+    logic MISO_queue [$];
     int bit_count;
 
     logic [1:0] spi_mode;
@@ -40,10 +40,8 @@ class spi_driver extends uvm_driver#(spi_seq_item);
 
         fork
             spi_transaction();
-            spi_get_ready();
+            spi_drive();
         join_none
-
-        spi_drive();
 
     endtask : run_phase
 
@@ -54,72 +52,67 @@ class spi_driver extends uvm_driver#(spi_seq_item);
             seq_item_port.get_next_item(spi_pkt);
             case (spi_pkt.name)
                 "MISO": begin
-                    MISO_data_i = spi_pkt.data;
+                    MISO_queue = spi_pkt.data;
                     seq_item_port.item_done();
                 end
                 "CS": begin
                     spi_rsp = spi_seq_item::type_id::create("spi_rsp");
-                    @(posedge vif.CS_out);
+                    @(posedge vif.CS_o);
                     spi_rsp.name = "ready";
                     spi_rsp.set_id_info(spi_pkt);
                     seq_item_port.item_done(spi_rsp);
                 end
                 default: begin
-                    MISO_data_i = MISO_data_i;
+                    MISO_queue = MISO_queue;
                     seq_item_port.item_done();
                 end
             endcase
         end
     endtask : spi_transaction
 
-    task spi_get_ready();
-        forever begin
-        @(negedge vif.CS_out);
-            bit_count = MISO_data_i.size();
-            spi_mode = spi_cfg.spi_mode;
-            `uvm_info(get_name(), $sformatf("loaded spi_mode: %h", spi_mode), UVM_LOW)
-        end
-    endtask : spi_get_ready
-
     task spi_drive();
-        forever begin
         int i;
-        @(negedge vif.CS_out);
+        forever begin
+        @(negedge vif.CS_o);
+            vif.MISO_i = 0;
+            spi_mode = spi_cfg.spi_mode;
+            bit_count = MISO_queue.size();
+            `uvm_info(get_name(), $sformatf("spi mode: %d", spi_mode), UVM_LOW)
             case(spi_mode)
-            0: begin
-                for(i=bit_count; i>=0; i--) begin
-                    if (i == bit_count) begin
-                        vif.MISO_in = MISO_data_i.pop_front();
-                    end
-                    else begin
-                        @(negedge vif.SCLK_out);
-                            vif.MISO_in = MISO_data_i.pop_front();
-                    end
-                end
-            end
-            1: begin
-                for(i=bit_count; i>=0; i--) begin
-                    @(posedge vif.SCLK_out);
-                        vif.MISO_in = MISO_data_i.pop_front();
-                end
-            end
-            2: begin
-                for(i=bit_count; i>=0; i--) begin
-                    @(negedge vif.SCLK_out);
-                        vif.MISO_in = MISO_data_i.pop_front();
-                end
-            end
-            3: begin
-                for(i=bit_count; i>=0; i--) begin
-                    if (i == bit_count) begin
-                        vif.MISO_in = MISO_data_i.pop_front();
-                    end
-                    else begin
-                        @(posedge vif.SCLK_out);
-                            vif.MISO_in = MISO_data_i.pop_front();
+                0: begin
+                    for(i=bit_count; i>=0; i--) begin
+                        if (i == bit_count) begin
+                            vif.MISO_i = MISO_queue.pop_front();
+                        end
+                        else begin
+                            @(negedge vif.SCLK_o);
+                                vif.MISO_i = MISO_queue.pop_front();
+                        end
                     end
                 end
-            end
+                1: begin
+                    for(i=bit_count; i>=0; i--) begin
+                        @(posedge vif.SCLK_o);
+                            vif.MISO_i = MISO_queue.pop_front();
+                    end
+                end
+                2: begin
+                    for(i=bit_count; i>=0; i--) begin
+                        @(negedge vif.SCLK_o);
+                            vif.MISO_i = MISO_queue.pop_front();
+                    end
+                end
+                3: begin
+                    for(i=bit_count; i>=0; i--) begin
+                        if (i == bit_count) begin
+                            vif.MISO_i = MISO_queue.pop_front();
+                        end
+                        else begin
+                            @(posedge vif.SCLK_o);
+                                vif.MISO_i = MISO_queue.pop_front();
+                        end
+                    end
+                end
             endcase
         end
     endtask : spi_drive
