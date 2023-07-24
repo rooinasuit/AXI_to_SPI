@@ -20,9 +20,9 @@ module SPI_master (
 
     ////////////////////
     // STATUS SIGNALS //
-    input [7:0] t_IFG_i,    // minimum interframe gap (parameter)
-    input [7:0] t_CS_SCK_i, // the time between the switch of CS polarity and the response in switch of SCK polarity (parameter)
-    input [7:0] t_SCK_CS_i,
+    input [7:0] IFG_i,    // minimum interframe gap (parameter)
+    input [7:0] CS_SCK_i, // the time between the switch of CS polarity and the response in switch of SCK polarity (parameter)
+    input [7:0] SCK_CS_i,
 
     //////////////
     // SPI DATA //
@@ -63,11 +63,12 @@ reg [7:0] IFG_cnt;
 reg [4:0] chosen_word_len;
 //
 localparam IDLE        = 0;
-localparam PRE_TRANS   = 1;
-localparam TRANSACTION = 2;
-localparam FINISH      = 3;
+localparam INTERFRAME  = 1;
+localparam PRE_TRANS   = 2;
+localparam TRANSACTION = 3;
+localparam FINISH      = 4;
 
-reg [1:0]  state;
+reg [2:0]  state;
 
 reg        mosi;
 reg        chip_sel;
@@ -137,7 +138,7 @@ always @ (posedge GCLK) begin
         sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
     end
     else if (state == PRE_TRANS) begin
-        if (!CS_to_SCK) begin
+        if (CS_to_SCK & (CSnSCK_cnt >= CS_SCK_i)) begin
             sck_switch_cnt <= 6'd0;
             sck            <= !sck; // marks half a period of sck cycle
         end
@@ -198,19 +199,22 @@ always @ (posedge GCLK) begin
         SCK_to_CS     <= 1'b0;
     end
     //
-    else if (chip_sel & trans_start & IFG_done) // nasty cond
+    else if ((IFG_done & (state == INTERFRAME))) begin
         CS_to_SCK     <= 1'b1;
+        CSnSCK_cnt    <= 8'd1;
+    end
     else if (trans_done) begin
         case (sck_pol)
         0: SCK_to_CS  <= (!sck_pha & neg_sck) ? 1'b1 : (sck_pha & !sck) ? 1'b1 : SCK_to_CS;
         1: SCK_to_CS  <= (!sck_pha & sck) ? 1'b1 : (sck_pha & pos_sck) ? 1'b1 : SCK_to_CS;
         endcase
+        CSnSCK_cnt    <= 8'd1;
     end
-    else if (CS_to_SCK & (CSnSCK_cnt == t_CS_SCK_i)) begin
+    else if (CS_to_SCK & (CSnSCK_cnt >= CS_SCK_i)) begin
         CSnSCK_cnt    <= 8'd0;
         CS_to_SCK     <= 1'b0;
     end
-    else if (SCK_to_CS & (CSnSCK_cnt == t_SCK_CS_i)) begin
+    else if (SCK_to_CS & (CSnSCK_cnt >= SCK_CS_i)) begin
         CSnSCK_cnt    <= 8'd0;
         SCK_to_CS     <= 1'b0;
     end
@@ -229,11 +233,11 @@ always @ (posedge GCLK) begin
         IFG_cnt    <= 8'd0;
         IFG_done   <= 1'b0;
     end
-    else if (trans_start & IFG_done) begin
+    else if (state == PRE_TRANS) begin
         IFG_cnt    <= 8'd0;
         IFG_done   <= 1'b0;
     end
-    else if (!IFG_done & (IFG_cnt == t_IFG_i))
+    else if (!IFG_done & (IFG_cnt == IFG_i))
         IFG_done   <= 1'b1;
     else if (!IFG_done & (state == IDLE))
         IFG_cnt    <= IFG_cnt + 1'b1;
@@ -272,19 +276,26 @@ always @ (posedge GCLK) begin
                 bit_cnt   <= 5'd31;
                 last_bit  <= 1'b0;
                 //
-                if (trans_start & IFG_done) begin // start signal and the minimum IFG time passed
-                    busy_o    <= 1'b1; // TRULY busy
-                    chip_sel  <= 1'b0; // start SCK to CS timer
+                if (trans_start) begin // start signal and the minimum IFG time passed
                     mosi_buff <= mosi_data_i;
                     //
-                    state <= PRE_TRANS;
-                    // state <= START;
+                    state <= INTERFRAME;
                 end
                 else
                     state <= IDLE;
             end
+            INTERFRAME: begin
+                if (IFG_done) begin
+                    busy_o   <= 1'b1; // TRULY busy
+                    chip_sel <= 1'b0; // start SCK to CS timer
+                    state    <= PRE_TRANS;
+                end
+                else begin
+                    state <= INTERFRAME;
+                end
+            end
             PRE_TRANS: begin
-                if (!CS_to_SCK) begin
+                if (CS_to_SCK & (CSnSCK_cnt >= CS_SCK_i)) begin
                     case (sck_pol)
                     0: begin
                         if (!sck_pha) begin
@@ -412,7 +423,9 @@ always @ (posedge GCLK) begin
                 endcase
             end
             FINISH: begin
-                if (!SCK_to_CS) begin
+                if (SCK_to_CS & (CSnSCK_cnt >= SCK_CS_i)) begin
+                    busy_o     <= 1'b0;
+                    chip_sel   <= 1'b1;
                     miso_data_o <= miso_buff;
                     state       <= IDLE;
                 end
@@ -432,12 +445,10 @@ always @ (posedge GCLK) begin
                 bit_cnt    <= 5'd31;
                 last_bit   <= 1'b0;
                 //
-                if (trans_start & IFG_done) begin
-                    busy_o    <= 1'b1; // TRULY busy
-                    chip_sel  <= 1'b0; // start SCLK
+                if (trans_start) begin
                     mosi_buff <= mosi_data_i;
                     //
-                    state <= TRANSACTION;
+                    state <= INTERFRAME;
                 end
                 else
                     state <= IDLE;

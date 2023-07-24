@@ -41,6 +41,8 @@ class spi_seq_item extends uvm_sequence_item;
         spi_seq_item obs_item;
         spi_seq_item exp_item;
 
+        int result_cnt;
+
         bit res;
 
         if(this.item_type == "obs_item") begin
@@ -58,12 +60,19 @@ class spi_seq_item extends uvm_sequence_item;
 
         $display("SPI_SEQ_ITEM FIELD COMPARISON");
         $display("=============================================");
-        res = compare_field(obs_item, exp_item, "name") &&
-              compare_field(obs_item, exp_item, "data") &&
-              compare_field(obs_item, exp_item, "timestamp") &&
-              compare_field(obs_item, exp_item, "clock") &&
-              compare_field(obs_item, exp_item, "timings");
-              
+
+        // compare_field(obs_item, exp_item, "name") &&
+        // compare_field(obs_item, exp_item, "data") &&
+        // compare_field(obs_item, exp_item, "timestamp") &&
+        // compare_field(obs_item, exp_item, "clock") &&
+        // compare_field(obs_item, exp_item, "timings");
+        result_cnt = compare_field(obs_item, exp_item, "name") +
+                     compare_field(obs_item, exp_item, "data") +
+                     compare_field(obs_item, exp_item, "timestamp") +
+                     compare_field(obs_item, exp_item, "clock") +
+                     compare_field(obs_item, exp_item, "timings");
+
+        res = (result_cnt == 5) ? 1 : 0;
 
         return res;
 
@@ -88,14 +97,26 @@ class spi_seq_item extends uvm_sequence_item;
             $display("obs_item | obs_timestamp    : %0.1fns", obs_item.obs_timestamp);
             $display("exp_item | exp_timestamp_min: %0.1fns", exp_item.exp_timestamp_min);
             $display("exp_item | exp_timestamp_max: %0.1fns", exp_item.exp_timestamp_max);
-            if(obs_item.obs_timestamp <= exp_item.exp_timestamp_max
-            && obs_item.obs_timestamp >= exp_item.exp_timestamp_min) begin
-                $display("COMPARISON OK\n");
-                return 1;
+            if (exp_item.exp_timestamp_max == 0) begin
+                if(obs_item.obs_timestamp >= exp_item.exp_timestamp_min) begin
+                    $display("COMPARISON OK\n");
+                    return 1;
+                end
+                else begin
+                    $display("COMPARISON NOK\n");
+                    return 0;
+                end
             end
             else begin
-                $display("COMPARISON NOK\n");
-                return 0;
+                if(obs_item.obs_timestamp <= exp_item.exp_timestamp_max
+                && obs_item.obs_timestamp >= exp_item.exp_timestamp_min) begin
+                    $display("COMPARISON OK\n");
+                    return 1;
+                end
+                else begin
+                    $display("COMPARISON NOK\n");
+                    return 0;
+                end
             end
         end
         "data": begin
@@ -132,11 +153,11 @@ class spi_seq_item extends uvm_sequence_item;
         end
         "timings": begin
             $display("obs_item | CS_to_SCK:%0.1fns", obs_item.CS_to_SCK);
-            $display("exp_item | CS_to_SCK:%0.1fns", exp_item.CS_to_SCK);
             $display("obs_item | SCK_to_CS:%0.1fns", obs_item.SCK_to_CS);
+            $display("exp_item | CS_to_SCK:%0.1fns", exp_item.CS_to_SCK);
             $display("exp_item | SCK_to_CS:%0.1fns", exp_item.SCK_to_CS);
             if((obs_item.CS_to_SCK < exp_item.CS_to_SCK*0.95 || obs_item.CS_to_SCK > exp_item.CS_to_SCK*1.05)
-            && (obs_item.SCK_to_CS < exp_item.SCK_to_CS*0.95 || obs_item.SCK_to_CS > exp_item.SCK_to_CS*1.05)) begin
+            || (obs_item.SCK_to_CS < exp_item.SCK_to_CS*0.95 || obs_item.SCK_to_CS > exp_item.SCK_to_CS*1.05)) begin
                 $display("COMPARISON NOK\n");
                 return 0;
             end

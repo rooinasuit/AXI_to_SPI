@@ -17,13 +17,10 @@ class spi_monitor extends uvm_monitor;
     time clk_period_min;
     time clk_period_max;
 
-    time neg_CS_t;
-    time pos_CS_t;
-    time first_SPI_t;
-    time last_SPI_t;
+    // time CS_to_SCK_t;
+    // time SCK_to_CS_t;
 
-    time CS_to_SCK_t;
-    time SCK_to_CS_t;
+    time IFG_t;
 
     function new (string name = "spi_monitor", uvm_component parent = null);
         super.new(name,parent);
@@ -54,7 +51,6 @@ class spi_monitor extends uvm_monitor;
             spi_measure_IFG();
             spi_measure_period();
             spi_capture();
-            spi_to_scb();
         join_none
 
     endtask : run_phase
@@ -62,11 +58,23 @@ class spi_monitor extends uvm_monitor;
     task spi_measure_IFG();
         time IFG_start_t;
         time IFG_end_t;
+        //
+        spi_seq_item spi_pkt_in;
         forever begin
-            wait(vif.CS_o == 0);
+            @(posedge vif.CS_o);
+                //
                 IFG_start_t = $realtime;
-            wait(vif.CS_o == 1);
+                //
+                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
+                spi_pkt_in.item_type = "obs_item";
+                spi_pkt_in.name = "min_IFG";
+            @(negedge vif.CS_o);
+                //
                 IFG_end_t = $realtime;
+                IFG_t = IFG_end_t - IFG_start_t;
+                //
+                spi_pkt_in.obs_timestamp = IFG_t;
+                spi_mtr_port.write(spi_pkt_in);
         end
     endtask : spi_measure_IFG
 
@@ -78,131 +86,142 @@ class spi_monitor extends uvm_monitor;
         clk_period_min = 1ms; // to prevent clk_period_min being an x
         clk_period_max = 1ns; // to prevent clk_period_max being an x
         forever begin
-            wait(vif.CS_o == 0);
-            while(vif.CS_o == 0) begin
-                @(posedge vif.SCLK_o)
-                period_start = $realtime;
-                @(posedge vif.SCLK_o);
-                period_end = $realtime;
-                clk_period = (period_end - period_start);
-                if (clk_period > clk_period_max) begin
-                    clk_period_max = clk_period;
-                end
-                if (clk_period < clk_period_min) begin
-                    clk_period_min = clk_period;
+            @(negedge vif.CS_o);
+            `FIRST_OF
+            begin
+                forever begin
+                    @(posedge vif.SCLK_o);
+                    period_start = $realtime;
+                    //
+                    @(posedge vif.SCLK_o);
+                    period_end = $realtime;
+                    clk_period = (period_end - period_start);
+                    if (clk_period > clk_period_max) begin
+                        clk_period_max = clk_period;
+                    end
+                    if (clk_period < clk_period_min) begin
+                        clk_period_min = clk_period;
+                    end
                 end
             end
+            begin
+                wait(vif.CS_o == 1);
+            end
+            `END_FIRST_OF
         end
     endtask : spi_measure_period
 
     task spi_capture();
+        time neg_CS_t;
+        time pos_CS_t;
+        time first_SPI_t;
+        time last_SPI_t;
         //
+        spi_seq_item spi_pkt_in;
         logic [1:0] spi_mode;
         forever begin
             @(negedge vif.CS_o);
-                neg_CS_t = $realtime;
-                spi_mode = spi_cfg.spi_mode;
                 MOSI_queue.delete();
                 MISO_queue.delete();
-                case(spi_mode)
+                // MOSI
+                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
+                spi_pkt_in.item_type = "obs_item";
+                spi_pkt_in.name  = "MOSI_frame";
+                spi_pkt_in.obs_timestamp = $realtime;
+                //
+                neg_CS_t = $realtime;
+                spi_mode = spi_cfg.spi_mode;
+            case(spi_mode)
                 0: begin
                     @(posedge vif.SCLK_o);
                     MISO_queue.push_back(vif.MISO_i);
                     MOSI_queue.push_back(vif.MOSI_o);
                     first_SPI_t = $realtime;
-                    while(vif.CS_o === 0) begin
-                        @(posedge vif.SCLK_o);
-                        MISO_queue.push_back(vif.MISO_i);
-                        MOSI_queue.push_back(vif.MOSI_o);
-                        @(negedge vif.SCLK_o);
-                        last_SPI_t = $realtime;
+                    `FIRST_OF
+                    begin
+                        forever begin
+                            @(posedge vif.SCLK_o);
+                            MISO_queue.push_back(vif.MISO_i);
+                            MOSI_queue.push_back(vif.MOSI_o);
+                            @(negedge vif.SCLK_o);
+                            last_SPI_t = $realtime;
+                        end
                     end
+                    begin
+                        wait(vif.CS_o == 1);
+                    end
+                    `END_FIRST_OF
                 end
                 1: begin
                     @(posedge vif.SCLK_o);
                     first_SPI_t = $realtime;
-                    while(vif.CS_o === 0) begin
-                        @(negedge vif.SCLK_o);
-                        MISO_queue.push_back(vif.MISO_i);
-                        MOSI_queue.push_back(vif.MOSI_o);
-                        last_SPI_t = $realtime;
+                    `FIRST_OF
+                    begin
+                        forever begin
+                            @(negedge vif.SCLK_o);
+                            MISO_queue.push_back(vif.MISO_i);
+                            MOSI_queue.push_back(vif.MOSI_o);
+                            last_SPI_t = $realtime;
+                        end
                     end
+                    begin
+                        wait(vif.CS_o == 1);
+                    end
+                    `END_FIRST_OF
                 end
                 2: begin
                     @(negedge vif.SCLK_o);
                     first_SPI_t = $realtime;
-                    while(vif.CS_o === 0) begin
-                        @(posedge vif.SCLK_o);
-                        MISO_queue.push_back(vif.MISO_i);
-                        MOSI_queue.push_back(vif.MOSI_o);
-                        last_SPI_t = $realtime;
+                    `FIRST_OF
+                    begin
+                        forever begin
+                            @(posedge vif.SCLK_o);
+                            MISO_queue.push_back(vif.MISO_i);
+                            MOSI_queue.push_back(vif.MOSI_o);
+                            last_SPI_t = $realtime;
+                        end
                     end
+                    begin
+                        wait(vif.CS_o == 1);
+                    end
+                    `END_FIRST_OF
                 end
                 3: begin
                     @(negedge vif.SCLK_o);
                     MISO_queue.push_back(vif.MISO_i);
                     MOSI_queue.push_back(vif.MOSI_o);
                     first_SPI_t = $realtime;
-                    while(vif.CS_o === 0) begin
-                        @(negedge vif.SCLK_o);
-                        MISO_queue.push_back(vif.MISO_i);
-                        MOSI_queue.push_back(vif.MOSI_o);
-                        @(posedge vif.SCLK_o);
-                        last_SPI_t = $realtime;
+                    `FIRST_OF
+                    begin
+                        forever begin
+                            @(negedge vif.SCLK_o);
+                            MISO_queue.push_back(vif.MISO_i);
+                            MOSI_queue.push_back(vif.MOSI_o);
+                            @(posedge vif.SCLK_o);
+                            last_SPI_t = $realtime;
+                        end
                     end
+                    begin
+                        wait(vif.CS_o == 1);
+                    end
+                    `END_FIRST_OF
                 end
-                endcase
-            //
-            // $display("cs_sck %0.1f", SCK_to_CS_t);
-            // $display("sck_cs %0.1f", CS_to_SCK_t);
+            endcase
+            pos_CS_t = $realtime;
+            // MOSI
+            spi_pkt_in.data = MOSI_queue;
+            spi_pkt_in.clk_period_min = clk_period_min;
+            spi_pkt_in.clk_period_max = clk_period_max;
+            spi_pkt_in.CS_to_SCK = first_SPI_t - neg_CS_t;
+            spi_pkt_in.SCK_to_CS = pos_CS_t - last_SPI_t;
+            spi_mtr_port.write(spi_pkt_in);
+            // MISO
+            spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
+            spi_pkt_in.item_type = "obs_item";
+            spi_pkt_in.name = "MISO_frame";
+            spi_pkt_in.data = MISO_queue;
+            spi_mtr_port.write(spi_pkt_in);
         end
     endtask : spi_capture
-
-    task spi_to_scb();
-        forever begin
-            fork
-                get_miso();
-                get_mosi();
-            join
-        end
-    endtask : spi_to_scb
-
-    task get_IFG();
-        @(posedge vif.CS_o);
-    endtask : get_IFG
-
-    task get_miso();
-        begin
-            spi_seq_item spi_pkt_in;
-            @(negedge vif.CS_o);
-                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
-                spi_pkt_in.item_type = "obs_item";
-                spi_pkt_in.name = "MISO_frame";
-            @(posedge vif.CS_o);
-                spi_pkt_in.data = MISO_queue;
-                spi_mtr_port.write(spi_pkt_in);
-        end
-    endtask : get_miso
-
-    task get_mosi();
-        begin
-            spi_seq_item spi_pkt_in;
-            @(negedge vif.CS_o);
-                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
-                spi_pkt_in.item_type = "obs_item";
-                spi_pkt_in.name  = "MOSI_frame";
-                spi_pkt_in.obs_timestamp = $realtime;
-            @(posedge vif.CS_o);
-                pos_CS_t = $realtime;
-                SCK_to_CS_t = pos_CS_t - last_SPI_t;
-                CS_to_SCK_t = first_SPI_t - neg_CS_t;
-                spi_pkt_in.data = MOSI_queue;
-                spi_pkt_in.clk_period_min = clk_period_min;
-                spi_pkt_in.clk_period_max = clk_period_max;
-                spi_pkt_in.CS_to_SCK = CS_to_SCK_t;
-                spi_pkt_in.SCK_to_CS = SCK_to_CS_t;
-                spi_mtr_port.write(spi_pkt_in);
-        end
-    endtask : get_mosi
 
 endclass: spi_monitor

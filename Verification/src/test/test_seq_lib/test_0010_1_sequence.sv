@@ -23,13 +23,13 @@ class test_0010_1_sequence extends test_base_sequence;
         #10ns;
         drive_io("RST", 0);
         //
-        drive_io("spi_mode", 0);
+        drive_io("spi_mode", 2);
         //
         drive_io("sck_speed", 3);
         //
         drive_io("word_len", 2);
         //
-        drive_io("IFG", 5);
+        drive_io("IFG", 10);
         drive_io("CS_SCK", 15);
         drive_io("SCK_CS", 10);
         //
@@ -41,8 +41,15 @@ class test_0010_1_sequence extends test_base_sequence;
         #10ns;
         drive_io("start", 0);
         //
-        wait_spi_ready(20ns);
-        #1000ns;
+        wait_spi_ready(10ns);
+        #150ns;
+        drive_io("start", 1);
+        #10ns;
+        drive_io("start", 0);
+        // #2000ns;
+        //
+        wait_spi_ready(10ns);
+        #10ns;
         // drive_clock_state(0);
     endtask : body
 

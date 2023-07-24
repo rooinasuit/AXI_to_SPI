@@ -38,8 +38,13 @@ wire [7:0] SCK_CS;
 wire [31:0] mosi_data;
 wire [31:0] miso_data;
 
+wire MISO;
+wire MOSI;
+wire SCLK;
+wire CS;
+
 reg start_reg;
-// reg busy_reg;
+reg busy_reg;
 //
 reg [1:0] spi_mode_reg;
 reg [1:0] sck_speed_reg;
@@ -52,6 +57,11 @@ reg [7:0] SCK_CS_reg;
 reg [31:0] mosi_data_reg;
 reg [31:0] miso_data_reg;
 
+reg MISO_reg;
+reg MOSI_reg;
+reg SCLK_reg;
+reg CS_reg;
+
 SPI_master SPI_master0 (
     .GCLK (GCLK),
     .RST  (RST),
@@ -60,22 +70,22 @@ SPI_master SPI_master0 (
     .spi_mode_i  (spi_mode),
     .sck_speed_i (sck_speed),
     .word_len_i  (word_len),
-    .t_IFG_i    (IFG),
-    .t_CS_SCK_i (CS_SCK),
-    .t_SCK_CS_i (SCK_CS),
+    .IFG_i    (IFG),
+    .CS_SCK_i (CS_SCK),
+    .SCK_CS_i (SCK_CS),
     .mosi_data_i (mosi_data),
     .miso_data_o (miso_data),
 
-    .MISO_i (MISO_i),
-    .MOSI_o (MOSI_o),
-    .SCLK_o (SCLK_o),
-    .CS_o   (CS_o)
+    .MISO_i (MISO),
+    .MOSI_o (MOSI),
+    .SCLK_o (SCLK),
+    .CS_o   (CS)
 );
 
 always @ (posedge GCLK) begin
     if (RST) begin
         start_reg <= 1'd0;
-        // busy_reg  <= 1'd0;
+        busy_reg  <= 1'd0;
         //
         spi_mode_reg  <= 2'd0;
         sck_speed_reg <= 2'd0;
@@ -87,10 +97,15 @@ always @ (posedge GCLK) begin
         //
         mosi_data_reg <= 32'd0;
         miso_data_reg <= 32'd0;
+        //
+        MISO_reg <= 1'b0;
+        MOSI_reg <= 1'b0;
+        SCLK_reg <= 1'b0;
+        CS_reg   <= 1'b1;
     end
     else begin
         start_reg <= start_i;
-        // busy_reg  <= busy;
+        busy_reg  <= busy;
         //
         spi_mode_reg  <= spi_mode_i;  // do not change while busy
         sck_speed_reg <= sck_speed_i; // do not change while busy
@@ -102,11 +117,16 @@ always @ (posedge GCLK) begin
         //
         mosi_data_reg <= mosi_data_i;
         miso_data_reg <= miso_data;
+        //
+        MISO_reg <= MISO_i;
+        MOSI_reg <= MOSI;
+        SCLK_reg <= SCLK;
+        CS_reg   <= CS;
     end
 end
 
 assign start  = start_reg;
-assign busy_o = busy;
+assign busy_o = busy_reg;
 //
 assign spi_mode  = spi_mode_reg;
 assign sck_speed = sck_speed_reg;
@@ -118,5 +138,10 @@ assign SCK_CS = SCK_CS_reg;
 //
 assign mosi_data = mosi_data_reg;
 assign miso_data_o = miso_data_reg;
+
+assign MISO   = MISO_reg;
+assign MOSI_o = MOSI_reg;
+assign SCLK_o = SCLK_reg;
+assign CS_o   = CS_reg;
 
 endmodule

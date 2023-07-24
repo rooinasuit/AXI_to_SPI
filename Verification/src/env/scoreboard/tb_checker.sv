@@ -11,9 +11,9 @@ class tb_checker extends uvm_component;
 
     // `COMP_DECLARE(dio_seq_item, busy_o)
     `COMP_DECLARE(spi_seq_item, MOSI_frame)
+    `COMP_DECLARE(spi_seq_item, min_IFG)
     // `COMP_DECLARE(dio_seq_item, MISO_frame)
     `COMP_DECLARE(dio_seq_item, miso_data_o)
-    `COMP_DECLARE(dio_seq_item, min_IFG)
 
     uvm_analysis_imp_dio_expected#(dio_seq_item, tb_checker) dio_rfm_imp;
     uvm_analysis_imp_spi_expected#(spi_seq_item, tb_checker) spi_rfm_imp;
@@ -30,9 +30,9 @@ class tb_checker extends uvm_component;
 
         // `COMP_CREATE(dio_seq_item, busy_o)
         `COMP_CREATE(spi_seq_item, MOSI_frame)
+        `COMP_CREATE(spi_seq_item, min_IFG)
         // `COMP_CREATE(dio_seq_item, MISO_frame)
         `COMP_CREATE(dio_seq_item, miso_data_o)
-        `COMP_CREATE(dio_seq_item, min_IFG)
         // `COMP_CREATE(spi_seq_item, MISO_frame)
 
         foreach(dio_comp_array[i]) begin
@@ -86,16 +86,16 @@ class tb_checker extends uvm_component;
 
     function void write_dio_observed(dio_seq_item item);
 
-        `uvm_info(get_name(), $sformatf("Data received from DIO_MTR: "), UVM_LOW)
-        item.print();
+        // `uvm_info(get_name(), $sformatf("Data received from DIO_MTR: "), UVM_LOW)
+        // item.print();
         get_comp_dio(item).write_obs(item);
 
     endfunction : write_dio_observed
 
     function void write_dio_expected(dio_seq_item item);
 
-        `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
-        item.print();
+        // `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
+        // item.print();
         get_comp_dio(item).write_exp(item);
 
     endfunction : write_dio_expected

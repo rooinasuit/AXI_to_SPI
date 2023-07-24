@@ -28,6 +28,8 @@ class dio_seq_item extends uvm_sequence_item;
         dio_seq_item obs_item;
         dio_seq_item exp_item;
 
+        int result_cnt;
+
         bit res;
 
         if(this.item_type == "obs_item") begin
@@ -41,10 +43,11 @@ class dio_seq_item extends uvm_sequence_item;
 
         $display("DIO_SEQ_ITEM FIELD COMPARISON");
         $display("=============================================");
-        res = compare_field(obs_item, exp_item, "name") &&
-              compare_field(obs_item, exp_item, "value") &&
-              compare_field(obs_item, exp_item, "timestamp");
+        result_cnt = compare_field(obs_item, exp_item, "name") +
+                     compare_field(obs_item, exp_item, "value") +
+                     compare_field(obs_item, exp_item, "timestamp");
         
+        res = (result_cnt == 3) ? 1 : 0;
         return res;
 
     endfunction : compare_packet

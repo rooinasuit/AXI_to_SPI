@@ -23,7 +23,7 @@ class ref_model extends uvm_component;
     `RFM_DECLARE_P(CS_SCK_i, 8)
     `RFM_DECLARE_P(SCK_CS_i, 8)
     `RFM_DECLARE_P(mosi_data_i, 32)
-    `RFM_DECLARE_P(CS_o, 1)
+    `RFM_DECLARE_P(busy_o, 1)
     `RFM_DECLARE_UP(MISO_frame, $)
     // logic [WIDTH-1:0] PORT_NAME_mirror; event PORT_NAME_change_e;
 
@@ -51,50 +51,38 @@ class ref_model extends uvm_component;
 
     // here we will predict :D
         fork
+            predict_IFG();
             predict_mosi();
             predict_miso();
-            // spi_watchdog();
+            monitor_cs();
         join_none
 
     endtask : run_phase
 
-    // task spi_watchdog();
-    //     forever begin
-    //         `FIRST_OF
-    //         begin
-    //             @(cs_error_e);
-    //             `uvm_fatal(get_name(), "CS_out is being pulled down for too long")
-    //         end
-    //         `END_FIRST_OF
-    //     end
-    // endtask : spi_watchdog
-
-    // task monitor_cs(); // CS timeout monitor
-    //     forever begin
-    //         wait(CS_o_mirror == 0);
-    //         `FIRST_OF
-    //         begin
-    //             #3ms; // this needs to vary with clock speed, word length and timings
-    //             ->cs_error_e;
-    //         end
-    //         begin
-    //             wait(CS_o_mirror == 1);
-    //         end
-    //         `END_FIRST_OF
-    //     end
-    // endtask : monitor_cs
+    task monitor_cs(); // CS timeout monitor
+        // time timeout_threshold;
+        forever begin
+            wait(busy_o_mirror == 1);
+            `FIRST_OF
+            begin
+                // timeout_threshold = (2*true_sck_speed*true_word_len+(CS_SCK_i_mirror+SCK_CS_i_mirror))*global_clock_period;
+                #2us; // absolute worst case scenario
+                `uvm_fatal(get_name(), "CS_out is being pulled down for too long")
+            end
+            begin
+                wait(busy_o_mirror == 0);
+            end
+            `END_FIRST_OF
+        end
+    endtask : monitor_cs
 
     task predict_IFG();
+        @(IFG_i_change_e);
         forever begin
-            // wait(CS_o_mirror == 0);
-            // @(CS_o_change_e);
-            // IFG_start_t = $realtime;
-            @(CS_o_change_e);
-            if(CS_o_mirror == 1) begin
-            // IFG_end_t = $realtime;
-                predict_dio("min_IFG", IFG_i_mirror, IFG_i_mirror*global_clock_period, IFG_i_mirror*global_clock_period);
+            @(busy_o_change_e);
+            if(busy_o_mirror == 0) begin
+                predict_spi("min_IFG", , IFG_i_mirror*global_clock_period);
             end
-            // predict_dio("min_IFG", IFG_i_mirror, IFG_end_t-IFG_end_t, IFG_end_t-IFG_end_t);
         end
     endtask : predict_IFG
 
@@ -105,6 +93,7 @@ class ref_model extends uvm_component;
         forever begin
             @(start_i_change_e);
             if (start_i_mirror == 1) begin
+                @(busy_o_change_e);
                 //
                 MOSI_queue.delete();
                 for(int i=(true_word_len-1); i>=0; i--) begin
@@ -113,7 +102,8 @@ class ref_model extends uvm_component;
                 spi_clock_period = 2*(true_sck_speed)*global_clock_period;
                 spi_period_min = spi_clock_period*(1-clock_precision);
                 spi_period_max = spi_clock_period*(1+clock_precision);
-                predict_spi("MOSI_frame", MOSI_queue, $realtime, $realtime+20ns, spi_period_min, spi_period_max);
+                predict_spi("MOSI_frame", MOSI_queue, $realtime, $realtime+20ns, spi_period_min, spi_period_max,
+                CS_SCK_i_mirror*global_clock_period, SCK_CS_i_mirror*global_clock_period);
             end
         end
     endtask : predict_mosi
@@ -125,22 +115,23 @@ class ref_model extends uvm_component;
         end
     endtask : predict_miso
 
-    task predict_spi(string name, logic data [$], time exp_timestamp_min,
-                    time exp_timestamp_max, time clk_period_min, time clk_period_max);
+    task predict_spi(string name = "", logic data [$] = {}, time exp_timestamp_min = 0,
+                    time exp_timestamp_max = 0, time clk_period_min = 0, time clk_period_max = 0,
+                    time CS_SCK_t = 0, time SCK_CS_t = 0);
         spi_seq_item spi_pkt_exp = spi_seq_item::type_id::create("spi_pkt_exp");
         spi_pkt_exp.item_type = "exp_item";
         spi_pkt_exp.name = name;
         spi_pkt_exp.data = data;
         spi_pkt_exp.exp_timestamp_min = exp_timestamp_min;
         spi_pkt_exp.exp_timestamp_max = exp_timestamp_max;
-        spi_pkt_exp.clk_period_min = spi_period_min;
-        spi_pkt_exp.clk_period_max = spi_period_max;
-        spi_pkt_exp.CS_to_SCK = CS_SCK_i_mirror*global_clock_period;
-        spi_pkt_exp.SCK_to_CS = SCK_CS_i_mirror*global_clock_period;
+        spi_pkt_exp.clk_period_min = clk_period_min;
+        spi_pkt_exp.clk_period_max = clk_period_max;
+        spi_pkt_exp.CS_to_SCK = CS_SCK_t;
+        spi_pkt_exp.SCK_to_CS = SCK_CS_t;
         spi_rfm_port.write(spi_pkt_exp);
     endtask : predict_spi
 
-    task predict_dio(string name, int value, time exp_timestamp_min, time exp_timestamp_max);
+    task predict_dio(string name = "", int value = 0, time exp_timestamp_min = 0, time exp_timestamp_max = 0);
         dio_seq_item dio_pkt_exp = dio_seq_item::type_id::create("dio_pkt_exp");
         dio_pkt_exp.item_type = "exp_item";
         dio_pkt_exp.name = name;
@@ -195,8 +186,8 @@ class ref_model extends uvm_component;
         "mosi_data_i": begin
             `RFM_CHECK(item, mosi_data_i)
         end
-        "CS_o": begin
-            `RFM_CHECK(item, CS_o)
+        "busy_o": begin
+            `RFM_CHECK(item, busy_o)
         end
         default: begin
             `uvm_info(get_name(), $sformatf("Wrong %p name supplied: %s", item.get_name(), item.name), UVM_LOW)
