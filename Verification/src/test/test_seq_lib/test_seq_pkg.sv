@@ -14,6 +14,8 @@ package test_seq_pkg;
     import env_pkg::*;
     //
     `include "test_base_sequence.sv"
-    `include "test_0010_1_sequence.sv"
+    //
+    `include "test_0010_sequence.sv"
+    //
 
 endpackage : test_seq_pkg

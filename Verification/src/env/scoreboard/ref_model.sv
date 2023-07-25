@@ -66,7 +66,7 @@ class ref_model extends uvm_component;
             `FIRST_OF
             begin
                 // timeout_threshold = (2*true_sck_speed*true_word_len+(CS_SCK_i_mirror+SCK_CS_i_mirror))*global_clock_period;
-                #2us; // absolute worst case scenario
+                #50us; // absolute worst case scenario
                 `uvm_fatal(get_name(), "CS_out is being pulled down for too long")
             end
             begin

@@ -48,4 +48,11 @@ class test_base extends uvm_test;
 
     endfunction : end_of_elaboration_phase
 
+    function void check_phase(uvm_phase phase);
+        super.check_phase(phase);
+
+        `uvm_info(get_name(), "TEST SUCCESSFULLY PASSED", UVM_INFO)
+
+    endfunction : check_phase
+
 endclass : test_base

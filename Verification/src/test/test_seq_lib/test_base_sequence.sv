@@ -4,6 +4,8 @@ class test_base_sequence extends uvm_sequence;
     `uvm_object_utils(test_base_sequence)
     `uvm_declare_p_sequencer(virtual_sequencer)
 
+    time clock_cycle = 10ns;
+
     function new (string name = "base_test_sequence");
         super.new(name);
     endfunction : new
@@ -11,6 +13,26 @@ class test_base_sequence extends uvm_sequence;
     task body();
 
     endtask : body
+
+    task config_dio_params(logic [1:0] spi_mode = 0, logic [1:0] sck_speed = 0, logic [1:0] word_len = 0,
+                        logic [7:0] IFG = 0, logic [7:0] CS_SCK = 0, logic [7:0] SCK_CS = 0,
+                        logic [31:0] mosi_data = 0);
+
+        drive_io("spi_mode", spi_mode);
+        drive_io("sck_speed", sck_speed);
+        drive_io("word_len", word_len);
+        drive_io("IFG", IFG);
+        drive_io("CS_SCK", CS_SCK);
+        drive_io("SCK_CS", SCK_CS);
+        drive_io("mosi_data", mosi_data);
+
+    endtask : config_dio_params
+
+    task send_spi(logic MISO [$] = {0});
+
+        drive_spi("MISO", MISO);
+
+    endtask : send_spi
 
     task drive_clock_period(int value);
         clock_period_sequence clk_p_seq = clock_period_sequence::type_id::create("clk_p_seq");

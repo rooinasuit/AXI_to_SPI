@@ -73,8 +73,8 @@ class spi_driver extends uvm_driver#(spi_seq_item);
     task spi_drive();
         int i;
         //
-        vif.MISO_i = 0;
         forever begin
+        vif.MISO_i = 0;
         @(negedge vif.CS_o);
             spi_mode = spi_cfg.spi_mode;
             bit_count = MISO_queue.size();

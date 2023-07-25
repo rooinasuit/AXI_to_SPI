@@ -17,6 +17,6 @@ package test_pkg;
     import test_seq_pkg::*;
     //
     `include "test_base.sv"
-    `include "test_0010_1.sv"
+    `include "test_0010.sv"
 
 endpackage : test_pkg
