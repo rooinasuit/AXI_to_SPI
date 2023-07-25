@@ -19,11 +19,10 @@ class tb_scoreboard extends uvm_scoreboard;
                                   "CS_SCK_i",
                                   "SCK_CS_i",
                                   "mosi_data_i",
-                                //   "CS_o"
-                                  "busy_o"
-                                  };
+                                  "CS_o"};
 
-    string dio_items_to_chk [] = {"miso_data_o"};
+    string dio_items_to_chk [] = {"miso_data_o",
+                                  "busy_o"};
 
     string spi_items_to_rfm [] = {"MISO_frame"};
 

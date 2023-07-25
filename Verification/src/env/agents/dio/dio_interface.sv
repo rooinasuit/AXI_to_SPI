@@ -23,6 +23,6 @@ interface dio_interface();
     logic [31:0] miso_data_o;
 
     // borrowed from spi
-    logic CS_i;
+    logic CS_o;
 
 endinterface : dio_interface

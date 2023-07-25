@@ -16,6 +16,9 @@ package test_seq_pkg;
     `include "test_base_sequence.sv"
     //
     `include "test_0010_sequence.sv"
+    `include "test_0020_sequence.sv"
+    // `include "test_0030_sequence.sv"
+    `include "test_0040_sequence.sv"
     //
 
 endpackage : test_seq_pkg

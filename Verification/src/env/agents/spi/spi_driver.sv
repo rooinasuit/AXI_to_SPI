@@ -47,26 +47,34 @@ class spi_driver extends uvm_driver#(spi_seq_item);
 
     task spi_transaction();
         forever begin
-            spi_seq_item spi_rsp;
+            // spi_seq_item spi_rsp;
             spi_seq_item spi_pkt = spi_seq_item::type_id::create("spi_pkt");
             seq_item_port.get_next_item(spi_pkt);
             case (spi_pkt.name)
                 "MISO": begin
                     MISO_queue = spi_pkt.data;
-                    seq_item_port.item_done();
+                    // seq_item_port.item_done();
                 end
-                "CS": begin
-                    spi_rsp = spi_seq_item::type_id::create("spi_rsp");
-                    @(posedge vif.CS_o);
-                    spi_rsp.name = "ready";
-                    spi_rsp.set_id_info(spi_pkt);
-                    seq_item_port.item_done(spi_rsp);
-                end
+                // "CS_busy": begin
+                //     spi_rsp = spi_seq_item::type_id::create("spi_rsp");
+                //     @(negedge vif.CS_o);
+                //     spi_rsp.name = "busy";
+                //     spi_rsp.set_id_info(spi_pkt);
+                //     seq_item_port.item_done(spi_rsp);
+                // end
+                // "CS_ready": begin
+                //     spi_rsp = spi_seq_item::type_id::create("spi_rsp");
+                //     @(posedge vif.CS_o);
+                //     spi_rsp.name = "ready";
+                //     spi_rsp.set_id_info(spi_pkt);
+                //     seq_item_port.item_done(spi_rsp);
+                // end
                 default: begin
                     MISO_queue = MISO_queue;
-                    seq_item_port.item_done();
+                    // seq_item_port.item_done();
                 end
             endcase
+            seq_item_port.item_done();
         end
     endtask : spi_transaction
 

@@ -53,6 +53,7 @@ class dio_monitor extends uvm_monitor;
             `MONITOR_WATCH(mosi_data_i, dio)
             `MONITOR_WATCH(busy_o, dio)
             `MONITOR_WATCH(miso_data_o, dio)
+            `MONITOR_WATCH(CS_o, dio)
         join_none
     endtask : dio_capture
 

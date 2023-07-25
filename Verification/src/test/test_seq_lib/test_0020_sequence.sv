@@ -1,9 +1,9 @@
 
-class test_0010_sequence extends test_base_sequence;
+class test_0020_sequence extends test_base_sequence;
 
-    `uvm_object_utils(test_0010_sequence)
+    `uvm_object_utils(test_0020_sequence)
 
-    function new (string name = "test_0010_sequence");
+    function new (string name = "test_0020_sequence");
         super.new(name);
     endfunction : new
 
@@ -21,10 +21,10 @@ class test_0010_sequence extends test_base_sequence;
         #(clock_cycle);
         drive_io("NRST", 1);
         //
-        config_dio_params(0, 0, 3, 10, 0, 0, 0);
+        config_dio_params(0, 0, 3, 20, 0, 0, 0);
 
         // CASE 1
-        //
+        // FIRST DUMMY FRAME WITHOUT IFG AFTER RESET
         send_spi({0, 0, 0, 0});
         #(clock_cycle);
         drive_io("start", 1);
@@ -33,27 +33,17 @@ class test_0010_sequence extends test_base_sequence;
         //
         wait_io("CS_o", 1);
         #(clock_cycle);
-        // CASE 2
-        //
+        // HERE IT IS BEING TESTED
         send_spi({0, 0, 0, 0});
-        #(11*clock_cycle);
-        drive_io("start", 1);
-        #(10*clock_cycle);
-        drive_io("start", 0);
-        //
-        wait_io("CS_o", 1);
-
-        // CASE 3
-        //
-        send_spi({0, 0, 0, 0});
-        #(11*clock_cycle);
+        #(5*clock_cycle);
         drive_io("start", 1);
         #(clock_cycle);
-        wait_io("CS_o", 1);
-        #(10*clock_cycle);
         drive_io("start", 0);
+        //
+        wait_io("CS_o", 1);
+        #(clock_cycle);
         //
         drive_clock_state(0);
     endtask : body
 
-endclass : test_0010_sequence
+endclass : test_0020_sequence

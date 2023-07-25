@@ -52,6 +52,8 @@ module tb_top;
     // dio_from_DUT
     assign d_itf.busy_o      = busy_o;
     assign d_itf.miso_data_o = miso_data_o;
+    // dio_from_spi
+    assign d_itf.CS_o = CS_o;
 
     // spi_to_DUT
     assign MISO_i = s_itf.MISO_i;
@@ -86,7 +88,6 @@ module tb_top;
         uvm_config_db#(virtual dio_interface)::set(null, "uvm_test_top*", "d_vif", d_itf); // dio driver/monitor
         uvm_config_db#(virtual spi_interface)::set(null, "uvm_test_top*", "s_vif", s_itf); // spi driver/monitor
 
-        // run_test("test_0010_1");
         run_test();
     end
 

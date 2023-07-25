@@ -76,14 +76,76 @@ class test_base_sequence extends uvm_sequence;
         spi_seq.start(p_sequencer.spi_sqr);
     endtask : drive_spi
 
-    task wait_spi_ready(time wait_buff);
-        spi_rsp_sequence spi_seq_rsp = spi_rsp_sequence::type_id::create("spi_seq_rsp");
+    task wait_io(string name, int value);
+        case(name)
+            "busy_o": begin
+                if (value == 1) begin
+                    @(posedge p_sequencer.dio_sqr.vif.busy_o);
+                end
+                else if (value == 0) begin
+                    @(negedge p_sequencer.dio_sqr.vif.busy_o);
+                end
+            end
+            // "miso_data_o": begin
+            //     @(p_sequencer.dio_sqr.vif.miso_data_o == value);
+            // end
+            "CS_o": begin // borrowed from spi intf
+                if (value == 1) begin
+                    @(posedge p_sequencer.dio_sqr.vif.CS_o);
+                end
+                else if (value == 0) begin
+                    @(negedge p_sequencer.dio_sqr.vif.CS_o);
+                end
+            end
+            // "NRST": begin
+            //     @(p_sequencer.dio_sqr.vif.NRST == value);
+            // end
+            // "start_i": begin
+            //     @(p_sequencer.dio_sqr.vif.start_i == value);
+            // end
+            // "spi_mode_i": begin
+            //     @(p_sequencer.dio_sqr.vif.spi_mode_i == value);
+            // end
+            // "sck_speed_i": begin
+            //     @(p_sequencer.dio_sqr.vif.sck_speed_i == value);
+            // end
+            // "word_len_i": begin
+            //     @(p_sequencer.dio_sqr.vif.word_len_i == value);
+            // end
+            // "IFG_i": begin
+            //     @(p_sequencer.dio_sqr.vif.IFG_i == value);
+            // end
+            // "CS_SCK_i": begin
+            //     @(p_sequencer.dio_sqr.vif.CS_SCK_i == value);
+            // end
+            // "SCK_CS_i": begin
+            //     @(p_sequencer.dio_sqr.vif.SCK_CS_i == value);
+            // end
+            // "mosi_data_i": begin
+            //     @(p_sequencer.dio_sqr.vif.mosi_data_i == value);
+            // end
+            default: begin
+                `uvm_error(get_name(), $sformatf("%s is not a valid port name", name))
+            end
+        endcase
+    endtask : wait_io
+    // task wait_spi_busy(time wait_buff);
+    //     spi_rsp_sequence spi_seq_rsp = spi_rsp_sequence::type_id::create("spi_seq_rsp");
 
-        spi_seq_rsp.name  = "CS";
+    //     spi_seq_rsp.name  = "CS_busy";
 
-        spi_seq_rsp.start(p_sequencer.spi_sqr);
-        #wait_buff;
-    endtask : wait_spi_ready
+    //     spi_seq_rsp.start(p_sequencer.spi_sqr);
+    //     #wait_buff;
+    // endtask : wait_spi_busy
+
+    // task wait_spi_ready(time wait_buff);
+    //     spi_rsp_sequence spi_seq_rsp = spi_rsp_sequence::type_id::create("spi_seq_rsp");
+
+    //     spi_seq_rsp.name  = "CS_ready";
+
+    //     spi_seq_rsp.start(p_sequencer.spi_sqr);
+    //     #wait_buff;
+    // endtask : wait_spi_ready
 
 endclass : test_base_sequence
 

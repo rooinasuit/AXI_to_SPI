@@ -23,7 +23,7 @@ class ref_model extends uvm_component;
     `RFM_DECLARE_P(CS_SCK_i, 8)
     `RFM_DECLARE_P(SCK_CS_i, 8)
     `RFM_DECLARE_P(mosi_data_i, 32)
-    `RFM_DECLARE_P(busy_o, 1)
+    `RFM_DECLARE_P(CS_o, 1)
     `RFM_DECLARE_UP(MISO_frame, $)
     // logic [WIDTH-1:0] PORT_NAME_mirror; event PORT_NAME_change_e;
 
@@ -51,6 +51,7 @@ class ref_model extends uvm_component;
 
     // here we will predict :D
         fork
+            predict_busy();
             predict_IFG();
             predict_mosi();
             predict_miso();
@@ -62,7 +63,7 @@ class ref_model extends uvm_component;
     task monitor_cs(); // CS timeout monitor
         // time timeout_threshold;
         forever begin
-            wait(busy_o_mirror == 1);
+            wait(CS_o_mirror == 0);
             `FIRST_OF
             begin
                 // timeout_threshold = (2*true_sck_speed*true_word_len+(CS_SCK_i_mirror+SCK_CS_i_mirror))*global_clock_period;
@@ -70,17 +71,31 @@ class ref_model extends uvm_component;
                 `uvm_fatal(get_name(), "CS_out is being pulled down for too long")
             end
             begin
-                wait(busy_o_mirror == 0);
+                wait(CS_o_mirror == 1);
             end
             `END_FIRST_OF
         end
     endtask : monitor_cs
 
+    task predict_busy();
+        forever begin
+            @(CS_o_change_e);
+            if ($realtime > 20ns) begin
+                if (CS_o_mirror == 0) begin
+                    predict_dio("busy_o", 1, $realtime, $realtime+10ns);
+                end
+                else begin
+                    predict_dio("busy_o", 0, $realtime, $realtime+10ns);
+                end
+            end
+        end
+    endtask : predict_busy
+
     task predict_IFG();
         @(IFG_i_change_e);
         forever begin
-            @(busy_o_change_e);
-            if(busy_o_mirror == 0) begin
+            @(CS_o_change_e);
+            if(CS_o_mirror == 0) begin
                 predict_spi("min_IFG", , IFG_i_mirror*global_clock_period);
             end
         end
@@ -93,7 +108,7 @@ class ref_model extends uvm_component;
         forever begin
             @(start_i_change_e);
             if (start_i_mirror == 1) begin
-                @(busy_o_change_e);
+                @(CS_o_change_e);
                 //
                 MOSI_queue.delete();
                 for(int i=(true_word_len-1); i>=0; i--) begin
@@ -186,8 +201,8 @@ class ref_model extends uvm_component;
         "mosi_data_i": begin
             `RFM_CHECK(item, mosi_data_i)
         end
-        "busy_o": begin
-            `RFM_CHECK(item, busy_o)
+        "CS_o": begin
+            `RFM_CHECK(item, CS_o)
         end
         default: begin
             `uvm_info(get_name(), $sformatf("Wrong %p name supplied: %s", item.get_name(), item.name), UVM_LOW)
