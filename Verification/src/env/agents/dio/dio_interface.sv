@@ -2,7 +2,7 @@
 interface dio_interface();
 
     // GLOBAL INPUT SIGNALS
-    logic RST;
+    logic NRST;
 
     // requested inputs
     logic start_i;

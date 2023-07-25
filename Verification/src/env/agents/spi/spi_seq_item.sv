@@ -54,18 +54,9 @@ class spi_seq_item extends uvm_sequence_item;
             exp_item = this;
         end
 
-        // `uvm_info(get_name(), $sformatf("values:"), UVM_LOW)
-        // obs_item.print();
-        // exp_item.print();
-
         $display("SPI_SEQ_ITEM FIELD COMPARISON");
         $display("=============================================");
 
-        // compare_field(obs_item, exp_item, "name") &&
-        // compare_field(obs_item, exp_item, "data") &&
-        // compare_field(obs_item, exp_item, "timestamp") &&
-        // compare_field(obs_item, exp_item, "clock") &&
-        // compare_field(obs_item, exp_item, "timings");
         result_cnt = compare_field(obs_item, exp_item, "name") +
                      compare_field(obs_item, exp_item, "data") +
                      compare_field(obs_item, exp_item, "timestamp") +
@@ -89,7 +80,7 @@ class spi_seq_item extends uvm_sequence_item;
                 return 1;
             end
             else begin
-                $display("COMPARISON NOK\n");
+                $display("ITEM NAME MISMATCH\n");
                 return 0;
             end
         end
@@ -103,7 +94,7 @@ class spi_seq_item extends uvm_sequence_item;
                     return 1;
                 end
                 else begin
-                    $display("COMPARISON NOK\n");
+                    $display("INTERFRAME GAP TOO SHORT\n");
                     return 0;
                 end
             end
@@ -114,7 +105,7 @@ class spi_seq_item extends uvm_sequence_item;
                     return 1;
                 end
                 else begin
-                    $display("COMPARISON NOK\n");
+                    $display("TIME OF OCCURENCE IS OUT OF BOUNDS\n");
                     return 0;
                 end
             end
@@ -128,11 +119,12 @@ class spi_seq_item extends uvm_sequence_item;
                     return 1;
                 end
                 else begin
-                    $display("COMPARISON NOK\n");
+                    $display("SAMPLED DATA DOES NOT MATCH PREDICTION\n");
                     return 0;
                 end
             end
             else begin
+                $display("SIZE OF SAMPLED DATA (%0d) DOES NOT MATCH PREDICTION (%0d)\n", obs_item.data.size(), exp_item.data.size());
                 return 0;
             end
         end
@@ -143,7 +135,7 @@ class spi_seq_item extends uvm_sequence_item;
             $display("exp_item | clk_period_max : %0.1fns", exp_item.clk_period_max);
             if(obs_item.clk_period_min < exp_item.clk_period_min
             || obs_item.clk_period_max > exp_item.clk_period_max) begin
-                $display("COMPARISON NOK\n");
+                $display("SPI CLOCK PERIOD ERROR EXCEEDS 5%% TOLERANCE\n");
                 return 0;
             end
             else begin
@@ -158,7 +150,7 @@ class spi_seq_item extends uvm_sequence_item;
             $display("exp_item | SCK_to_CS:%0.1fns", exp_item.SCK_to_CS);
             if((obs_item.CS_to_SCK < exp_item.CS_to_SCK*0.95 || obs_item.CS_to_SCK > exp_item.CS_to_SCK*1.05)
             || (obs_item.SCK_to_CS < exp_item.SCK_to_CS*0.95 || obs_item.SCK_to_CS > exp_item.SCK_to_CS*1.05)) begin
-                $display("COMPARISON NOK\n");
+                $display("PRE/POST SCLK TIMING ERROR EXCEEDS 5%% TOLERANCE\n");
                 return 0;
             end
             else begin

@@ -2,7 +2,7 @@
 
 module SPI_regs (
     input GCLK,
-    input RST,
+    input NRST,
     //
     input start_i,
     output busy_o,
@@ -64,7 +64,7 @@ reg CS_reg;
 
 SPI_master SPI_master0 (
     .GCLK (GCLK),
-    .RST  (RST),
+    .NRST  (NRST),
     .start_i (start),
     .busy_o  (busy),
     .spi_mode_i  (spi_mode),
@@ -83,7 +83,7 @@ SPI_master SPI_master0 (
 );
 
 always @ (posedge GCLK) begin
-    if (RST) begin
+    if (!NRST) begin
         start_reg <= 1'd0;
         busy_reg  <= 1'd0;
         //

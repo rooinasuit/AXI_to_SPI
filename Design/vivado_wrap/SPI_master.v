@@ -4,7 +4,7 @@ module SPI_master (
     ////////////////////
     // GLOBAL SIGNALS //
     input GCLK, // global clock (say 100MHz)
-    input RST,  // asynchronous reset
+    input NRST,  // asynchronous reset
 
     /////////////////////
     // CONTROL SIGNALS //
@@ -98,7 +98,7 @@ assign sck_pha = spi_mode_i[0];
 // sck_switch states the value at which to change clock polarity (double the clock period)
 
 always @ (posedge GCLK) begin
-    if (RST) begin
+    if (!NRST) begin
         sck_switch <= 6'd63;
     end
     else begin
@@ -117,7 +117,7 @@ end
 // Rx/Tx counter will decrement with each sent/received bit, hence [31 - word_len]
 
 always @ (posedge GCLK) begin
-    if (RST)
+    if (!NRST)
         chosen_word_len <= 5'd0;
     else begin
         case (word_len_i)
@@ -133,7 +133,7 @@ end
 // SCK GENERATOR //
 
 always @ (posedge GCLK) begin
-    if (RST) begin
+    if (!NRST) begin
         sck_switch_cnt <= 6'd0;
         sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
     end
@@ -167,7 +167,7 @@ assign SCLK_o = sck;
 // EDGE DETECTION //
 
 always @ (posedge GCLK) begin
-    if (RST) begin
+    if (!NRST) begin
         d_ff <= 0;
     end
     else
@@ -193,7 +193,7 @@ assign neg_sck = sck & (sck_switch_cnt >= sck_switch) & !CS_to_SCK;
 // in a (now finished) frame and the CS going idle
 
 always @ (posedge GCLK) begin
-    if (RST) begin
+    if (!NRST) begin
         CSnSCK_cnt    <= 8'd0;
         CS_to_SCK     <= 1'b0;
         SCK_to_CS     <= 1'b0;
@@ -229,7 +229,7 @@ end
 // transmission instances (frames) 
 
 always @ (posedge GCLK) begin
-    if (RST) begin
+    if (!NRST) begin
         IFG_cnt    <= 8'd0;
         IFG_done   <= 1'b0;
     end
@@ -239,7 +239,7 @@ always @ (posedge GCLK) begin
     end
     else if (!IFG_done & (IFG_cnt == IFG_i))
         IFG_done   <= 1'b1;
-    else if (!IFG_done & (state == IDLE))
+    else if (!IFG_done & (state == IDLE || state == INTERFRAME))
         IFG_cnt    <= IFG_cnt + 1'b1;
 end
 
@@ -247,7 +247,7 @@ end
 // SPI TRANSMISSION STATE MACHINE //
 
 always @ (posedge GCLK) begin
-    if (RST) begin
+    if (!NRST) begin
         busy_o      <= 1'b0; // ready for transmission
 
         mosi      <= 1'b0;

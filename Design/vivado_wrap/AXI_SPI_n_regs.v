@@ -481,9 +481,9 @@
         .spi_mode_i  (slv_reg2[1:0]),
         .sck_speed_i (slv_reg3[1:0]),
         .word_len_i  (slv_reg4[1:0]),
-        .t_IFG_i     (slv_reg5[7:0]),
-        .t_CS_SCK_i  (slv_reg6[7:0]),
-        .t_SCK_CS_i  (slv_reg7[7:0]),
+        .IFG_i     (slv_reg5[7:0]),
+        .CS_SCK_i  (slv_reg6[7:0]),
+        .SCK_CS_i  (slv_reg7[7:0]),
         .mosi_data_i (slv_reg8),
         .miso_data_o (miso_data), // out
         .MISO_i      (MISO),

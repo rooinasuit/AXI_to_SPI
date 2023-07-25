@@ -2,7 +2,7 @@
 
 module SPI_top (
     input GCLK,
-    input RST,
+    input NRST,
     //
     input  start_i,
     output busy_o,
@@ -26,7 +26,7 @@ module SPI_top (
 
 SPI_regs SPI_regs0 (
     .GCLK (GCLK),
-    .RST  (RST),
+    .NRST (NRST),
     .start_i (start_i),
     .busy_o  (busy_o),
     .spi_mode_i   (spi_mode_i),

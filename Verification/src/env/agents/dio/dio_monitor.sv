@@ -42,7 +42,7 @@ class dio_monitor extends uvm_monitor;
     task dio_capture();
         dio_seq_item dio_pkt_in;
         fork
-            `MONITOR_WATCH(RST, dio)
+            `MONITOR_WATCH(NRST, dio)
             `MONITOR_WATCH(start_i, dio)
             `MONITOR_WATCH(spi_mode_i, dio)
             `MONITOR_WATCH(sck_speed_i, dio)

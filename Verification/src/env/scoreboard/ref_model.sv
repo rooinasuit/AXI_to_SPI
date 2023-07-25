@@ -14,7 +14,7 @@ class ref_model extends uvm_component;
     time spi_period_min;
     time spi_period_max;
     // DIO
-    `RFM_DECLARE_P(RST, 1)
+    `RFM_DECLARE_P(NRST, 1)
     `RFM_DECLARE_P(start_i, 1)
     `RFM_DECLARE_P(spi_mode_i, 2)
     `RFM_DECLARE_P(sck_speed_i, 2)
@@ -147,8 +147,8 @@ class ref_model extends uvm_component;
         // item.print();
 
         case(item.name)
-        "RST": begin
-            `RFM_CHECK(item, RST)
+        "NRST": begin
+            `RFM_CHECK(item, NRST)
         end
         "start_i": begin
             `RFM_CHECK(item, start_i)

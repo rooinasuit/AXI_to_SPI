@@ -1,14 +1,3 @@
-`define FIRST_OF \
-    fork \
-    begin \
-    fork \
-
-`define END_FIRST_OF \
-    join_any \
-    disable fork; \
-    end \
-    join \
-
 `define COMP_DECLARE(OBJECT_TYPE, PORT_NAME) \
     comparator#(OBJECT_TYPE) comp_``PORT_NAME; \
 

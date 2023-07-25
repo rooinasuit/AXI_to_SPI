@@ -37,7 +37,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
     endtask : run_phase
 
     task reset_io();
-            vif.RST = 0;
+            vif.NRST = 0;
             vif.start_i = 0;
 
             vif.spi_mode_i = 0;
@@ -55,7 +55,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
         dio_seq_item dio_pkt = dio_seq_item::type_id::create("dio_pkt");
         seq_item_port.get_next_item(dio_pkt); // blocking
         case (dio_pkt.name)
-            "RST": vif.RST = dio_pkt.value;
+            "NRST": vif.NRST = dio_pkt.value;
             "start": vif.start_i = dio_pkt.value;
 
             "spi_mode": vif.spi_mode_i = dio_pkt.value;
@@ -69,7 +69,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
             "mosi_data": vif.mosi_data_i = dio_pkt.value;
 
             "reset_all" : reset_io();
-            default: vif.RST = 0;
+            default: vif.NRST = 0;
         endcase
         seq_item_port.item_done(); // unblocking, ready for another send to the DUT
     endtask : dio_transaction

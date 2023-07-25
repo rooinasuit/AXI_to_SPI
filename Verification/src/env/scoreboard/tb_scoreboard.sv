@@ -10,7 +10,7 @@ class tb_scoreboard extends uvm_scoreboard;
 
     // not necessarily everything will be utilized in rfm
 
-    string dio_items_to_rfm [] = {"RST",
+    string dio_items_to_rfm [] = {"NRST",
                                   "start_i",
                                   "spi_mode_i",
                                   "sck_speed_i",

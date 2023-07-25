@@ -17,7 +17,7 @@ module tb_top;
 
     logic GCLK;
     //
-    logic RST;
+    logic NRST;
     logic start_in;
     logic [1:0] spi_mode_i;
     logic [1:0] sck_speed_i;
@@ -40,7 +40,7 @@ module tb_top;
     assign GCLK = c_itf.GCLK;
 
     // dio_to_DUT
-    assign RST           = d_itf.RST;
+    assign NRST           = d_itf.NRST;
     assign start_i       = d_itf.start_i;
     assign spi_mode_i    = d_itf.spi_mode_i;
     assign sck_speed_i   = d_itf.sck_speed_i;
@@ -63,7 +63,7 @@ module tb_top;
     SPI_top DUT(
         .GCLK        (GCLK),
         //
-        .RST         (RST),
+        .NRST         (NRST),
         .start_i     (start_i),
         .busy_o      (busy_o),
         .spi_mode_i  (spi_mode_i),
