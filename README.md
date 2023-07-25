@@ -16,12 +16,12 @@ and an SPI master peripheral (AXI slave).
 - [ ] UVM methodology verification of the design:
     - [ ] Design test cases based on project requirements
     - [x] ~~UVM test bench architecture,~~
-    - [ ] UVM test bench (written in SystemVerilog):
-        - [ ] Instantiation of all required objects and components,
-        - [ ] Threads management in the test bench,
+    - [x] UVM test bench (written in SystemVerilog):
+        - [x] Instantiation of all required objects and components,
+        - [x] Threads management in the test bench,
         - [ ] Directed tests based on the test cases,
     - [x] ~~Script-based compilation of both test bench and the DUT,~~
-    - [ ] Script-based simulation scheme,
+    - [x] Script-based simulation scheme,
     - [ ] Script-based regression testing.
 
 Simulation scripts, list of requirements and test cases, along with both the design and testbench architectures, will get introduced as the project nears its completion.

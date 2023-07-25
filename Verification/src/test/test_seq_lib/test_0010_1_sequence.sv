@@ -32,7 +32,7 @@ class test_0010_1_sequence extends test_base_sequence;
         //
         drive_io("IFG", 60);
         drive_io("CS_SCK", 15);
-        drive_io("SCK_CS", 60);
+        drive_io("SCK_CS", 30);
         //
         drive_io("mosi_data", 32'hfa55);
         drive_spi("MISO", {1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,1}); // wysylane od lewej do prawej :(

@@ -22,6 +22,8 @@ class spi_monitor extends uvm_monitor;
 
     time IFG_t;
 
+    event frame_done_e;
+
     function new (string name = "spi_monitor", uvm_component parent = null);
         super.new(name,parent);
     endfunction : new
@@ -61,7 +63,8 @@ class spi_monitor extends uvm_monitor;
         //
         spi_seq_item spi_pkt_in;
         forever begin
-            @(posedge vif.CS_o);
+            // @(posedge vif.CS_o);
+            @(frame_done_e);
                 //
                 IFG_start_t = $realtime;
                 //
@@ -221,6 +224,8 @@ class spi_monitor extends uvm_monitor;
             spi_pkt_in.name = "MISO_frame";
             spi_pkt_in.data = MISO_queue;
             spi_mtr_port.write(spi_pkt_in);
+            //
+            ->frame_done_e;
         end
     endtask : spi_capture
 
