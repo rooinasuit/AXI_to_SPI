@@ -85,32 +85,32 @@ class tb_checker extends uvm_component;
 
     function void write_dio_observed(dio_seq_item item);
 
-        // `uvm_info(get_name(), $sformatf("Data received from DIO_MTR: "), UVM_LOW)
-        // item.print();
+        `uvm_info(get_name(), $sformatf("Data received from DIO_MTR: "), UVM_LOW)
+        item.print();
         get_comp_dio(item).write_obs(item);
 
     endfunction : write_dio_observed
 
     function void write_dio_expected(dio_seq_item item);
 
-        // `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
-        // item.print();
+        `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
+        item.print();
         get_comp_dio(item).write_exp(item);
 
     endfunction : write_dio_expected
 
     function void write_spi_observed(spi_seq_item item);
 
-        // `uvm_info(get_name(), $sformatf("Data received from SPI_MTR: "), UVM_LOW)
-        // item.print();
+        `uvm_info(get_name(), $sformatf("Data received from SPI_MTR: "), UVM_LOW)
+        item.print();
         get_comp_spi(item).write_obs(item);
 
     endfunction : write_spi_observed
 
     function void write_spi_expected(spi_seq_item item);
 
-        // `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
-        // item.print();
+        `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
+        item.print();
         get_comp_spi(item).write_exp(item);
 
     endfunction : write_spi_expected

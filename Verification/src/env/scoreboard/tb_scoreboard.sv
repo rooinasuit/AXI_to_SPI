@@ -90,7 +90,7 @@ class tb_scoreboard extends uvm_scoreboard;
 
     function void write_spi_monitor_imp(spi_seq_item item);
 
-        item.print();
+        // item.print();
 
         if(item.name inside {spi_items_to_rfm}) begin
             rfm.write_spi(item);

@@ -135,7 +135,8 @@ end
 always @ (posedge GCLK) begin
     if (!NRST) begin
         sck_switch_cnt <= 6'd0;
-        sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
+        // sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
+        sck            <= 0;
     end
     else if (state == PRE_TRANS) begin
         if (CS_to_SCK & (CSnSCK_cnt >= CS_SCK_i)) begin

@@ -72,6 +72,7 @@ class clock_driver extends uvm_driver#(clock_seq_item);
                     forever #((period/2)*1ns) vif.GCLK = ~vif.GCLK;
                 end
             join_any
+            disable fork;
         end
     endtask : drive_clock
 

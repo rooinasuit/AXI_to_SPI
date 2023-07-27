@@ -86,10 +86,10 @@ class spi_monitor extends uvm_monitor;
         time period_end;
         time clk_period;
         //
-        clk_period_min = 1ms; // to prevent clk_period_min being an x
-        clk_period_max = 1ns; // to prevent clk_period_max being an x
         forever begin
             @(negedge vif.CS_o);
+            clk_period_min = 1ms; // to prevent clk_period_min being an x
+            clk_period_max = 1ns; // to prevent clk_period_max being an x
             `FIRST_OF
             begin
                 forever begin

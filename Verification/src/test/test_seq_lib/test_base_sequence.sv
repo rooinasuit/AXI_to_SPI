@@ -14,6 +14,16 @@ class test_base_sequence extends uvm_sequence;
 
     endtask : body
 
+    task define_test_step(string step);
+        string line;
+        for (int i=0; i<step.len() + 2; i++) begin
+            line = {line,"="};
+        end
+        `uvm_info(get_name(),{"\n", line, "\n",
+                              " ", step, "\n",
+                              line, "\n"}, UVM_LOW)
+    endtask : define_test_step
+
     task config_dio_params(logic [1:0] spi_mode = 0, logic [1:0] sck_speed = 0, logic [1:0] word_len = 0,
                         logic [7:0] IFG = 0, logic [7:0] CS_SCK = 0, logic [7:0] SCK_CS = 0,
                         logic [31:0] mosi_data = 0);
@@ -97,33 +107,14 @@ class test_base_sequence extends uvm_sequence;
                     @(negedge p_sequencer.dio_sqr.vif.CS_o);
                 end
             end
-            // "NRST": begin
-            //     @(p_sequencer.dio_sqr.vif.NRST == value);
-            // end
-            // "start_i": begin
-            //     @(p_sequencer.dio_sqr.vif.start_i == value);
-            // end
-            // "spi_mode_i": begin
-            //     @(p_sequencer.dio_sqr.vif.spi_mode_i == value);
-            // end
-            // "sck_speed_i": begin
-            //     @(p_sequencer.dio_sqr.vif.sck_speed_i == value);
-            // end
-            // "word_len_i": begin
-            //     @(p_sequencer.dio_sqr.vif.word_len_i == value);
-            // end
-            // "IFG_i": begin
-            //     @(p_sequencer.dio_sqr.vif.IFG_i == value);
-            // end
-            // "CS_SCK_i": begin
-            //     @(p_sequencer.dio_sqr.vif.CS_SCK_i == value);
-            // end
-            // "SCK_CS_i": begin
-            //     @(p_sequencer.dio_sqr.vif.SCK_CS_i == value);
-            // end
-            // "mosi_data_i": begin
-            //     @(p_sequencer.dio_sqr.vif.mosi_data_i == value);
-            // end
+            "SCLK_o": begin
+                if (value == 1) begin
+                    @(posedge p_sequencer.spi_sqr.vif.SCLK_o);
+                end
+                else if (value == 0) begin
+                    @(negedge p_sequencer.spi_sqr.vif.SCLK_o);
+                end
+            end
             default: begin
                 `uvm_error(get_name(), $sformatf("%s is not a valid port name", name))
             end

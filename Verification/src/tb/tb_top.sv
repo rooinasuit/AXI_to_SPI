@@ -65,7 +65,7 @@ module tb_top;
     SPI_top DUT(
         .GCLK        (GCLK),
         //
-        .NRST         (NRST),
+        .NRST        (NRST),
         .start_i     (start_i),
         .busy_o      (busy_o),
         .spi_mode_i  (spi_mode_i),
