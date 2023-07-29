@@ -19,6 +19,7 @@ package test_pkg;
     `include "test_base.sv"
     //
     `include "test_0010_0020.sv"
+    `include "test_0025.sv"
     `include "test_0030.sv"
     `include "test_0040_0250_0260.sv"
     `include "test_0050_to_0080.sv"

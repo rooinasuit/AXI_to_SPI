@@ -22,14 +22,14 @@ class spi_seq_item extends uvm_sequence_item;
     `uvm_object_utils_begin(spi_seq_item)
         `uvm_field_string(item_type, UVM_DEFAULT)
         `uvm_field_string(name, UVM_DEFAULT)
-        `uvm_field_queue_int(data, UVM_DEFAULT)
-        `uvm_field_int(CS_to_SCK, UVM_DEFAULT)
-        `uvm_field_int(SCK_to_CS, UVM_DEFAULT)
-        `uvm_field_int(obs_timestamp, UVM_DEFAULT)
-        `uvm_field_int(exp_timestamp_min, UVM_DEFAULT)
-        `uvm_field_int(exp_timestamp_max, UVM_DEFAULT)
-        `uvm_field_int(clk_period_min, UVM_DEFAULT)
-        `uvm_field_int(clk_period_max, UVM_DEFAULT)
+        `uvm_field_queue_int(data, UVM_BIN)
+        `uvm_field_int(CS_to_SCK, UVM_TIME)
+        `uvm_field_int(SCK_to_CS, UVM_TIME)
+        `uvm_field_int(obs_timestamp, UVM_TIME)
+        `uvm_field_int(exp_timestamp_min, UVM_TIME)
+        `uvm_field_int(exp_timestamp_max, UVM_TIME)
+        `uvm_field_int(clk_period_min, UVM_TIME)
+        `uvm_field_int(clk_period_max, UVM_TIME)
     `uvm_object_utils_end
 
     function new (string name = "spi_seq_item");
@@ -57,13 +57,36 @@ class spi_seq_item extends uvm_sequence_item;
         $display("SPI_SEQ_ITEM FIELD COMPARISON");
         $display("=============================================");
 
-        result_cnt = compare_field(obs_item, exp_item, "name") +
-                     compare_field(obs_item, exp_item, "data") +
-                     compare_field(obs_item, exp_item, "timestamp") +
-                     compare_field(obs_item, exp_item, "clock") +
-                     compare_field(obs_item, exp_item, "timings");
+        // result_cnt = compare_field(obs_item, exp_item, "name") +
+        //              compare_field(obs_item, exp_item, "data") +
+        //              compare_field(obs_item, exp_item, "timestamp") +
+        //              compare_field(obs_item, exp_item, "clock") +
+        //              compare_field(obs_item, exp_item, "timings");
 
-        res = (result_cnt == 5) ? 1 : 0;
+        // res = (result_cnt == 5) ? 1 : 0;
+
+        if(compare_field(obs_item, exp_item, "name") == 1) begin
+            case(exp_item.name)
+            "MOSI_frame": begin
+                result_cnt = compare_field(obs_item, exp_item, "data") +
+                             compare_field(obs_item, exp_item, "timestamp") +
+                             compare_field(obs_item, exp_item, "clock") +
+                             compare_field(obs_item, exp_item, "timings");
+
+                res = (result_cnt == 4) ? 1 : 0;
+            end
+            "SCLK_pos": begin
+                result_cnt = compare_field(obs_item, exp_item, "timestamp");
+
+                res = (result_cnt == 1) ? 1 : 0;
+            end
+            "SCLK_neg": begin
+                result_cnt = compare_field(obs_item, exp_item, "timestamp");
+
+                res = (result_cnt == 1) ? 1 : 0;
+            end
+            endcase
+        end
 
         return res;
 
@@ -113,6 +136,8 @@ class spi_seq_item extends uvm_sequence_item;
         "data": begin
             $display("obs_item | data:%p", obs_item.data);
             $display("exp_item | data:%p", exp_item.data);
+            $display("obs_item | frame length:%0d", obs_item.data.size());
+            $display("exp_item | frame length:%0d", exp_item.data.size());
             if(obs_item.data.size() == exp_item.data.size()) begin
                 if(obs_item.data == exp_item.data) begin
                     $display("COMPARISON OK\n");

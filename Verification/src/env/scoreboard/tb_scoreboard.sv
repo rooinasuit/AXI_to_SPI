@@ -10,7 +10,8 @@ class tb_scoreboard extends uvm_scoreboard;
 
     // not necessarily everything will be utilized in rfm
 
-    string dio_items_to_rfm [] = {"NRST",
+    string dio_items_to_rfm [] = {"GCLK",
+                                  "NRST",
                                   "start_i",
                                   "spi_mode_i",
                                   "sck_speed_i",
@@ -27,8 +28,8 @@ class tb_scoreboard extends uvm_scoreboard;
     string spi_items_to_rfm [] = {"MISO_frame"};
 
     string spi_items_to_chk [] = {"MOSI_frame",
-                                  "min_IFG"};
-                                //   "MISO_frame"};
+                                  "SCLK_pos",
+                                  "SCLK_neg"};
 
     spi_config spi_cfg;
 
@@ -77,7 +78,7 @@ class tb_scoreboard extends uvm_scoreboard;
         if(item.name inside {dio_items_to_rfm}) begin
             rfm.write_dio(item);
         end
-        else if(item.name inside {dio_items_to_chk}) begin
+        if(item.name inside {dio_items_to_chk}) begin
             chk.write_dio_observed(item);
         end
 
@@ -95,7 +96,7 @@ class tb_scoreboard extends uvm_scoreboard;
         if(item.name inside {spi_items_to_rfm}) begin
             rfm.write_spi(item);
         end
-        else if(item.name inside {spi_items_to_chk}) begin
+        if(item.name inside {spi_items_to_chk}) begin
             chk.write_spi_observed(item);
         end
 

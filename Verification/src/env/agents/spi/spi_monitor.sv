@@ -22,7 +22,7 @@ class spi_monitor extends uvm_monitor;
 
     time IFG_t;
 
-    event frame_done_e;
+    // event frame_done_e;
 
     function new (string name = "spi_monitor", uvm_component parent = null);
         super.new(name,parent);
@@ -50,36 +50,12 @@ class spi_monitor extends uvm_monitor;
         super.run_phase(phase);
 
         fork
-            spi_measure_IFG();
             spi_measure_period();
+            spi_clk_watch();
             spi_capture();
         join_none
 
     endtask : run_phase
-
-    task spi_measure_IFG();
-        time IFG_start_t;
-        time IFG_end_t;
-        //
-        spi_seq_item spi_pkt_in;
-        forever begin
-            // @(posedge vif.CS_o);
-            @(frame_done_e);
-                //
-                IFG_start_t = $realtime;
-                //
-                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
-                spi_pkt_in.item_type = "obs_item";
-                spi_pkt_in.name = "min_IFG";
-            @(negedge vif.CS_o);
-                //
-                IFG_end_t = $realtime;
-                IFG_t = IFG_end_t - IFG_start_t;
-                //
-                spi_pkt_in.obs_timestamp = IFG_t;
-                spi_mtr_port.write(spi_pkt_in);
-        end
-    endtask : spi_measure_IFG
 
     task spi_measure_period();
         time period_start;
@@ -113,6 +89,45 @@ class spi_monitor extends uvm_monitor;
             `END_FIRST_OF
         end
     endtask : spi_measure_period
+
+    task spi_clk_watch();
+        int prev_val;
+        int curr_val;
+
+        spi_seq_item spi_pkt_in;
+        
+        forever begin
+        wait(vif.CS_o == 1);
+        `FIRST_OF
+        forever begin
+            prev_val = vif.SCLK_o;
+            @(vif.SCLK_o);
+                curr_val = vif.SCLK_o;
+                if (curr_val != prev_val) begin
+                    case (curr_val)
+                    0: begin
+                        spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
+                        spi_pkt_in.item_type = "obs_item";
+                        spi_pkt_in.name  = "SCLK_neg";
+                        spi_pkt_in.obs_timestamp = $realtime;
+                        spi_mtr_port.write(spi_pkt_in);
+                    end
+                    1: begin
+                        spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
+                        spi_pkt_in.item_type = "obs_item";
+                        spi_pkt_in.name  = "SCLK_pos";
+                        spi_pkt_in.obs_timestamp = $realtime;
+                        spi_mtr_port.write(spi_pkt_in);
+                    end
+                    endcase
+                end
+        end
+        begin
+            wait(vif.CS_o == 0);
+        end
+        `END_FIRST_OF
+        end
+    endtask : spi_clk_watch
 
     task spi_capture();
         time neg_CS_t;
@@ -225,7 +240,7 @@ class spi_monitor extends uvm_monitor;
             spi_pkt_in.data = MISO_queue;
             spi_mtr_port.write(spi_pkt_in);
             //
-            ->frame_done_e;
+            // ->frame_done_e;
         end
     endtask : spi_capture
 

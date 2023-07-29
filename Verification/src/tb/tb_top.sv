@@ -52,6 +52,8 @@ module tb_top;
     // dio_from_DUT
     assign d_itf.busy_o      = busy_o;
     assign d_itf.miso_data_o = miso_data_o;
+    // dio_from_clk
+    assign d_itf.GCLK = GCLK;
     // dio_from_spi
     assign d_itf.CS_o = CS_o;
 

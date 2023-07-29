@@ -13,7 +13,9 @@ class ref_model extends uvm_component;
     real clock_precision = 0.05; // as per requirement
     time spi_period_min;
     time spi_period_max;
+
     // DIO
+    `RFM_DECLARE_P(GCLK, 1)
     `RFM_DECLARE_P(NRST, 1)
     `RFM_DECLARE_P(start_i, 1)
     `RFM_DECLARE_P(spi_mode_i, 2)
@@ -24,10 +26,12 @@ class ref_model extends uvm_component;
     `RFM_DECLARE_P(SCK_CS_i, 8)
     `RFM_DECLARE_P(mosi_data_i, 32)
     `RFM_DECLARE_P(CS_o, 1)
-    `RFM_DECLARE_UP(MISO_frame, $)
-    // logic [WIDTH-1:0] PORT_NAME_mirror; event PORT_NAME_change_e;
 
-    event cs_error_e;
+    // SPI
+    logic MISO_frame_mirror [$];
+    int MISO_frame_mirror_int;
+
+    logic start_i_mirror_synced;
 
     function new(string name = "ref_model", uvm_component parent);
         super.new(name,parent);
@@ -51,10 +55,10 @@ class ref_model extends uvm_component;
 
     // here we will predict :D
         fork
+            `SYNC_TO_CLOCK(start_i, GCLK)
             predict_busy();
-            predict_IFG();
             predict_mosi();
-            predict_miso();
+            predict_SCLK();
             monitor_cs();
         join_none
 
@@ -77,6 +81,46 @@ class ref_model extends uvm_component;
         end
     endtask : monitor_cs
 
+    task predict_SCLK();
+        int prev_val;
+        int curr_val;
+        forever begin
+            wait(CS_o_mirror == 1);
+            `FIRST_OF
+            forever begin
+                prev_val = spi_mode_i_mirror;
+                @(spi_mode_i_change_e);
+                curr_val = spi_mode_i_mirror;
+                case(curr_val)
+                0: begin
+                    if (prev_val == 2 || prev_val == 3) begin
+                        predict_spi("SCLK_neg", , $realtime, $realtime+30ns);
+                    end
+                end
+                1: begin
+                    if (prev_val == 2 || prev_val == 3) begin
+                        predict_spi("SCLK_neg", , $realtime, $realtime+30ns);
+                    end
+                end
+                2: begin
+                    if (prev_val == 0 || prev_val == 1) begin
+                        predict_spi("SCLK_pos", , $realtime, $realtime+30ns);
+                    end
+                end
+                3: begin
+                    if (prev_val == 0 || prev_val == 1) begin
+                        predict_spi("SCLK_pos", , $realtime, $realtime+30ns);
+                    end
+                end
+                endcase
+            end
+            begin
+                wait(CS_o_mirror == 0);
+            end
+            `END_FIRST_OF
+        end
+    endtask : predict_SCLK
+
     task predict_busy();
         forever begin
             @(CS_o_change_e);
@@ -91,44 +135,39 @@ class ref_model extends uvm_component;
         end
     endtask : predict_busy
 
-    task predict_IFG();
-        @(IFG_i_change_e);
-        forever begin
-            @(CS_o_change_e);
-            if(CS_o_mirror == 0) begin
-                predict_spi("min_IFG", , IFG_i_mirror*global_clock_period);
-            end
-        end
-    endtask : predict_IFG
-
     task predict_mosi();
         logic MOSI_queue [$];
         //
+        time CS_pos;
         time spi_clock_period;
+        bit first_spi_frame = 1;
         forever begin
-            @(start_i_change_e);
-            if (start_i_mirror == 1) begin
-                @(CS_o_change_e);
+            wait(CS_o_mirror == 1);
+                CS_pos = $realtime;
+            wait(start_i_mirror_synced == 1);
                 //
                 MOSI_queue.delete();
                 for(int i=(true_word_len-1); i>=0; i--) begin
                     MOSI_queue.push_back(mosi_data_i_mirror[i]);
                 end
+                //
                 spi_clock_period = 2*(true_sck_speed)*global_clock_period;
                 spi_period_min = spi_clock_period*(1-clock_precision);
                 spi_period_max = spi_clock_period*(1+clock_precision);
-                predict_spi("MOSI_frame", MOSI_queue, $realtime, $realtime+20ns, spi_period_min, spi_period_max,
-                CS_SCK_i_mirror*global_clock_period, SCK_CS_i_mirror*global_clock_period);
-            end
+                //
+                if (($realtime > (CS_pos + (IFG_i_mirror*global_clock_period))) || (first_spi_frame == 1)) begin
+                    predict_spi("MOSI_frame", MOSI_queue, $realtime, $realtime+30ns, spi_period_min, spi_period_max,
+                    CS_SCK_i_mirror*global_clock_period, SCK_CS_i_mirror*global_clock_period);
+                end
+                else begin
+                    predict_spi("MOSI_frame", MOSI_queue, (CS_pos + (IFG_i_mirror*global_clock_period)), (CS_pos + IFG_i_mirror*global_clock_period)+30ns,
+                    spi_period_min, spi_period_max, CS_SCK_i_mirror*global_clock_period, SCK_CS_i_mirror*global_clock_period);
+                end
+                first_spi_frame = 0;
+            // end
+            wait(CS_o_mirror == 0);
         end
     endtask : predict_mosi
-
-    task predict_miso();
-        forever begin
-            @(MISO_frame_change_e);
-            predict_dio("miso_data_o", MISO_frame_mirror_packed, $realtime, $realtime+20ns);
-        end
-    endtask : predict_miso
 
     task predict_spi(string name = "", logic data [$] = {}, time exp_timestamp_min = 0,
                     time exp_timestamp_max = 0, time clk_period_min = 0, time clk_period_max = 0,
@@ -162,17 +201,20 @@ class ref_model extends uvm_component;
         // item.print();
 
         case(item.name)
+        "GCLK": begin
+            `UPDATE_MIRROR(item, GCLK)
+        end
         "NRST": begin
-            `RFM_CHECK(item, NRST)
+            `UPDATE_MIRROR(item, NRST)
         end
         "start_i": begin
-            `RFM_CHECK(item, start_i)
+            `UPDATE_MIRROR(item, start_i)
         end
         "spi_mode_i": begin
-            `RFM_CHECK(item, spi_mode_i)
+            `UPDATE_MIRROR(item, spi_mode_i)
         end
         "sck_speed_i": begin
-            `RFM_CHECK(item, sck_speed_i)
+            `UPDATE_MIRROR(item, sck_speed_i)
             case(sck_speed_i_mirror)
             0: true_sck_speed = 64;
             1: true_sck_speed = 32;
@@ -181,7 +223,7 @@ class ref_model extends uvm_component;
             endcase
         end
         "word_len_i": begin
-            `RFM_CHECK(item, word_len_i)
+            `UPDATE_MIRROR(item, word_len_i)
             case(word_len_i_mirror)
             0: true_word_len = 32;
             1: true_word_len = 16;
@@ -190,19 +232,19 @@ class ref_model extends uvm_component;
             endcase
         end
         "IFG_i": begin
-            `RFM_CHECK(item, IFG_i)
+            `UPDATE_MIRROR(item, IFG_i)
         end
         "CS_SCK_i": begin
-            `RFM_CHECK(item, CS_SCK_i)
+            `UPDATE_MIRROR(item, CS_SCK_i)
         end
         "SCK_CS_i": begin
-            `RFM_CHECK(item, SCK_CS_i)
+            `UPDATE_MIRROR(item, SCK_CS_i)
         end
         "mosi_data_i": begin
-            `RFM_CHECK(item, mosi_data_i)
+            `UPDATE_MIRROR(item, mosi_data_i)
         end
         "CS_o": begin
-            `RFM_CHECK(item, CS_o)
+            `UPDATE_MIRROR(item, CS_o)
         end
         default: begin
             `uvm_info(get_name(), $sformatf("Wrong %p name supplied: %s", item.get_name(), item.name), UVM_LOW)
@@ -218,13 +260,16 @@ class ref_model extends uvm_component;
 
         case (item.name)
         "MISO_frame": begin
-            if (item.data !== MISO_frame_mirror) begin
+            if (item.data != MISO_frame_mirror) begin
                 MISO_frame_mirror = item.data;
-                for(int i=(MISO_frame_mirror.size()-1); i>=0; i--) begin
-                    MISO_frame_mirror_packed[i] = MISO_frame_mirror[(MISO_frame_mirror.size()-1)-i];
+                //
+                for(int i=(item.data.size()-1); i==0; i--) begin
+                    MISO_frame_mirror_int[i] = MISO_frame_mirror[(item.data.size()-1)-i];
                 end
-                ->MISO_frame_change_e;
-                `uvm_info(get_name(), ({"\nMISO_frame event called - value has changed"}), UVM_LOW)
+                fork
+                predict_dio("miso_data_o", MISO_frame_mirror_int, $realtime, $realtime+20ns);
+                join_none
+                // `uvm_info(get_name(), ({"\nMISO_frame event called - value has changed"}), UVM_LOW)
             end
         end
         default: begin

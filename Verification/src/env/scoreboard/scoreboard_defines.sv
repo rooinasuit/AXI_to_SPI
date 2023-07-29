@@ -13,9 +13,16 @@
     event PORT_NAME``_change_e; \
     int PORT_NAME``_mirror_packed; \
 
-`define RFM_CHECK(ITEM, PORT_NAME) \
+`define UPDATE_MIRROR(ITEM, PORT_NAME) \
     if (ITEM.value !== PORT_NAME``_mirror) begin \
         PORT_NAME``_mirror = ITEM.value; \
         ->PORT_NAME``_change_e; \
-        `uvm_info(get_name(), ({"\n",`"PORT_NAME`"," event called - value has changed"}), UVM_LOW) \
-    end
+        // `uvm_info(get_name(), ({"\n",`"PORT_NAME`"," event called - value has changed"}), UVM_LOW) \
+    end \
+
+`define SYNC_TO_CLOCK(PORT_NAME, CLOCK) \
+forever begin \
+    @(PORT_NAME``_mirror); \
+    wait(CLOCK``_mirror == 1); \
+    PORT_NAME``_mirror_synced = PORT_NAME``_mirror; \
+end

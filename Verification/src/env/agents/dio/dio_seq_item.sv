@@ -13,10 +13,10 @@ class dio_seq_item extends uvm_sequence_item;
     `uvm_object_utils_begin(dio_seq_item)
         `uvm_field_string(item_type, UVM_DEFAULT)
         `uvm_field_string(name, UVM_DEFAULT)
-        `uvm_field_int(value, UVM_DEFAULT)
-        `uvm_field_int(obs_timestamp, UVM_DEFAULT)
-        `uvm_field_int(exp_timestamp_min, UVM_DEFAULT)
-        `uvm_field_int(exp_timestamp_max, UVM_DEFAULT)
+        `uvm_field_int(value, UVM_BIN)
+        `uvm_field_int(obs_timestamp, UVM_TIME)
+        `uvm_field_int(exp_timestamp_min, UVM_TIME)
+        `uvm_field_int(exp_timestamp_max, UVM_TIME)
     `uvm_object_utils_end
 
     function new (string name = "dio_seq_item");
