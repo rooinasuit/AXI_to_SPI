@@ -14,7 +14,7 @@ class ref_model extends uvm_component;
     time spi_period_min;
     time spi_period_max;
 
-    // DIO
+    // DIO - packed logics macro'ed
     `RFM_DECLARE_P(GCLK, 1)
     `RFM_DECLARE_P(NRST, 1)
     `RFM_DECLARE_P(start_i, 1)
@@ -27,7 +27,7 @@ class ref_model extends uvm_component;
     `RFM_DECLARE_P(mosi_data_i, 32)
     `RFM_DECLARE_P(CS_o, 1)
 
-    // SPI
+    // SPI MISO frame - unpacked queue
     logic MISO_frame_mirror [$];
     int MISO_frame_mirror_int;
 
@@ -53,7 +53,6 @@ class ref_model extends uvm_component;
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
-    // here we will predict :D
         fork
             `SYNC_TO_CLOCK(start_i, GCLK)
             predict_busy();
@@ -65,12 +64,13 @@ class ref_model extends uvm_component;
     endtask : run_phase
 
     task monitor_cs(); // CS timeout monitor
+
         // time timeout_threshold;
         forever begin
             wait(CS_o_mirror == 0);
             `FIRST_OF
             begin
-                // timeout_threshold = (2*true_sck_speed*true_word_len+(CS_SCK_i_mirror+SCK_CS_i_mirror))*global_clock_period;
+                // timeout_threshold = (2*true_sck_speed*true_word_len+(CS_SCK_i_mirror+SCK_CS_i_mirror))*global_clock_period + overhead;
                 #50us; // absolute worst case scenario
                 `uvm_fatal(get_name(), "CS_out is being pulled down for too long")
             end
@@ -79,9 +79,11 @@ class ref_model extends uvm_component;
             end
             `END_FIRST_OF
         end
+
     endtask : monitor_cs
 
     task predict_SCLK();
+
         int prev_val;
         int curr_val;
         forever begin
@@ -119,9 +121,11 @@ class ref_model extends uvm_component;
             end
             `END_FIRST_OF
         end
+
     endtask : predict_SCLK
 
     task predict_busy();
+
         forever begin
             @(CS_o_change_e);
             if ($realtime > 20ns) begin
@@ -133,9 +137,11 @@ class ref_model extends uvm_component;
                 end
             end
         end
+
     endtask : predict_busy
 
     task predict_mosi();
+
         logic MOSI_queue [$];
         //
         time CS_pos;
@@ -164,14 +170,15 @@ class ref_model extends uvm_component;
                     spi_period_min, spi_period_max, CS_SCK_i_mirror*global_clock_period, SCK_CS_i_mirror*global_clock_period);
                 end
                 first_spi_frame = 0;
-            // end
             wait(CS_o_mirror == 0);
         end
+
     endtask : predict_mosi
 
     task predict_spi(string name = "", logic data [$] = {}, time exp_timestamp_min = 0,
                     time exp_timestamp_max = 0, time clk_period_min = 0, time clk_period_max = 0,
                     time CS_SCK_t = 0, time SCK_CS_t = 0);
+
         spi_seq_item spi_pkt_exp = spi_seq_item::type_id::create("spi_pkt_exp");
         spi_pkt_exp.item_type = "exp_item";
         spi_pkt_exp.name = name;
@@ -183,9 +190,11 @@ class ref_model extends uvm_component;
         spi_pkt_exp.CS_to_SCK = CS_SCK_t;
         spi_pkt_exp.SCK_to_CS = SCK_CS_t;
         spi_rfm_port.write(spi_pkt_exp);
+
     endtask : predict_spi
 
     task predict_dio(string name = "", int value = 0, time exp_timestamp_min = 0, time exp_timestamp_max = 0);
+
         dio_seq_item dio_pkt_exp = dio_seq_item::type_id::create("dio_pkt_exp");
         dio_pkt_exp.item_type = "exp_item";
         dio_pkt_exp.name = name;
@@ -193,12 +202,10 @@ class ref_model extends uvm_component;
         dio_pkt_exp.exp_timestamp_min = exp_timestamp_min;
         dio_pkt_exp.exp_timestamp_max = exp_timestamp_max;
         dio_rfm_port.write(dio_pkt_exp);
+
     endtask : predict_dio
 
     function void write_dio(dio_seq_item item);
-
-        // `uvm_info(get_name(), $sformatf("Data received from DIO_MTR to predict on: "), UVM_LOW)
-        // item.print();
 
         case(item.name)
         "GCLK": begin
@@ -255,9 +262,6 @@ class ref_model extends uvm_component;
 
     function void write_spi(spi_seq_item item);
 
-        // `uvm_info(get_name(), $sformatf("Data received from SPI_MTR to predict on: "), UVM_LOW)
-        // item.print();
-
         case (item.name)
         "MISO_frame": begin
             if (item.data != MISO_frame_mirror) begin
@@ -267,9 +271,10 @@ class ref_model extends uvm_component;
                     MISO_frame_mirror_int[i] = MISO_frame_mirror[(item.data.size()-1)-i];
                 end
                 fork
-                predict_dio("miso_data_o", MISO_frame_mirror_int, $realtime, $realtime+20ns);
+                    begin
+                    predict_dio("miso_data_o", MISO_frame_mirror_int, $realtime, $realtime+20ns);
+                    end
                 join_none
-                // `uvm_info(get_name(), ({"\nMISO_frame event called - value has changed"}), UVM_LOW)
             end
         end
         default: begin

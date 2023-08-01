@@ -27,5 +27,7 @@ package test_pkg;
     `include "test_0170_to_0200.sv"
     `include "test_0210_to_0240.sv"
     `include "test_0270_to_0290.sv"
+    `include "test_0300.sv"
+    `include "test_0310.sv"
 
 endpackage : test_pkg

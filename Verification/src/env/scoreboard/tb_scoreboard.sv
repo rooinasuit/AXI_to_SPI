@@ -8,8 +8,6 @@ class tb_scoreboard extends uvm_scoreboard;
 
     `uvm_component_utils(tb_scoreboard)
 
-    // not necessarily everything will be utilized in rfm
-
     string dio_items_to_rfm [] = {"GCLK",
                                   "NRST",
                                   "start_i",
@@ -84,14 +82,11 @@ class tb_scoreboard extends uvm_scoreboard;
 
         if (item.name == "spi_mode_i") begin
             spi_cfg.spi_mode = item.value;
-            // `uvm_info(get_name(), $sformatf("value of spi_mode in spi_cfg: %d", spi_cfg.spi_mode), UVM_LOW)
         end
 
     endfunction : write_dio_monitor_imp
 
     function void write_spi_monitor_imp(spi_seq_item item);
-
-        // item.print();
 
         if(item.name inside {spi_items_to_rfm}) begin
             rfm.write_spi(item);

@@ -19,10 +19,10 @@ and an SPI master peripheral (AXI slave).
     - [x] UVM test bench (written in SystemVerilog):
         - [x] Instantiation of all required objects and components,
         - [x] Threads management in the test bench,
-        - [ ] Directed tests based on the test cases,
+        - [x] Directed tests based on the test cases,
     - [x] ~~Script-based compilation of both test bench and the DUT,~~
     - [x] Script-based simulation scheme,
-    - [ ] Script-based regression testing.
+    - [x] Script-based test regression and coverage.
 
 Simulation scripts, list of requirements and test cases, along with both the design and testbench architectures, will get introduced as the project nears its completion.
 

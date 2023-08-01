@@ -21,8 +21,10 @@ class test_0270_to_0290_sequence extends test_base_sequence;
         #(clock_cycle);
         drive_io("NRST", 1);
         //
-        config_dio_params(0, 0, 2, 0, 0, 0, 0);
+        config_dio_params(2, 2, 2, 10, 10, 10, 10);
         define_test_step("setting up dio params");
+        send_spi({1,1,1,1,1,1,1,1});
+        define_test_step("setting up spi frame");
 
         // CASE 1
         #(clock_cycle);

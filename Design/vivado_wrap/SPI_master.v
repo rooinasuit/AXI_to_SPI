@@ -107,6 +107,9 @@ always @ (posedge GCLK) begin
             1: sck_switch  <= 6'd31; // [1/64] GCLK
             2: sck_switch  <= 6'd15; // [1/32] GCLK
             3: sck_switch  <= 6'd7;  // [1/16] GCLK
+            default: begin
+                sck_switch  <= 6'd63; // [1/128] GCLK
+            end
         endcase
     end
 end
@@ -125,6 +128,9 @@ always @ (posedge GCLK) begin
             1: chosen_word_len <= 5'd16; // 16-bit word
             2: chosen_word_len <= 5'd24; // 8-bit word
             3: chosen_word_len <= 5'd28; // 4-bit word
+            default: begin
+                chosen_word_len <= 5'd0; // 32-bit word
+            end
         endcase
     end
 end
@@ -136,7 +142,7 @@ always @ (posedge GCLK) begin
     if (!NRST) begin
         sck_switch_cnt <= 6'd0;
         // sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
-        sck            <= 0;
+        sck            <= 1'd0;
     end
     else if (state == PRE_TRANS) begin
         if (CS_to_SCK & (CSnSCK_cnt >= CS_SCK_i)) begin
@@ -149,10 +155,11 @@ always @ (posedge GCLK) begin
             sck_switch_cnt <= 6'd0;
             sck            <= !sck; // marks half a period of sck cycle
         end
-        else
+        else begin
             sck_switch_cnt <= sck_switch_cnt + 1'b1;
+        end
     end
-    else if (!chip_sel & SCK_to_CS) begin
+    else if (!chip_sel) begin
         sck_switch_cnt <= 6'd0;
         sck            <= (sck_pol) ? 1'd1 : 1'd0; // idle sck polarity?
     end
@@ -171,8 +178,9 @@ always @ (posedge GCLK) begin
     if (!NRST) begin
         d_ff <= 0;
     end
-    else
+    else begin
         d_ff <= start_i;
+    end
 end
 
 assign trans_start = start_i & !d_ff;
@@ -206,10 +214,15 @@ always @ (posedge GCLK) begin
     end
     else if (trans_done) begin
         case (sck_pol)
-        0: SCK_to_CS  <= (!sck_pha & neg_sck) ? 1'b1 : (sck_pha & !sck) ? 1'b1 : SCK_to_CS;
-        1: SCK_to_CS  <= (!sck_pha & sck) ? 1'b1 : (sck_pha & pos_sck) ? 1'b1 : SCK_to_CS;
+        0: begin
+            SCK_to_CS  <= (!sck_pha & neg_sck) ? 1'b1 : (sck_pha & !sck) ? 1'b1 : SCK_to_CS;
+            CSnSCK_cnt    <= 8'd1;
+        end
+        1: begin
+            SCK_to_CS  <= (!sck_pha & sck) ? 1'b1 : (sck_pha & pos_sck) ? 1'b1 : SCK_to_CS;
+            CSnSCK_cnt    <= 8'd1;
+        end
         endcase
-        CSnSCK_cnt    <= 8'd1;
     end
     else if (CS_to_SCK & (CSnSCK_cnt >= CS_SCK_i)) begin
         CSnSCK_cnt    <= 8'd0;
@@ -219,8 +232,9 @@ always @ (posedge GCLK) begin
         CSnSCK_cnt    <= 8'd0;
         SCK_to_CS     <= 1'b0;
     end
-    else if (CS_to_SCK | SCK_to_CS)
+    else if (CS_to_SCK | SCK_to_CS) begin
         CSnSCK_cnt    <= CSnSCK_cnt + 1'b1;
+    end
 end
 
 ////////////////
@@ -238,10 +252,12 @@ always @ (posedge GCLK) begin
         IFG_cnt    <= 8'd0;
         IFG_done   <= 1'b0;
     end
-    else if (!IFG_done & (IFG_cnt == IFG_i))
+    else if (!IFG_done & (IFG_cnt == IFG_i)) begin
         IFG_done   <= 1'b1;
-    else if (!IFG_done & (state == IDLE || state == INTERFRAME))
+    end
+    else if (!IFG_done & (state == IDLE || state == INTERFRAME)) begin
         IFG_cnt    <= IFG_cnt + 1'b1;
+    end
 end
 
 ////////////////////////////////////
@@ -282,8 +298,9 @@ always @ (posedge GCLK) begin
                     //
                     state <= INTERFRAME;
                 end
-                else
+                else begin
                     state <= IDLE;
+                end
             end
             INTERFRAME: begin
                 if (IFG_done) begin
@@ -302,37 +319,47 @@ always @ (posedge GCLK) begin
                         if (!sck_pha) begin
                             miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
                             bit_cnt <= bit_cnt - 1'b1;
+                            state <= TRANSACTION;
                         end
-                        else if (sck_pha) begin
+                        else begin
                             mosi    <= mosi_buff[bit_cnt-chosen_word_len];
+                            state <= TRANSACTION;
                         end
                     end
                     1: begin
                         if (!sck_pha) begin
                             mosi    <= mosi_buff[bit_cnt-chosen_word_len];
+                            state <= TRANSACTION;
                         end
-                        else if (sck_pha) begin
+                        else begin
                             miso_buff[bit_cnt-chosen_word_len] <= MISO_i;
-                            bit_cnt <= bit_cnt - 1'b1; 
+                            bit_cnt <= bit_cnt - 1'b1;
+                            state <= TRANSACTION;
                         end
                     end
+                    default: begin
+                        state <= IDLE;
+                    end
                     endcase
-                    state <= TRANSACTION;
                 end
                 else begin
                     case (sck_pol)
                     0: begin
                         if (!sck_pha) begin
                             mosi <= mosi_buff[bit_cnt-chosen_word_len];
+                            state <= PRE_TRANS;
                         end
                     end
                     1: begin
                         if (sck_pha) begin
                             mosi <= mosi_buff[bit_cnt-chosen_word_len];
+                            state <= PRE_TRANS;
                         end
                     end
+                    default: begin
+                        state <= IDLE;
+                    end
                     endcase
-                    state <= PRE_TRANS;
                 end
             end
             TRANSACTION: begin
@@ -377,6 +404,9 @@ always @ (posedge GCLK) begin
                                     bit_cnt <= bit_cnt - 1'b1;
                                 end
                             end
+                            default: begin
+                                state <= IDLE;
+                            end
                         endcase
                     end
                     1: begin // subtract from bit_cnt upon detection of a rising SCK edge
@@ -419,7 +449,13 @@ always @ (posedge GCLK) begin
                                     mosi    <= mosi_buff[bit_cnt-chosen_word_len];
                                 end
                             end
+                            default: begin
+                                state <= IDLE;
+                            end
                         endcase
+                    end
+                    default: begin
+                        state <= IDLE;
                     end
                 endcase
             end
@@ -451,8 +487,9 @@ always @ (posedge GCLK) begin
                     //
                     state <= INTERFRAME;
                 end
-                else
+                else begin
                     state <= IDLE;
+                end
             end
         endcase
     end

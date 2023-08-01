@@ -96,9 +96,6 @@ class test_base_sequence extends uvm_sequence;
                     @(negedge p_sequencer.dio_sqr.vif.busy_o);
                 end
             end
-            // "miso_data_o": begin
-            //     @(p_sequencer.dio_sqr.vif.miso_data_o == value);
-            // end
             "CS_o": begin // borrowed from spi intf
                 if (value == 1) begin
                     @(posedge p_sequencer.dio_sqr.vif.CS_o);
@@ -120,23 +117,6 @@ class test_base_sequence extends uvm_sequence;
             end
         endcase
     endtask : wait_io
-    // task wait_spi_busy(time wait_buff);
-    //     spi_rsp_sequence spi_seq_rsp = spi_rsp_sequence::type_id::create("spi_seq_rsp");
-
-    //     spi_seq_rsp.name  = "CS_busy";
-
-    //     spi_seq_rsp.start(p_sequencer.spi_sqr);
-    //     #wait_buff;
-    // endtask : wait_spi_busy
-
-    // task wait_spi_ready(time wait_buff);
-    //     spi_rsp_sequence spi_seq_rsp = spi_rsp_sequence::type_id::create("spi_seq_rsp");
-
-    //     spi_seq_rsp.name  = "CS_ready";
-
-    //     spi_seq_rsp.start(p_sequencer.spi_sqr);
-    //     #wait_buff;
-    // endtask : wait_spi_ready
 
 endclass : test_base_sequence
 

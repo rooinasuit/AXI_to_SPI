@@ -36,7 +36,8 @@ class comparator#(type T = uvm_sequence_item) extends uvm_component;
                 `uvm_info(get_name(), $sformatf("\nobs_pkt == exp_pkt\n"), UVM_LOW)
             end
             else begin
-                `uvm_info(get_name(), $sformatf("\nobs_pkt != exp_pkt\n"), UVM_LOW)
+                // `uvm_info(get_name(), $sformatf("\nobs_pkt != exp_pkt\n"), UVM_LOW)
+                `uvm_error(get_name(), $sformatf("\nobs_pkt != exp_pkt\n"))
             end
         end
 

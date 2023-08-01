@@ -24,5 +24,7 @@ package test_seq_pkg;
     `include "test_0170_to_0200_sequence.sv"
     `include "test_0210_to_0240_sequence.sv"
     `include "test_0270_to_0290_sequence.sv"
+    `include "test_0300_sequence.sv"
+    `include "test_0310_sequence.sv"
 
 endpackage : test_seq_pkg
