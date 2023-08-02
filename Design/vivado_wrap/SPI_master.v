@@ -99,7 +99,7 @@ assign sck_pha = spi_mode_i[0];
 
 always @ (posedge GCLK) begin
     if (!NRST) begin
-        sck_switch <= 6'd63;
+        sck_switch <= 6'd0;
     end
     else begin
         case (sck_speed_i)
@@ -121,7 +121,7 @@ end
 
 always @ (posedge GCLK) begin
     if (!NRST)
-        chosen_word_len <= 5'd0;
+        chosen_word_len <= 5'd31;
     else begin
         case (word_len_i)
             0: chosen_word_len <= 5'd0; // 32-bit word
@@ -145,7 +145,7 @@ always @ (posedge GCLK) begin
         sck            <= 1'd0;
     end
     else if (state == PRE_TRANS) begin
-        if (CS_to_SCK & (CSnSCK_cnt >= CS_SCK_i)) begin
+        if (CSnSCK_cnt >= CS_SCK_i) begin
             sck_switch_cnt <= 6'd0;
             sck            <= !sck; // marks half a period of sck cycle
         end
@@ -190,8 +190,8 @@ assign trans_start = start_i & !d_ff;
 // New mosi data bit is set with sck edge and miso data
 // bit is collected, according to sck phase
 
-assign pos_sck = !sck & (sck_switch_cnt >= sck_switch) & !CS_to_SCK;
-assign neg_sck = sck & (sck_switch_cnt >= sck_switch) & !CS_to_SCK;
+assign pos_sck = !sck & (sck_switch_cnt >= sck_switch);
+assign neg_sck = sck & (sck_switch_cnt >= sck_switch);
 
 ///////////////////////////////
 // CStoSCK & SCKtoCS TIMINGS //
@@ -215,12 +215,29 @@ always @ (posedge GCLK) begin
     else if (trans_done) begin
         case (sck_pol)
         0: begin
-            SCK_to_CS  <= (!sck_pha & neg_sck) ? 1'b1 : (sck_pha & !sck) ? 1'b1 : SCK_to_CS;
+            if((!sck_pha & neg_sck) || (sck_pha & !sck)) begin
+                SCK_to_CS <= 1'b1;
+            end
+            else begin
+                SCK_to_CS <= SCK_to_CS;
+            end
+            // SCK_to_CS  <= (!sck_pha & neg_sck) ? 1'b1 : (sck_pha & !sck) ? 1'b1 : SCK_to_CS;
             CSnSCK_cnt    <= 8'd1;
         end
         1: begin
-            SCK_to_CS  <= (!sck_pha & sck) ? 1'b1 : (sck_pha & pos_sck) ? 1'b1 : SCK_to_CS;
+            if((!sck_pha & sck) || (sck_pha & pos_sck)) begin
+                SCK_to_CS <= 1'b1;
+            end
+            else begin
+                SCK_to_CS <= SCK_to_CS;
+            end
+            // SCK_to_CS  <= (!sck_pha & sck) ? 1'b1 : (sck_pha & pos_sck) ? 1'b1 : SCK_to_CS;
             CSnSCK_cnt    <= 8'd1;
+        end
+        default: begin
+            CSnSCK_cnt    <= 8'd0;
+            CS_to_SCK     <= 1'b0;
+            SCK_to_CS     <= 1'b0;
         end
         endcase
     end
@@ -313,7 +330,7 @@ always @ (posedge GCLK) begin
                 end
             end
             PRE_TRANS: begin
-                if (CS_to_SCK & (CSnSCK_cnt >= CS_SCK_i)) begin
+                if (CSnSCK_cnt >= CS_SCK_i) begin
                     case (sck_pol)
                     0: begin
                         if (!sck_pha) begin
@@ -460,7 +477,7 @@ always @ (posedge GCLK) begin
                 endcase
             end
             FINISH: begin
-                if (SCK_to_CS & (CSnSCK_cnt >= SCK_CS_i)) begin
+                if (CSnSCK_cnt >= SCK_CS_i) begin
                     busy_o     <= 1'b0;
                     chip_sel   <= 1'b1;
                     miso_data_o <= miso_buff;

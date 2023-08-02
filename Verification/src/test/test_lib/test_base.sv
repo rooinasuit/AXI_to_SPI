@@ -51,7 +51,7 @@ class test_base extends uvm_test;
     function void check_phase(uvm_phase phase);
         super.check_phase(phase);
 
-        `uvm_info(get_name(), "TEST FINISHED", UVM_INFO)
+        $display("TEST FINISHED");
 
     endfunction : check_phase
 

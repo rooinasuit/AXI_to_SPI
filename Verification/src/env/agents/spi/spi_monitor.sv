@@ -11,7 +11,9 @@ class spi_monitor extends uvm_monitor;
 
     // uvm_verbosity verbosity_v = UVM_HIGH;
 
+    logic MISO_queue_last [$];
     logic MISO_queue [$];
+
     logic MOSI_queue [$];
 
     time clk_period_min;
@@ -51,7 +53,8 @@ class spi_monitor extends uvm_monitor;
 
         fork
             spi_measure_period();
-            spi_clk_watch();
+            spi_bus_watch();
+            spi_clkedge_watch();
             spi_capture();
         join_none
 
@@ -90,7 +93,44 @@ class spi_monitor extends uvm_monitor;
         end
     endtask : spi_measure_period
 
-    task spi_clk_watch();
+    task spi_bus_watch();
+
+        spi_seq_item spi_pkt_in;
+        #10ns;
+        forever begin
+            @(posedge vif.CS_o);
+            #20ns
+            fork
+                begin
+                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
+                spi_pkt_in.item_type = "obs_item";
+                spi_pkt_in.name = "CS_o";
+                spi_pkt_in.data = {vif.CS_o};
+                spi_pkt_in.obs_timestamp = $realtime;
+                spi_mtr_port.write(spi_pkt_in);
+                end
+                begin
+                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
+                spi_pkt_in.item_type = "obs_item";
+                spi_pkt_in.name = "SCLK_o";
+                spi_pkt_in.data = {vif.SCLK_o};
+                spi_pkt_in.obs_timestamp = $realtime;
+                spi_mtr_port.write(spi_pkt_in);
+                end
+                begin
+                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
+                spi_pkt_in.item_type = "obs_item";
+                spi_pkt_in.name = "MOSI_o";
+                spi_pkt_in.data = {vif.MOSI_o};
+                spi_pkt_in.obs_timestamp = $realtime;
+                spi_mtr_port.write(spi_pkt_in);
+                end
+            join
+            wait(vif.CS_o == 0);
+        end
+    endtask : spi_bus_watch
+
+    task spi_clkedge_watch();
         int prev_val;
         int curr_val;
 
@@ -127,7 +167,7 @@ class spi_monitor extends uvm_monitor;
         end
         `END_FIRST_OF
         end
-    endtask : spi_clk_watch
+    endtask : spi_clkedge_watch
 
     task spi_capture();
         time neg_CS_t;
@@ -139,16 +179,16 @@ class spi_monitor extends uvm_monitor;
         logic [1:0] spi_mode;
         forever begin
             @(negedge vif.CS_o);
-                MOSI_queue.delete();
-                MISO_queue.delete();
-                // MOSI
-                spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
-                spi_pkt_in.item_type = "obs_item";
-                spi_pkt_in.name  = "MOSI_frame";
-                spi_pkt_in.obs_timestamp = $realtime;
-                //
-                neg_CS_t = $realtime;
-                spi_mode = spi_cfg.spi_mode;
+            MOSI_queue.delete();
+            MISO_queue.delete();
+            // MOSI
+            spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
+            spi_pkt_in.item_type = "obs_item";
+            spi_pkt_in.name  = "MOSI_frame";
+            spi_pkt_in.obs_timestamp = $realtime;
+            //
+            neg_CS_t = $realtime;
+            spi_mode = spi_cfg.spi_mode;
             case(spi_mode)
                 0: begin
                     @(posedge vif.SCLK_o);
@@ -226,19 +266,28 @@ class spi_monitor extends uvm_monitor;
                 end
             endcase
             pos_CS_t = $realtime;
+            fork
             // MOSI
+            begin
             spi_pkt_in.data = MOSI_queue;
             spi_pkt_in.clk_period_min = clk_period_min;
             spi_pkt_in.clk_period_max = clk_period_max;
             spi_pkt_in.CS_to_SCK = first_SPI_t - neg_CS_t;
             spi_pkt_in.SCK_to_CS = pos_CS_t - last_SPI_t;
             spi_mtr_port.write(spi_pkt_in);
+            end
+            begin
             // MISO
+            // if(MISO_queue !== MISO_queue_last) begin
             spi_pkt_in = spi_seq_item::type_id::create("spi_pkt_in");
             spi_pkt_in.item_type = "obs_item";
             spi_pkt_in.name = "MISO_frame";
             spi_pkt_in.data = MISO_queue;
             spi_mtr_port.write(spi_pkt_in);
+            // end
+            // MISO_queue_last = MISO_queue;
+            end
+            join
             //
             // ->frame_done_e;
         end

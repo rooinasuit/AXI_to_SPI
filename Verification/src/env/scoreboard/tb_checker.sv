@@ -12,6 +12,9 @@ class tb_checker extends uvm_component;
     `COMP_DECLARE(dio_seq_item, busy_o)
     `COMP_DECLARE(dio_seq_item, miso_data_o)
     `COMP_DECLARE(spi_seq_item, SPI)
+    `COMP_DECLARE(spi_seq_item, MOSI_o)
+    `COMP_DECLARE(spi_seq_item, SCLK_o)
+    `COMP_DECLARE(spi_seq_item, CS_o)
 
     uvm_analysis_imp_dio_expected#(dio_seq_item, tb_checker) dio_rfm_imp;
     uvm_analysis_imp_spi_expected#(spi_seq_item, tb_checker) spi_rfm_imp;
@@ -29,6 +32,9 @@ class tb_checker extends uvm_component;
         `COMP_CREATE(dio_seq_item, busy_o)
         `COMP_CREATE(dio_seq_item, miso_data_o)
         `COMP_CREATE(spi_seq_item, SPI)
+        `COMP_CREATE(spi_seq_item, MOSI_o)
+        `COMP_CREATE(spi_seq_item, SCLK_o)
+        `COMP_CREATE(spi_seq_item, CS_o)
 
     endfunction : build_phase
 
@@ -56,6 +62,25 @@ class tb_checker extends uvm_component;
 
     endfunction : get_comp_dio
 
+    function comparator#(spi_seq_item) get_comp_spi(spi_seq_item item);
+
+        string comp_port_name;
+        string port_name;
+
+        get_children(spi_comp_array);
+        foreach(spi_comp_array[i]) begin
+            comp_port_name = spi_comp_array[i].get_name();
+            port_name = comp_port_name.substr(5, comp_port_name.len() - 1);
+            if(port_name == item.name) begin
+                if (spi_comp_array[i] == null) begin
+                    `uvm_fatal(get_name(), $sformatf("There's no comparator made for %s", item.name))
+                end
+                $cast(get_comp_spi,spi_comp_array[i]);
+            end
+        end
+
+    endfunction : get_comp_spi
+
     function void write_dio_observed(dio_seq_item item);
 
         `uvm_info(get_name(), $sformatf("Data received from DIO_MTR: "), UVM_LOW)
@@ -76,7 +101,20 @@ class tb_checker extends uvm_component;
 
         `uvm_info(get_name(), $sformatf("Data received from SPI_MTR: "), UVM_LOW)
         item.print();
-        comp_SPI.write_obs(item);
+        case(item.name)
+        "MOSI_frame": begin
+            comp_SPI.write_obs(item);
+        end
+        "SCLK_pos": begin
+            comp_SPI.write_obs(item);
+        end
+        "SCLK_neg": begin
+            comp_SPI.write_obs(item);
+        end
+        default: begin
+            get_comp_spi(item).write_obs(item);
+        end
+        endcase
 
     endfunction : write_spi_observed
 
@@ -84,7 +122,20 @@ class tb_checker extends uvm_component;
 
         `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
         item.print();
-        comp_SPI.write_exp(item);
+        case(item.name)
+        "MOSI_frame": begin
+            comp_SPI.write_exp(item);
+        end
+        "SCLK_pos": begin
+            comp_SPI.write_exp(item);
+        end
+        "SCLK_neg": begin
+            comp_SPI.write_exp(item);
+        end
+        default: begin
+            get_comp_spi(item).write_exp(item);
+        end
+        endcase
 
     endfunction : write_spi_expected
 

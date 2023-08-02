@@ -74,7 +74,7 @@ class spi_driver extends uvm_driver#(spi_seq_item);
             case(spi_mode)
                 0: begin
                     for(i=bit_count; i>=0; i--) begin
-                        if (i == bit_count) begin
+                        if (i >= bit_count) begin
                             vif.MISO_i = MISO_queue.pop_front();
                         end
                         else begin
@@ -97,7 +97,7 @@ class spi_driver extends uvm_driver#(spi_seq_item);
                 end
                 3: begin
                     for(i=bit_count; i>=0; i--) begin
-                        if (i == bit_count) begin
+                        if (i >= bit_count) begin
                             vif.MISO_i = MISO_queue.pop_front();
                         end
                         else begin

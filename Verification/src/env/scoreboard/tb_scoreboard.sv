@@ -27,7 +27,10 @@ class tb_scoreboard extends uvm_scoreboard;
 
     string spi_items_to_chk [] = {"MOSI_frame",
                                   "SCLK_pos",
-                                  "SCLK_neg"};
+                                  "SCLK_neg",
+                                  "SCLK_o",
+                                  "CS_o",
+                                  "MOSI_o"};
 
     spi_config spi_cfg;
 

@@ -67,7 +67,7 @@ class comparator#(type T = uvm_sequence_item) extends uvm_component;
             while (fifo_obs.used() > 0) begin
                 fifo_obs.get(obs_pkt);
                 obs_pkt.print();
-                `uvm_info(get_name(), $sformatf("observed item didn't meet its prediction"), UVM_LOW)
+                `uvm_error(get_name(), $sformatf("observed item didn't meet its prediction"))
             end
         end
         else begin

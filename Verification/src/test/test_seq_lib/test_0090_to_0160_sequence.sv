@@ -24,7 +24,7 @@ class test_0090_to_0160_sequence extends test_base_sequence;
 
         // CASE 1.1
         //
-        config_dio_params(0, 0, 2, 0, 0, 0, 'b00010000);
+        config_dio_params(0, 0, 2, 0, 0, 0, 'b00010001);
         send_spi({1,1,1,0,1,1,1,1});
         #(2*clock_cycle);
         drive_io("start", 1);
@@ -36,7 +36,7 @@ class test_0090_to_0160_sequence extends test_base_sequence;
 
         // CASE 1.2
         //
-        config_dio_params(1, 0, 2, 0, 0, 0, 'b00010000);
+        config_dio_params(1, 0, 2, 0, 0, 0, 'b00010001);
         send_spi({1,1,1,0,1,1,1,1});
         #(2*clock_cycle);
         drive_io("start", 1);
@@ -48,7 +48,7 @@ class test_0090_to_0160_sequence extends test_base_sequence;
 
         // CASE 1.3
         //
-        config_dio_params(2, 0, 2, 0, 0, 0, 'b00010000);
+        config_dio_params(2, 0, 2, 0, 0, 0, 'b00010001);
         send_spi({1,1,1,0,1,1,1,1});
         #(2*clock_cycle);
         drive_io("start", 1);
@@ -60,7 +60,7 @@ class test_0090_to_0160_sequence extends test_base_sequence;
 
         // CASE 1.4
         //
-        config_dio_params(3, 0, 2, 0, 0, 0, 'b00010000);
+        config_dio_params(3, 0, 2, 0, 0, 0, 'b00010001);
         send_spi({1,1,1,0,1,1,1,1});
         #(2*clock_cycle);
         drive_io("start", 1);

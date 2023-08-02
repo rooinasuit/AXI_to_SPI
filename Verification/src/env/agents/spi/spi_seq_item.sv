@@ -85,6 +85,24 @@ class spi_seq_item extends uvm_sequence_item;
 
                 res = (result_cnt == 1) ? 1 : 0;
             end
+            "SCLK_o": begin
+                result_cnt = compare_field(obs_item, exp_item, "data") +
+                             compare_field(obs_item, exp_item, "timestamp");
+
+                res = (result_cnt == 2) ? 1 : 0;
+            end
+            "MOSI_o": begin
+                result_cnt = compare_field(obs_item, exp_item, "data") +
+                             compare_field(obs_item, exp_item, "timestamp");
+
+                res = (result_cnt == 2) ? 1 : 0;
+            end
+            "CS_o": begin
+                result_cnt = compare_field(obs_item, exp_item, "data") +
+                             compare_field(obs_item, exp_item, "timestamp");
+
+                res = (result_cnt == 2) ? 1 : 0;
+            end
             endcase
         end
 
@@ -111,7 +129,11 @@ class spi_seq_item extends uvm_sequence_item;
             $display("obs_item | obs_timestamp    : %0.1fns", obs_item.obs_timestamp);
             $display("exp_item | exp_timestamp_min: %0.1fns", exp_item.exp_timestamp_min);
             $display("exp_item | exp_timestamp_max: %0.1fns", exp_item.exp_timestamp_max);
-            if (exp_item.exp_timestamp_max == 0) begin
+            if (exp_item.exp_timestamp_min == 1ns) begin
+                $display("UNFINISHED FRAME DUE TO NRST ASSERTION\n");
+                return 1;
+            end
+            else if (exp_item.exp_timestamp_max == 0) begin
                 if(obs_item.obs_timestamp >= exp_item.exp_timestamp_min) begin
                     $display("COMPARISON OK\n");
                     return 1;
@@ -136,8 +158,10 @@ class spi_seq_item extends uvm_sequence_item;
         "data": begin
             $display("obs_item | data:%p", obs_item.data);
             $display("exp_item | data:%p", exp_item.data);
-            $display("obs_item | frame length:%0d", obs_item.data.size());
-            $display("exp_item | frame length:%0d", exp_item.data.size());
+            if (exp_item.data.size() !== 1) begin
+                $display("obs_item | frame length:%0d", obs_item.data.size());
+                $display("exp_item | frame length:%0d", exp_item.data.size());
+            end
             if(obs_item.data.size() == exp_item.data.size()) begin
                 if(obs_item.data == exp_item.data) begin
                     $display("COMPARISON OK\n");
@@ -173,9 +197,9 @@ class spi_seq_item extends uvm_sequence_item;
             $display("obs_item | SCK_to_CS:%0.1fns", obs_item.SCK_to_CS);
             $display("exp_item | CS_to_SCK:%0.1fns", exp_item.CS_to_SCK);
             $display("exp_item | SCK_to_CS:%0.1fns", exp_item.SCK_to_CS);
-            if((obs_item.CS_to_SCK < exp_item.CS_to_SCK*0.95 || obs_item.CS_to_SCK > exp_item.CS_to_SCK*1.05)
-            || (obs_item.SCK_to_CS < exp_item.SCK_to_CS*0.95 || obs_item.SCK_to_CS > exp_item.SCK_to_CS*1.05)) begin
-                $display("PRE/POST SCLK TIMING ERROR EXCEEDS 5%% TOLERANCE\n");
+            if((obs_item.CS_to_SCK < exp_item.CS_to_SCK*0.95 || obs_item.CS_to_SCK > exp_item.CS_to_SCK*1.05 + 10ns)
+            || (obs_item.SCK_to_CS < exp_item.SCK_to_CS*0.95 || obs_item.SCK_to_CS > exp_item.SCK_to_CS*1.05 + 10ns)) begin
+                $display("PRE/POST SCLK TIMING ERROR EXCEEDS 5%% TOLERANCE BESIDE 1 CLOCK CYCLE\n");
                 return 0;
             end
             else begin
