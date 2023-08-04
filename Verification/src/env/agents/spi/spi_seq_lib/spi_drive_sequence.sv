@@ -14,7 +14,8 @@ class spi_drive_sequence extends spi_base_sequence;
         spi_pkt = spi_seq_item::type_id::create("spi_pkt");
 
         start_item(spi_pkt);
-            drive_spi(name, value);
+            spi_pkt.name = name;
+            spi_pkt.data = value;
         finish_item(spi_pkt);
     endtask : body
 

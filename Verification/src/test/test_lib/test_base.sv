@@ -10,7 +10,6 @@ class test_base extends uvm_test;
 
     tb_environment env;
 
-    // constructor
     function new (string name = "test_base", uvm_component parent = null);
         super.new(name,parent);
     endfunction : new
@@ -38,21 +37,18 @@ class test_base extends uvm_test;
         if(!uvm_config_db#(virtual spi_interface)::get(this, "env_cfg", "s_vif", env_cfg.spi_cfg.vif)) begin
             `uvm_fatal(get_name(), {"spi interface must be set for: ", get_full_name()})
         end
-
     endfunction : build_phase
 
     function void end_of_elaboration_phase(uvm_phase phase);
         super.end_of_elaboration_phase(phase);
 
-        // uvm_top.print_topology();
-
+        uvm_top.print_topology();
     endfunction : end_of_elaboration_phase
 
     function void check_phase(uvm_phase phase);
         super.check_phase(phase);
 
         $display("TEST FINISHED");
-
     endfunction : check_phase
 
 endclass : test_base

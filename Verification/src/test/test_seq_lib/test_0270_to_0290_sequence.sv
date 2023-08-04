@@ -7,12 +7,6 @@ class test_0270_to_0290_sequence extends test_base_sequence;
         super.new(name);
     endfunction : new
 
-    //////////////////////////////////////////////////////////
-    // No need to set value [0] on anything other than      //
-    // start_out just after RST deassertion                 //
-    // due to the other signals being set to [0] on default //
-    //////////////////////////////////////////////////////////
-
     task body();
         reset_io();
         drive_clock_period(clock_cycle); // ns
@@ -51,7 +45,6 @@ class test_0270_to_0290_sequence extends test_base_sequence;
         drive_io("NRST", 1);
         define_test_step("Release NRST");
         //
-        // TESTBENCH DOESNT PRINT OUT A GIVEN I/O IF REASSERTED TO THE SAME VALUE AS BEFORE
         drive_clock_state(0);
     endtask : body
 

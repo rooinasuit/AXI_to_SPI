@@ -5,7 +5,6 @@ class test_0050_to_0080 extends test_base;
 
     test_0050_to_0080_sequence seq_0050_to_0080;
 
-    // constructor
     function new (string name = "test_0050_to_0080", uvm_component parent = null);
         super.new(name,parent);
     endfunction : new
@@ -15,11 +14,10 @@ class test_0050_to_0080 extends test_base;
 
         seq_0050_to_0080 = test_0050_to_0080_sequence::type_id::create("seq_0050_to_0080");
 
-        phase.raise_objection(this); // start time consumption
+        phase.raise_objection(this);
             `uvm_info(get_name(), "starting test 0050_to_0080", UVM_LOW)
             seq_0050_to_0080.start(env.v_sqr);
-        phase.drop_objection(this); // end time consumption
-
+        phase.drop_objection(this);
     endtask : run_phase
 
 endclass : test_0050_to_0080

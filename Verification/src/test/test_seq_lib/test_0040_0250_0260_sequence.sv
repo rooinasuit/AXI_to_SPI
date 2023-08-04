@@ -7,12 +7,6 @@ class test_0040_0250_0260_sequence extends test_base_sequence;
         super.new(name);
     endfunction : new
 
-    //////////////////////////////////////////////////////////
-    // No need to set value [0] on anything other than      //
-    // start_out just after RST deassertion                 //
-    // due to the other signals being set to [0] on default //
-    //////////////////////////////////////////////////////////
-
     task body();
         reset_io();
         drive_clock_period(clock_cycle); // ns
@@ -20,7 +14,6 @@ class test_0040_0250_0260_sequence extends test_base_sequence;
         //
         #(clock_cycle);
         drive_io("NRST", 1);
-        //
 
         // CASE 1
         //
@@ -32,7 +25,6 @@ class test_0040_0250_0260_sequence extends test_base_sequence;
         //
         wait_io("CS_o", 1);
         #(clock_cycle);
-        //
 
         // CASE 2
         //

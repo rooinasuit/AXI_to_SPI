@@ -11,7 +11,7 @@ class test_base_sequence extends uvm_sequence;
     endfunction : new
 
     task body();
-
+        //
     endtask : body
 
     task define_test_step(string step);
@@ -25,9 +25,8 @@ class test_base_sequence extends uvm_sequence;
     endtask : define_test_step
 
     task config_dio_params(logic [1:0] spi_mode = 0, logic [1:0] sck_speed = 0, logic [1:0] word_len = 0,
-                        logic [7:0] IFG = 0, logic [7:0] CS_SCK = 0, logic [7:0] SCK_CS = 0,
-                        logic [31:0] mosi_data = 0);
-
+                           logic [7:0] IFG = 0, logic [7:0] CS_SCK = 0, logic [7:0] SCK_CS = 0,
+                           logic [31:0] mosi_data = 0);
         drive_io("spi_mode", spi_mode);
         drive_io("sck_speed", sck_speed);
         drive_io("word_len", word_len);
@@ -35,13 +34,10 @@ class test_base_sequence extends uvm_sequence;
         drive_io("CS_SCK", CS_SCK);
         drive_io("SCK_CS", SCK_CS);
         drive_io("mosi_data", mosi_data);
-
     endtask : config_dio_params
 
     task send_spi(logic MISO [$] = {0});
-
         drive_spi("MISO", MISO);
-
     endtask : send_spi
 
     task drive_clock_period(int value);
@@ -96,7 +92,7 @@ class test_base_sequence extends uvm_sequence;
                     @(negedge p_sequencer.dio_sqr.vif.busy_o);
                 end
             end
-            "CS_o": begin // borrowed from spi intf
+            "CS_o": begin
                 if (value == 1) begin
                     @(posedge p_sequencer.dio_sqr.vif.CS_o);
                 end

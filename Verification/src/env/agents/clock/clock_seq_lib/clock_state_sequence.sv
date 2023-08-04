@@ -13,7 +13,8 @@ class clock_state_sequence extends clock_base_sequence;
         clk_pkt = clock_seq_item::type_id::create("clk_pkt");
 
         start_item(clk_pkt);
-            clock_state(clock_enable);
+            clk_pkt.name  = "clock_enable";
+            clk_pkt.value = clock_enable;
         finish_item(clk_pkt);
     endtask : body
 

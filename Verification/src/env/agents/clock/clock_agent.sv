@@ -3,7 +3,6 @@ class clock_agent extends uvm_agent;
 
     `uvm_component_utils(clock_agent)
 
-    // instantiation of internal objects
     clock_config clk_cfg;
 
     clock_sequencer clk_sqr;
@@ -27,7 +26,6 @@ class clock_agent extends uvm_agent;
         uvm_config_db#(clock_config)::set(this, "clk_drv", "clock_config", clk_cfg);
         `uvm_info(get_name(), "Creating CLK_DRV handle", UVM_LOW)
         clk_drv = clock_driver::type_id::create("clk_drv", this);
-
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
@@ -35,7 +33,6 @@ class clock_agent extends uvm_agent;
 
         `uvm_info(get_name(), "Connecting export: clock_seq_item (CLK_DRV)", UVM_LOW)
         clk_drv.seq_item_port.connect(clk_sqr.seq_item_export);
-
     endfunction : connect_phase
 
 endclass : clock_agent

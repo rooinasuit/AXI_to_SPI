@@ -13,9 +13,9 @@ class clock_period_sequence extends clock_base_sequence;
         clk_pkt = clock_seq_item::type_id::create("clk_pkt");
 
         start_item(clk_pkt);
-            clock_period(period);
+            clk_pkt.name  = "period";
+            clk_pkt.value = period;
         finish_item(clk_pkt);
-
     endtask : body
 
 endclass : clock_period_sequence

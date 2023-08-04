@@ -43,13 +43,7 @@ class ref_model extends uvm_component;
 
         dio_rfm_port = new("dio_rfm_port", this);
         spi_rfm_port = new("spi_rfm_port", this);
-
     endfunction : build_phase
-
-    function void connect_phase(uvm_phase phase);
-        super.connect_phase(phase);
-
-    endfunction : connect_phase
 
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
@@ -63,18 +57,14 @@ class ref_model extends uvm_component;
             predict_SCLK_edge();
             monitor_cs();
         join_none
-
     endtask : run_phase
 
-    task monitor_cs(); // CS timeout monitor
-
-        // time timeout_threshold;
+    task monitor_cs();
         forever begin
             wait(CS_o_mirror == 0);
             `FIRST_OF
             begin
-                // timeout_threshold = (2*true_sck_speed*true_word_len+(CS_SCK_i_mirror+SCK_CS_i_mirror))*global_clock_period + overhead;
-                #50us; // absolute worst case scenario
+                #50us;
                 `uvm_fatal(get_name(), "CS_out is being pulled down for too long")
             end
             begin
@@ -82,7 +72,6 @@ class ref_model extends uvm_component;
             end
             `END_FIRST_OF
         end
-
     endtask : monitor_cs
 
     task predict_spi_bus();
@@ -90,7 +79,7 @@ class ref_model extends uvm_component;
         forever begin
             `FIRST_OF
             forever begin
-            @(posedge CS_o_mirror);
+                @(posedge CS_o_mirror);
                 case(spi_mode_i_mirror)
                 0: begin
                     #10ns;
@@ -119,18 +108,17 @@ class ref_model extends uvm_component;
                 endcase
             end
             begin
-            @(negedge NRST_mirror);
+                @(negedge NRST_mirror);
                 predict_spi("SCLK_o", {0}, $realtime+20ns, $realtime+30ns);
                 predict_spi("MOSI_o", {0}, $realtime+20ns, $realtime+30ns);
                 predict_spi("CS_o", {1}, $realtime+20ns, $realtime+30ns);
-            wait(CS_o_mirror == 1);
+                wait(CS_o_mirror == 1);
             end
             `END_FIRST_OF
         end
     endtask : predict_spi_bus
 
     task predict_SCLK_edge();
-
         int prev_val;
         int curr_val;
         forever begin
@@ -168,11 +156,9 @@ class ref_model extends uvm_component;
             end
             `END_FIRST_OF
         end
-
     endtask : predict_SCLK_edge
 
     task predict_busy();
-
         forever begin
             @(CS_o_change_e);
             if ($realtime > 20ns) begin
@@ -184,11 +170,9 @@ class ref_model extends uvm_component;
                 end
             end
         end
-
     endtask : predict_busy
 
     task predict_mosi();
-
         logic MOSI_queue [$];
         //
         time CS_pos;
@@ -232,7 +216,6 @@ class ref_model extends uvm_component;
             end
             `END_FIRST_OF
         end
-
     endtask : predict_mosi
 
     task predict_spi(string name = "", logic data [$] = {}, time exp_timestamp_min = 0,
@@ -266,7 +249,6 @@ class ref_model extends uvm_component;
     endtask : predict_dio
 
     function void write_dio(dio_seq_item item);
-
         case(item.name)
         "GCLK": begin
             `UPDATE_MIRROR(item, GCLK)
@@ -317,30 +299,25 @@ class ref_model extends uvm_component;
             `uvm_info(get_name(), $sformatf("Wrong %p name supplied: %s", item.get_name(), item.name), UVM_LOW)
         end
         endcase
-
     endfunction : write_dio
 
     function void write_spi(spi_seq_item item);
-
         case (item.name)
         "MISO_frame": begin
-            // if(item.data !== MISO_frame_mirror) begin
-                MISO_frame_mirror = item.data;
-                //
-                MISO_frame_mirror_int = 0;
-                for(int i=(MISO_frame_mirror.size()-1); i>=0; i--) begin
-                    MISO_frame_mirror_int[i] = MISO_frame_mirror[(item.data.size()-1)-i];
-                end
-                fork
-                    predict_dio("miso_data_o", MISO_frame_mirror_int, $realtime, $realtime+20ns);
-                join_none
-            // end
+            MISO_frame_mirror = item.data;
+            //
+            MISO_frame_mirror_int = 0;
+            for(int i=(MISO_frame_mirror.size()-1); i>=0; i--) begin
+                MISO_frame_mirror_int[i] = MISO_frame_mirror[(item.data.size()-1)-i];
+            end
+            fork
+                predict_dio("miso_data_o", MISO_frame_mirror_int, $realtime, $realtime+20ns);
+            join_none
         end
         default: begin
             `uvm_info(get_name(), $sformatf("Wrong %p name supplied: %s", item.get_name(), item.name), UVM_LOW)
         end
         endcase
-
     endfunction : write_spi
 
 endclass: ref_model

@@ -20,7 +20,6 @@ class comparator#(type T = uvm_sequence_item) extends uvm_component;
 
         fifo_obs = new("fifo_obs", this, 10);
         fifo_exp = new("fifo_exp", this, 10);
-
     endfunction : build_phase
 
     task run_phase(uvm_phase phase);
@@ -36,11 +35,9 @@ class comparator#(type T = uvm_sequence_item) extends uvm_component;
                 `uvm_info(get_name(), $sformatf("\nobs_pkt == exp_pkt\n"), UVM_LOW)
             end
             else begin
-                // `uvm_info(get_name(), $sformatf("\nobs_pkt != exp_pkt\n"), UVM_LOW)
                 `uvm_error(get_name(), $sformatf("\nobs_pkt != exp_pkt\n"))
             end
         end
-
     endtask : run_phase
 
     function void check_phase(uvm_phase phase);
@@ -48,41 +45,38 @@ class comparator#(type T = uvm_sequence_item) extends uvm_component;
 
         fork
         begin
-        if(fifo_exp.is_empty() == 0) begin
-            while (fifo_exp.used() > 0) begin
-                fifo_exp.get(exp_pkt);
-                exp_pkt.print();
-                if(exp_pkt.exp_timestamp_max < $realtime) begin
-                    `uvm_info(get_name(), $sformatf("prediction didn't meet with an observed item in time"), UVM_LOW)
-                end
-                else begin
-                    `uvm_info(get_name(), $sformatf("run phase ended before the max timestamp"), UVM_LOW)
+            if(fifo_exp.is_empty() == 0) begin
+                while (fifo_exp.used() > 0) begin
+                    fifo_exp.get(exp_pkt);
+                    exp_pkt.print();
+                    if(exp_pkt.exp_timestamp_max < $realtime) begin
+                        `uvm_info(get_name(), $sformatf("prediction didn't meet with an observed item in time"), UVM_LOW)
+                    end
+                    else begin
+                        `uvm_info(get_name(), $sformatf("run phase ended before the max timestamp"), UVM_LOW)
+                    end
                 end
             end
-        end
-        else begin
-            `uvm_info(get_name(), "exp fifo is empty", UVM_LOW)
-        end
-        if(fifo_obs.is_empty() == 0) begin
-            while (fifo_obs.used() > 0) begin
-                fifo_obs.get(obs_pkt);
-                obs_pkt.print();
-                `uvm_error(get_name(), $sformatf("observed item didn't meet its prediction"))
+            else begin
+                `uvm_info(get_name(), "exp fifo is empty", UVM_LOW)
             end
-        end
-        else begin
-            `uvm_info(get_name(), "obs fifo is empty", UVM_LOW)
-        end
+            if(fifo_obs.is_empty() == 0) begin
+                while (fifo_obs.used() > 0) begin
+                    fifo_obs.get(obs_pkt);
+                    obs_pkt.print();
+                    `uvm_error(get_name(), $sformatf("observed item didn't meet its prediction"))
+                end
+            end
+            else begin
+                `uvm_info(get_name(), "obs fifo is empty", UVM_LOW)
+            end
         end
         join_none
-
     endfunction : check_phase
 
     function void write_exp(T item);
         fork
         begin
-            // `uvm_info(get_name(), $sformatf("PACKET RECEIVED IN COMPARATOR: EXP"), UVM_LOW)
-            // item.print();
             fifo_exp.put(item);
         end
         join_none
@@ -91,8 +85,6 @@ class comparator#(type T = uvm_sequence_item) extends uvm_component;
     function void write_obs(T item);
         fork
         begin
-            // `uvm_info(get_name(), $sformatf("PACKET RECEIVED IN COMPARATOR: OBS"), UVM_LOW)
-            // item.print();
             if(item.obs_timestamp != 0) begin
                 fifo_obs.put(item);
             end

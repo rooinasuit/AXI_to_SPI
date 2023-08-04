@@ -3,7 +3,6 @@ class dio_agent extends uvm_agent;
 
     `uvm_component_utils(dio_agent)
 
-    // instantiation of internal objects
     dio_config dio_cfg;
 
     dio_sequencer dio_sqr;
@@ -11,7 +10,7 @@ class dio_agent extends uvm_agent;
     dio_monitor   dio_mtr;
 
     uvm_analysis_port#(dio_seq_item) dio_mtr_port;
-    
+
     function new (string name = "dio_agent", uvm_component parent = null);
         super.new(name,parent);
     endfunction : new
@@ -36,7 +35,6 @@ class dio_agent extends uvm_agent;
         uvm_config_db#(dio_config)::set(this, "dio_mtr", "dio_config", dio_cfg);
         `uvm_info(get_name(), "Creating DIO_MTR handle", UVM_LOW)
         dio_mtr = dio_monitor::type_id::create("dio_mtr", this);
-
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
@@ -44,7 +42,6 @@ class dio_agent extends uvm_agent;
 
         `uvm_info(get_name(), "Connecting export: dio_seq_item (DIO_DRV)", UVM_LOW)
         dio_drv.seq_item_port.connect(dio_sqr.seq_item_export);
-
     endfunction : connect_phase
 
 endclass: dio_agent

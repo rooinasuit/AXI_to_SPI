@@ -3,7 +3,6 @@ class tb_environment extends uvm_env;
 
     `uvm_component_utils(tb_environment)
 
-    // instantiation of internal object
     environment_config env_cfg;
 
     virtual_sequencer v_sqr;
@@ -45,7 +44,6 @@ class tb_environment extends uvm_env;
 
         `uvm_info(get_name(), "Creating V_SQR handle", UVM_LOW)
         v_sqr = virtual_sequencer::type_id::create("v_sqr", this);
-
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
@@ -69,7 +67,6 @@ class tb_environment extends uvm_env;
         env_cfg.clk_cfg = clk_agt.clk_cfg;
         env_cfg.dio_cfg = dio_agt.dio_cfg;
         env_cfg.spi_cfg = spi_agt.spi_cfg;
-
     endfunction : connect_phase
 
 endclass: tb_environment

@@ -3,8 +3,8 @@ class dio_driver extends uvm_driver#(dio_seq_item);
 
     `uvm_component_utils(dio_driver)
 
-    // instantiation of internal objects
     dio_config dio_cfg;
+
     virtual dio_interface vif;
 
     function new(string name = "dio_driver", uvm_component parent = null);
@@ -17,14 +17,12 @@ class dio_driver extends uvm_driver#(dio_seq_item);
         if (!uvm_config_db #(dio_config)::get(this, "", "dio_config", dio_cfg)) begin
             `uvm_fatal(get_name(), {"dio config must be set for: ", get_full_name()})
         end
-
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
         vif = dio_cfg.vif;
-
     endfunction : connect_phase
 
     task run_phase(uvm_phase phase);
@@ -33,7 +31,6 @@ class dio_driver extends uvm_driver#(dio_seq_item);
         forever begin
             dio_transaction();
         end
-
     endtask : run_phase
 
     task reset_io();
@@ -53,7 +50,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
 
     task dio_transaction();
         dio_seq_item dio_pkt = dio_seq_item::type_id::create("dio_pkt");
-        seq_item_port.get_next_item(dio_pkt); // blocking
+        seq_item_port.get_next_item(dio_pkt);
         case (dio_pkt.name)
             "NRST": vif.NRST = dio_pkt.value;
             "start": vif.start_i = dio_pkt.value;
@@ -71,7 +68,7 @@ class dio_driver extends uvm_driver#(dio_seq_item);
             "reset_all" : reset_io();
             default: vif.NRST = 0;
         endcase
-        seq_item_port.item_done(); // unblocking, ready for another send to the DUT
+        seq_item_port.item_done();
     endtask : dio_transaction
 
 endclass: dio_driver

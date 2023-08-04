@@ -3,8 +3,8 @@ class dio_monitor extends uvm_monitor;
 
     `uvm_component_utils(dio_monitor)
 
-    // instantiation of internal objects
     dio_config dio_cfg;
+
     virtual dio_interface vif;
 
     uvm_analysis_port#(dio_seq_item) dio_mtr_port;
@@ -22,21 +22,18 @@ class dio_monitor extends uvm_monitor;
         if (!uvm_config_db #(dio_config)::get(this, "", "dio_config", dio_cfg)) begin
             `uvm_fatal(get_name(), {"clock config must be set for: ", get_full_name()})
         end
-
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
         vif = dio_cfg.vif;
-
     endfunction : connect_phase
 
     task run_phase(uvm_phase phase);
         super.run_phase(phase);
 
         dio_capture();
-
     endtask : run_phase
 
     task dio_capture();

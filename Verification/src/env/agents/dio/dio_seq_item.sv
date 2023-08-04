@@ -24,7 +24,6 @@ class dio_seq_item extends uvm_sequence_item;
     endfunction : new
 
     function bit compare_packet(dio_seq_item item);
-
         dio_seq_item obs_item;
         dio_seq_item exp_item;
 
@@ -49,11 +48,9 @@ class dio_seq_item extends uvm_sequence_item;
         
         res = (result_cnt == 3) ? 1 : 0;
         return res;
-
     endfunction : compare_packet
 
     function bit compare_field(dio_seq_item obs_item, dio_seq_item exp_item, string field_name);
-
         case(field_name)
         "name": begin
             $display("obs_item | name:%s", obs_item.name);
@@ -97,7 +94,6 @@ class dio_seq_item extends uvm_sequence_item;
             `uvm_info(get_name(), $sformatf("%s is not a valid field for comparison in dio_seq_item", field_name), UVM_LOW)
         end
         endcase
-
     endfunction : compare_field
 
 endclass : dio_seq_item

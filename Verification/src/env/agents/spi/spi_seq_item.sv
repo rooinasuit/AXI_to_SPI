@@ -10,14 +10,12 @@ class spi_seq_item extends uvm_sequence_item;
     time CS_to_SCK;
     time SCK_to_CS;
 
-    time obs_timestamp; // make those equeal to $time or $realtime
+    time obs_timestamp;
     time exp_timestamp_min;
     time exp_timestamp_max;
 
-    time clk_period_min; // do for observed and expected
-    time clk_period_max; // do for observed and expected
-
-    // measure freq
+    time clk_period_min;
+    time clk_period_max;
 
     `uvm_object_utils_begin(spi_seq_item)
         `uvm_field_string(item_type, UVM_DEFAULT)
@@ -37,7 +35,6 @@ class spi_seq_item extends uvm_sequence_item;
     endfunction : new
 
     function bit compare_packet(spi_seq_item item);
-
         spi_seq_item obs_item;
         spi_seq_item exp_item;
 
@@ -56,14 +53,6 @@ class spi_seq_item extends uvm_sequence_item;
 
         $display("SPI_SEQ_ITEM FIELD COMPARISON");
         $display("=============================================");
-
-        // result_cnt = compare_field(obs_item, exp_item, "name") +
-        //              compare_field(obs_item, exp_item, "data") +
-        //              compare_field(obs_item, exp_item, "timestamp") +
-        //              compare_field(obs_item, exp_item, "clock") +
-        //              compare_field(obs_item, exp_item, "timings");
-
-        // res = (result_cnt == 5) ? 1 : 0;
 
         if(compare_field(obs_item, exp_item, "name") == 1) begin
             case(exp_item.name)
@@ -107,11 +96,9 @@ class spi_seq_item extends uvm_sequence_item;
         end
 
         return res;
-
     endfunction : compare_packet
 
     function bit compare_field(spi_seq_item obs_item, spi_seq_item exp_item, string field_name);
-
         case(field_name)
         "name": begin
             $display("obs_item | name:%s", obs_item.name);
@@ -211,7 +198,6 @@ class spi_seq_item extends uvm_sequence_item;
             `uvm_info(get_name(), $sformatf("%s is not a valid field for comparison in dio_seq_item", field_name), UVM_LOW)
         end
         endcase
-
     endfunction : compare_field
 
 endclass : spi_seq_item

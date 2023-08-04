@@ -35,16 +35,9 @@ class tb_checker extends uvm_component;
         `COMP_CREATE(spi_seq_item, MOSI_o)
         `COMP_CREATE(spi_seq_item, SCLK_o)
         `COMP_CREATE(spi_seq_item, CS_o)
-
     endfunction : build_phase
 
-    task run_phase(uvm_phase phase);
-        super.run_phase(phase);
-        //
-    endtask : run_phase
-
     function comparator#(dio_seq_item) get_comp_dio(dio_seq_item item);
-
         string comp_port_name;
         string port_name;
 
@@ -59,11 +52,9 @@ class tb_checker extends uvm_component;
                 $cast(get_comp_dio,dio_comp_array[i]);
             end
         end
-
     endfunction : get_comp_dio
 
     function comparator#(spi_seq_item) get_comp_spi(spi_seq_item item);
-
         string comp_port_name;
         string port_name;
 
@@ -78,27 +69,21 @@ class tb_checker extends uvm_component;
                 $cast(get_comp_spi,spi_comp_array[i]);
             end
         end
-
     endfunction : get_comp_spi
 
     function void write_dio_observed(dio_seq_item item);
-
         `uvm_info(get_name(), $sformatf("Data received from DIO_MTR: "), UVM_LOW)
         item.print();
         get_comp_dio(item).write_obs(item);
-
     endfunction : write_dio_observed
 
     function void write_dio_expected(dio_seq_item item);
-
         `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
         item.print();
         get_comp_dio(item).write_exp(item);
-
     endfunction : write_dio_expected
 
     function void write_spi_observed(spi_seq_item item);
-
         `uvm_info(get_name(), $sformatf("Data received from SPI_MTR: "), UVM_LOW)
         item.print();
         case(item.name)
@@ -115,11 +100,9 @@ class tb_checker extends uvm_component;
             get_comp_spi(item).write_obs(item);
         end
         endcase
-
     endfunction : write_spi_observed
 
     function void write_spi_expected(spi_seq_item item);
-
         `uvm_info(get_name(), $sformatf("Data received from RFM: "), UVM_LOW)
         item.print();
         case(item.name)
@@ -136,7 +119,6 @@ class tb_checker extends uvm_component;
             get_comp_spi(item).write_exp(item);
         end
         endcase
-
     endfunction : write_spi_expected
 
-endclass
+endclass : tb_checker

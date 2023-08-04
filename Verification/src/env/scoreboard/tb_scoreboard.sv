@@ -8,6 +8,14 @@ class tb_scoreboard extends uvm_scoreboard;
 
     `uvm_component_utils(tb_scoreboard)
 
+    spi_config spi_cfg;
+
+    ref_model rfm;
+    tb_checker chk;
+
+    uvm_analysis_imp_dio_monitor_imp#(dio_seq_item, tb_scoreboard) dio_mtr_imp;
+    uvm_analysis_imp_spi_monitor_imp#(spi_seq_item, tb_scoreboard) spi_mtr_imp;
+
     string dio_items_to_rfm [] = {"GCLK",
                                   "NRST",
                                   "start_i",
@@ -32,17 +40,8 @@ class tb_scoreboard extends uvm_scoreboard;
                                   "CS_o",
                                   "MOSI_o"};
 
-    spi_config spi_cfg;
-
-    ref_model rfm;
-    tb_checker chk;
-
-    uvm_analysis_imp_dio_monitor_imp#(dio_seq_item, tb_scoreboard) dio_mtr_imp;
-    uvm_analysis_imp_spi_monitor_imp#(spi_seq_item, tb_scoreboard) spi_mtr_imp;
-
     function new(string name = "tb_scoreboard", uvm_component parent = null);
         super.new(name,parent);
-
     endfunction : new
 
     function void build_phase(uvm_phase phase);
@@ -60,7 +59,6 @@ class tb_scoreboard extends uvm_scoreboard;
 
         `uvm_info(get_name(), "Creating CHK handle", UVM_LOW)
         chk = tb_checker::type_id::create("chk", this);
-
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
@@ -71,33 +69,27 @@ class tb_scoreboard extends uvm_scoreboard;
 
         `uvm_info(get_name(), "Connecting ports: spi_rfm_port -> spi_rfm_imp", UVM_LOW)
         rfm.spi_rfm_port.connect(chk.spi_rfm_imp);
-
     endfunction : connect_phase
 
     function void write_dio_monitor_imp(dio_seq_item item);
-
         if(item.name inside {dio_items_to_rfm}) begin
             rfm.write_dio(item);
         end
         if(item.name inside {dio_items_to_chk}) begin
             chk.write_dio_observed(item);
         end
-
         if (item.name == "spi_mode_i") begin
             spi_cfg.spi_mode = item.value;
         end
-
     endfunction : write_dio_monitor_imp
 
     function void write_spi_monitor_imp(spi_seq_item item);
-
         if(item.name inside {spi_items_to_rfm}) begin
             rfm.write_spi(item);
         end
         if(item.name inside {spi_items_to_chk}) begin
             chk.write_spi_observed(item);
         end
-
     endfunction : write_spi_monitor_imp
 
 endclass : tb_scoreboard

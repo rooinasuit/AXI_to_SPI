@@ -36,7 +36,6 @@ class spi_agent extends uvm_agent;
         uvm_config_db#(spi_config)::set(this, "spi_mtr", "spi_config", spi_cfg);
         `uvm_info(get_name(), "Creating SPI_MTR handle", UVM_LOW)
         spi_mtr = spi_monitor::type_id::create("spi_mtr", this);
-
     endfunction : build_phase
 
     function void connect_phase(uvm_phase phase);
@@ -44,8 +43,6 @@ class spi_agent extends uvm_agent;
 
         `uvm_info(get_name(), "Connecting exports: spi_seq_item (SPI_DRV)", UVM_LOW)
         spi_drv.seq_item_port.connect(spi_sqr.seq_item_export);
-        // spi_drv.rsp_port.connect(spi_sqr.rsp_export);
-
     endfunction : connect_phase
 
 endclass: spi_agent
