@@ -7,18 +7,17 @@ and an SPI master peripheral (AXI slave).
 
 ## State of the project
 
-- [ ] ~~List of project requirements,~~
+- [x] ~~List of project requirements,~~
 - [x] Design for verification:
     - [x] ~~Design architecture,~~
     - [x] SPI master module,
     - [x] SPI master control/data registers (generated with the use of vivado),
     - [x] SPI master and its registers encased in an AXI slave module (generated with the use of vivado),
-- [ ] UVM methodology verification of the design:
-    - [ ] Design test cases based on project requirements
+- [x] UVM methodology verification of the design:
+    - [x] Design test cases based on project requirements
     - [x] ~~UVM test bench architecture,~~
     - [x] UVM test bench (written in SystemVerilog):
         - [x] Instantiation of all required objects and components,
-        - [x] Threads management in the test bench,
         - [x] Directed tests based on the test cases,
     - [x] ~~Script-based compilation of both test bench and the DUT,~~
     - [x] Script-based simulation scheme,
