@@ -53,11 +53,21 @@ class test_0010_0020_sequence extends test_base_sequence;
         drive_clock_period(clock_cycle); // ns
         drive_clock_state(1);
         //
-        #(clock_cycle);
+        #(2*clock_cycle);
         drive_io("NRST", 1);
         //
-        config_dio_params(0, 0, 3, 0, 0, 0, 0);
-        define_test_step("setting up dio params");
+        config_dio_params(0, 0, 3, 255, 0, 0, 0);
+        define_test_step("setting up dio params -> IFG = 255");
+
+        define_test_step("decoy frame");
+        //
+        #(clock_cycle);
+        drive_io("start", 1);
+        #(clock_cycle);
+        drive_io("start", 0);
+        //
+        wait_io("CS_o", 1);
+        #(clock_cycle);
 
         // CASE 3.1.1
         //
@@ -88,8 +98,18 @@ class test_0010_0020_sequence extends test_base_sequence;
         drive_io("start", 0);
         //
 
-        config_dio_params(0, 0, 3, 255, 0, 0, 0);
-        #(10*clock_cycle);
+        config_dio_params(0, 0, 3, 0, 0, 0, 0);
+        define_test_step("setting up dio params -> IFG = 0");
+
+        define_test_step("decoy frame");
+        //
+        #(clock_cycle);
+        drive_io("start", 1);
+        #(clock_cycle);
+        drive_io("start", 0);
+        //
+        wait_io("CS_o", 1);
+        #(clock_cycle);
 
         // CASE 3.2.1
         //

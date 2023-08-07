@@ -17,7 +17,7 @@ class test_0040_0250_0260_sequence extends test_base_sequence;
 
         // CASE 1
         //
-        config_dio_params(0, 0, 3, 0, 0, 0, 0);
+        config_dio_params(0, 0, 3, 0, 255, 255, 0);
         #(clock_cycle);
         drive_io("start", 1);
         #(clock_cycle);
@@ -39,7 +39,7 @@ class test_0040_0250_0260_sequence extends test_base_sequence;
 
         // CASE 3
         //
-        config_dio_params(0, 0, 3, 0, 255, 255, 0);
+        config_dio_params(0, 0, 3, 0, 0, 255, 0);
         #(clock_cycle);
         drive_io("start", 1);
         #(clock_cycle);
@@ -50,7 +50,7 @@ class test_0040_0250_0260_sequence extends test_base_sequence;
 
         // CASE 4
         //
-        config_dio_params(0, 0, 3, 0, 0, 255, 0);
+        config_dio_params(0, 0, 3, 0, 0, 0, 0);
         #(clock_cycle);
         drive_io("start", 1);
         #(clock_cycle);

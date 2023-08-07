@@ -325,8 +325,11 @@ always @ (posedge GCLK) begin
                     chip_sel_v <= 1'b0; // start SCK to CS timer
                     STATE    <= PRE_TRANS;
                 end
-                else begin
+                else if (!IFG_done_v) begin
                     STATE <= INTERFRAME;
+                end
+                else begin
+                    STATE <= IDLE;
                 end
             end
             PRE_TRANS: begin
