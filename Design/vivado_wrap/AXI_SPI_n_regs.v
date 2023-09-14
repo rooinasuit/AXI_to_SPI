@@ -468,14 +468,12 @@
 
 	// Add user logic here
     
-    wire S_AXI_ARESET = !S_AXI_ARESETN;
-    
     wire busy_flag;
     wire [31:0] miso_data;
     
     SPI_master SPI_master (
         .GCLK        (S_AXI_ACLK),
-        .RST         (S_AXI_ARESET),
+        .RST         (S_AXI_ARESETN),
         .start_i     (slv_reg0[0]),
         .busy_o      (busy_flag), // out
         .spi_mode_i  (slv_reg2[1:0]),
